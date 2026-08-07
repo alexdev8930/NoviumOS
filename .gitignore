@@ -1,0 +1,48 @@
+# Compiled binaries and kernel images
+*.bin
+*.elf
+*.iso
+*.img
+*.sys
+*.map
+vmlinux
+vmlinux.*
+
+# Object files, dependencies, and build artifacts
+*.o
+*.d
+*.out
+*.a
+*.so
+*.dll
+*.exe
+build/
+obj/
+out/
+
+# Debug and analysis outputs
+*.log
+*.core
+*.gch
+*.gcno
+*.gcda
+
+# Toolchain and emulator temp files
+*.swp
+*.swo
+*~
+
+# Editor and local environment files
+.vscode/
+.idea/
+.DS_Store
+
+# OS-specific generated files
+*.tmp
+*.bak
+*.orig
+
+# Git local files
+.gitignore~
+
+.vscode/

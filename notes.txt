@@ -1,0 +1,1 @@
+Future idea: userspace can be added later once the kernel is more complete.
