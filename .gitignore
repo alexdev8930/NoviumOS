@@ -46,3 +46,7 @@ out/
 .gitignore~
 
 .vscode/
+
+#Other 
+compile_commands.json
+.clangd/
