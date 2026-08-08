@@ -1,9 +1,7 @@
 void kernel_main(void);
 
-/* --- TEMPORARY PLACEHOLDERS --- 
- * We mark them as '__attribute__((weak))' so that later on, when you write 
- * the real versions in your drivers, they will automatically overwrite these!
- */
+/* --- TEMPORARY PLACEHOLDERS -- */
+
 __attribute__((weak)) void gdt_init(void) {}
 __attribute__((weak)) void idt_init(void) {}
 __attribute__((weak)) void pic_init(void) {}
