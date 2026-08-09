@@ -3,44 +3,43 @@
 .global setup_entry
 
 setup_entry:
-    # Debug: Print 'S' (Setup Active)
+   
     movb $0x0E, %ah            
     movb $'S', %al
     int $0x10
 
-    # Load GDT (Calculate absolute descriptor base manually from 0x7E00)
     lgdt (gdt_descriptor)
     
-    # Toggle Protected Mode Bit in CR0
+    # Flip the lowest bit in CR0 to enable protected mode
     movl %cr0, %eax
     orl $0x1, %eax             
     movl %eax, %cr0
 
-    # 16-bit to 32-bit far jump flushes prefetch pipeline queue
+    # Far jump clears the 16-bit cache and loads our 32-bit code segment
     ljmp $0x08, $protected_mode_start
 
 .code32
 protected_mode_start:
-    # Synchronize data segments with flat descriptor index 0x10
+    # Point all data segments to our flat 4GB GDT entry (0x10)
     movw $0x10, %ax            
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %fs
     movw %ax, %gs
     movw %ax, %ss
-    movl $0x90000, %esp         # Set up temporary stack base
+    movl $0x90000, %esp         # Temporary stack below 1MB mark
 
-    # Debug: Print 'P' directly to top-left of VGA text memory mapping
+    # Print 'P' directly to VGA video memory text grid
     movw $0x0F50, (0xB8000)     
 
-    # Relocate kernel: copy payload from scratch space (0x8600) up to 1MB
+    # Move kernel from low memory scratch space up past the 1MB wall
     movl $0x8600, %esi        
     movl $0x100000, %edi       
-    movl $4096, %ecx            # 16KB / 4 = 4096 copies
+    movl $4096, %ecx            # Copy 16KB (4096 dwords)
     cld                        
     rep movsd
     
-    jmp 0x100000               # Jump straight into linked bootstrap.S at 1MB
+    jmp 0x100000               # Jump to our kernel entry point
 
 .align 4
 gdt_start:
@@ -53,4 +52,4 @@ gdt_end:
 
 gdt_descriptor:
     .word gdt_end - gdt_start - 1 
-    .long gdt_start            
+    .long gdt_start
