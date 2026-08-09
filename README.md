@@ -51,7 +51,7 @@ boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 ### Prerequisites (Ubuntu/Debian)
 
 ```bash
-sudo apt update && sudo apt install build-essential nasm gcc-multilib g++-multilib qemu-system-x86 make
+sudo apt update && sudo apt install build-essential gcc-multilib g++-multilib qemu-system-x86 make
 ```
 
 ### Build
