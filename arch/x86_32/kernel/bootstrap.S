@@ -2,19 +2,37 @@
 .global bootstrap_entry
 
 bootstrap_entry:
-    cli                         # Turn off interrupts until we finish setting up
-    movl $stack_top, %esp       # Point our CPU to the top of our new kernel stack
-    cld                         # Make sure string operations move forward in memory
+    cli                         # Disable interrupts during early setup
+    
+    # Reload segment registers with the 32-bit GDT data selector (0x10)
+    movw $0x10, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
+    movw %ax, %ss
+
+    movl $stack_top, %esp       # Set up our initial kernel stack pointer
+    cld                         # Ensure string operations increment forward
+
+    # Clear the BSS section so uninitialized global C variables start at 0
+    .extern _bss_start
+    .extern _bss_end
+    movl $_bss_start, %edi
+    movl $_bss_end, %ecx
+    subl %edi, %ecx
+    xorl %eax, %eax
+    rep stosb
 
     .extern hw_init
-    call hw_init                # Jump over to our C hardware setup code
+    call hw_init                # Hand execution over to our C hardware initialization
 
 _halt:
-    hlt                         # If the kernel somehow exits, freeze the CPU
-    jmp _halt                   # Infinite loop fallback just to be safe
+    hlt                         # Safety net: freeze the CPU if the kernel returns
+    jmp _halt
 
 .section .bss
 .align 16
 stack_bottom:
-    .skip 16384                 # Give ourselves 16KB of stack space for desktop/GUI apps
+    .skip 16384                 # Allocate 16KB of stack space
 stack_top:
