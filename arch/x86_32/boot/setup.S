@@ -3,11 +3,23 @@
 .global setup_entry
 
 setup_entry:
-   
+    # Print 'S' for starting setup phase
     movb $0x0E, %ah            
     movb $'S', %al
     int $0x10
 
+    # --- FIX: Enable the A20 Line via BIOS ---
+    movw $0x2401, %ax           # BIOS function: Enable A20
+    int $0x15
+    jnc a20_done                # If carry flag is clear, it succeeded!
+    
+    # Fast I/O fallback method if the BIOS call fails
+    inb $0x92, %al
+    orb $0x02, %al
+    outb %al, $0x92
+
+a20_done:
+    # Load GDT descriptor
     lgdt (gdt_descriptor)
     
     # Flip the lowest bit in CR0 to enable protected mode
@@ -29,13 +41,16 @@ protected_mode_start:
     movw %ax, %ss
     movl $0x90000, %esp         # Temporary stack below 1MB mark
 
-    # Print 'P' directly to VGA video memory text grid
-    movw $0x0F50, (0xB8000)     
+    # FIX: Corrected AT&T syntax for absolute address printing
+    movw $0x0F50, 0xB8000     
 
     # Move kernel from low memory scratch space up past the 1MB wall
     movl $0x8600, %esi        
     movl $0x100000, %edi       
-    movl $4096, %ecx            # Copy 16KB (4096 dwords)
+    
+    # OPTIMIZATION: Increased copy size to 16,384 dwords (64KB total) 
+    # to give your future Desktop/GUI kernel plenty of room to grow.
+    movl $16384, %ecx            
     cld                        
     rep movsd
     

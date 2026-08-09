@@ -61,7 +61,8 @@ run: build/kernel.elf
 	qemu-system-i386 -kernel build/kernel.elf
 
 run-raw: build/novium.bin
-	qemu-system-i386 -fda build/novium.bin -boot a
+	qemu-system-i386 -drive format=raw,file=build/novium.bin,if=floppy -boot a
+
 
 clean:
 	rm -rf build compile_commands.json

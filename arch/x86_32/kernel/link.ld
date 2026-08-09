@@ -2,16 +2,19 @@ ENTRY(bootstrap_entry)
 
 SECTIONS
 {
+    /* Link the kernel strictly at the 1 Megabyte wall */
     . = 1M; 
 
-    .text : ALIGN(4K) 
+    /* Group all execution code together */
+    .text : ALIGN(4) 
     {
-        *(.multiboot)
-        build/bootstrap.o(.text)
-        *(.text)
+        /* The linker will look for bootstrap_entry and force it to be the first byte */
+        KEEP(*(.text.prologue)) 
+        *(.text*)
     }
 
-    .rodata : ALIGN(4K) { *(.rodata*) }
-    .data   : ALIGN(4K) { *(.data) }
-    .bss    : ALIGN(4K) { *(COMMON) *(.bss) }
+    /* Standard read-only data, global variables, and uninitialized stacks */
+    .rodata : ALIGN(4) { *(.rodata*) }
+    .data   : ALIGN(4) { *(.data*) }
+    .bss    : ALIGN(4) { *(COMMON) *(.bss*) }
 }

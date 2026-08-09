@@ -1,27 +1,20 @@
-.section .multiboot
-.align 4
-.long 0x1BADB002                 # Magic number required by multiboot spec
-.long 0x00000003                 # Boot flags (page align modules + memory info)
-.long -(0x1BADB002 + 0x00000003) # Checksum to prove header validity
-
-.section .text
+.section .text.prologue
 .global bootstrap_entry
 
 bootstrap_entry:
-    cli                         # Keep interrupts disabled during initialization
-    
-    movl $stack_top, %esp       # Initialize our real 32-bit kernel stack
-    cld                         # Clear direction flag for string copy safety
+    cli                         # Turn off interrupts until we finish setting up
+    movl $stack_top, %esp       # Point our CPU to the top of our new kernel stack
+    cld                         # Make sure string operations move forward in memory
 
     .extern hw_init
-    call hw_init
+    call hw_init                # Jump over to our C hardware setup code
 
 _halt:
-    hlt
-    jmp _halt
+    hlt                         # If the kernel somehow exits, freeze the CPU
+    jmp _halt                   # Infinite loop fallback just to be safe
 
 .section .bss
 .align 16
 stack_bottom:
-    .skip 4096                  # 4KB kernel stack space
+    .skip 16384                 # Give ourselves 16KB of stack space for desktop/GUI apps
 stack_top:
