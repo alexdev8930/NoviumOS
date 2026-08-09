@@ -43,7 +43,7 @@ The layout is inspired by the Linux kernel, but kept intentionally simple:
 The current boot path is very simple:
 
 ```text
-boot.asm -> setup.asm -> bootstrap.S -> hw_init.c -> init/main.c
+boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 ```
 
 ## Build and run
@@ -69,13 +69,13 @@ qemu-system-x86_64 -kernel novium_os.bin
 ## Roadmap
 
 ### Early steps
-- [x] set up the project layout
+- [ ] set up the project layout
 - [ ] define basic kernel types
 - [ ] get basic output working
 - [ ] finish the linker setup
 
 ### Kernel basics
-- [ ] switch into protected mode
+- [x] switch into protected mode
 - [ ] set up GDT/IDT basics
 - [ ] add interrupt handling
 
