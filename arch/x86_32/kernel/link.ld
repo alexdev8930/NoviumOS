@@ -1,34 +1,17 @@
-ENTRY(_start)
+ENTRY(bootstrap_entry)
 
 SECTIONS
 {
-    . = 1M; /* tell bootloader to load OS in 1 MB in ram */
-    
+    . = 1M; 
 
-    /* intructions */
     .text : ALIGN(4K) 
     {
         *(.multiboot)
+        build/bootstrap.o(.text)
         *(.text)
     }
 
-
-    /* read only data section */
-    .rodata : ALIGN(4K)
-    {
-        *(.rodata)
-    }
-
-    /* data section */
-    .data : ALIGN(4K)
-    {
-        *(.data)
-    }
-
-    /* bss section */
-    .bss : ALIGN(4K)
-    {
-        *(COMMON)
-        *(.bss)
-    }
+    .rodata : ALIGN(4K) { *(.rodata*) }
+    .data   : ALIGN(4K) { *(.data) }
+    .bss    : ALIGN(4K) { *(COMMON) *(.bss) }
 }

@@ -1,45 +1,67 @@
 CC = gcc
-AS = nasm
 LD = ld
 
-# Include paths for your global directories, arch directories, and root folder
 CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-pie \
-         -Iinclude \
-         -Iarch/x86_32/include \
-         -I.
+         -O2 -Wall -Wextra \
+         -Iinclude -Iarch/x86_32/include -I.
 
 LDFLAGS = -m elf_i386 -T arch/x86_32/kernel/link.ld
 
-all: build
+KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/vga_console.o build/main.o
 
-build:
-	mkdir -p build
-	
-	# 1. Assemble NASM bootloader stages
-	$(AS) -f elf32 arch/x86_32/boot/boot.asm -o build/boot.o
-	$(AS) -f elf32 arch/x86_32/boot/setup.asm -o build/setup.o
-	
-	# 2. Assemble GNU S-file bridge
-	$(CC) $(CFLAGS) -c arch/x86_32/kernel/bootstrap.S -o build/bootstrap.o
-	
-	# 3. Compile C Initialization and Driver Engine
-	$(CC) $(CFLAGS) -c arch/x86_32/boot/hw_init.c -o build/hw_init.o
-	$(CC) $(CFLAGS) -c drivers/video/vga_console.c -o build/vga_console.o
-	$(CC) $(CFLAGS) -c init/main.c -o build/main.o
-	
-	# 4. Link ALL pieces into the final monolithic OS binary
-	$(LD) $(LDFLAGS) \
-		build/boot.o \
-		build/setup.o \
-		build/bootstrap.o \
-		build/hw_init.o \
-		build/vga_console.o \
-		build/main.o \
-		-o build/novium.bin
+all: build/novium.bin build/kernel.elf
 
-# Added shortcut to automatically compile and load right into QEMU
-run: build
-	qemu-system-i386 -kernel build/novium.bin
+# Standard C compilation rules (Logged perfectly by Bear)
+build/%.o: init/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build/%.o: drivers/video/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build/hw_init.o: arch/x86_32/boot/hw_init.c
+	@mkdir -p build
+	$(CC) $(CFLAGS) -c $< -o build/hw_init.o
+
+build/bootstrap.o: arch/x86_32/kernel/bootstrap.S
+	@mkdir -p build
+	$(CC) $(CFLAGS) -c $< -o build/bootstrap.o
+
+# --- INDEPENDENT 16-BIT REAL-MODE IMAGE GENERATION ---
+
+build/boot.bin: arch/x86_32/boot/boot.S
+	@mkdir -p build
+	$(CC) $(CFLAGS) -c $< -o build/boot.o
+	$(LD) -m elf_i386 -Ttext 0x7C00 build/boot.o -o build/boot.elf
+	objcopy -O binary build/boot.elf build/boot.bin
+
+build/setup.bin: arch/x86_32/boot/setup.S
+	@mkdir -p build
+	$(CC) $(CFLAGS) -c $< -o build/setup.o
+	$(LD) -m elf_i386 -Ttext 0x7E00 build/setup.o -o build/setup.elf
+	objcopy -O binary build/setup.elf build/setup.bin
+	@truncate -s 2K build/setup.bin
+
+# --- LINK AND CONCATENATION TARGETS ---
+
+build/kernel.elf: $(KERNEL_OBJS)
+	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o build/kernel.elf
+
+build/kernel.bin: build/kernel.elf
+	objcopy -O binary build/kernel.elf build/kernel.bin
+	@truncate -s 16K build/kernel.bin
+
+# Concatenate: Sector 1 (512b) + Sectors 2-5 (2048b) + Sector 6+ (16KB Kernel)
+build/novium.bin: build/boot.bin build/setup.bin build/kernel.bin
+	cat build/boot.bin build/setup.bin build/kernel.bin > build/novium.bin
+	@truncate -s 1440K build/novium.bin
+
+run: build/kernel.elf
+	qemu-system-i386 -kernel build/kernel.elf
+
+run-raw: build/novium.bin
+	qemu-system-i386 -fda build/novium.bin -boot a
 
 clean:
-	rm -rf build
+	rm -rf build compile_commands.json
