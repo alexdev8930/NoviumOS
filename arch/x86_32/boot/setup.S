@@ -3,54 +3,54 @@
 .global setup_entry
 
 setup_entry:
-    # Print 'S' to signal setup stage
-    movb $0x0E, %ah            
+    movb $0x0E, %ah            # Print status character
     movb $'S', %al
     int $0x10
 
-    # Enable A20 via BIOS
-    movw $0x2401, %ax           
+    movw $0x2401, %ax          # Route A20 line enable through BIOS
     int $0x15
     jnc a20_done                
     
-    # Fallback to Fast A20 gate if BIOS fails
-    inb $0x92, %al
+    inb $0x92, %al             # Fallback to fast A20 gate switch
     orb $0x02, %al
     outb %al, $0x92
 
 a20_done:
-    lgdt (gdt_descriptor)
+    lgdt (gdt_descriptor)      # Load staging global descriptor table
     
-    # Turn on protected mode bit in CR0
-    movl %cr0, %eax
+    movl %cr0, %eax            # Toggle execution tracking mode bit
     orl $0x1, %eax             
     movl %eax, %cr0
 
-    # Far jump to flush 16-bit cache and load 32-bit CS
-    ljmp $0x08, $protected_mode_start
+    ljmp $0x08, $protected_mode_start # Flush pipeline and step to 32-bit execution
 
 .code32
 protected_mode_start:
-    # Set up 32-bit flat data segments (0x10 selector)
-    movw $0x10, %ax            
+    movw $0x10, %ax            # Synchronize selector layout tracking registers
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %fs
     movw %ax, %gs
     movw %ax, %ss
-    movl $0x90000, %esp         # Temporary stack below 1MB
+    movl $0x90000, %esp        
 
-    # Write a white 'P' to VGA text memory (Fixed absolute address syntax)
-    movw $0x0F50, (0xB8000)     
+    movw $0x0F50, (0xB8000)    # Direct absolute screen verification write
 
-    # Copy kernel payload from low memory scratch space to the 1MB mark
-    movl $0x8600, %esi        
+    movl $0x8600, %esi         # Stage 1: Load payload segment 1 to 1MB mark
     movl $0x100000, %edi       
-    movl $16384, %ecx            
+    movl $1664, %ecx            
     cld                        
     rep movsd
+
+    movl $0xA000, %esi         # Stage 2: Link sequential payload segment 2
+    movl $2304, %ecx            
+    rep movsd
+
+    movl $0xC400, %esi         # Stage 3: Link payload tail termination sector
+    movl $128, %ecx             
+    rep movsd
     
-    jmp 0x100000               # Jump to bootstrap_entry at 1MB
+    jmp 0x100000               # Transfer focus straight to bootstrap_entry
 
 .align 4
 gdt_start:

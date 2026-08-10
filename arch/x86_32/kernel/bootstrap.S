@@ -2,37 +2,35 @@
 .global bootstrap_entry
 
 bootstrap_entry:
-    cli                         # Disable interrupts during early setup
-    
-    # Reload segment registers with the 32-bit GDT data selector (0x10)
-    movw $0x10, %ax
+    cli                         # Halt maskable interrupts
+
+    movw $0x10, %ax             # Sync segment registers with GDT data selector
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %fs
     movw %ax, %gs
     movw %ax, %ss
 
-    movl $stack_top, %esp       # Set up our initial kernel stack pointer
-    cld                         # Ensure string operations increment forward
+    movl $stack_top, %esp       # Transition to execution stack allocation pointer
+    cld                         
 
-    # Clear the BSS section so uninitialized global C variables start at 0
     .extern _bss_start
     .extern _bss_end
-    movl $_bss_start, %edi
+    movl $_bss_start, %edi      # Baseline address mapping for uninitialized blocks
     movl $_bss_end, %ecx
     subl %edi, %ecx
     xorl %eax, %eax
-    rep stosb
+    rep stosb                   # Flash memory range blocks down to zero state
 
     .extern hw_init
-    call hw_init                # Hand execution over to our C hardware initialization
+    call hw_init                # Transition execution thread directly into C logic
 
 _halt:
-    hlt                         # Safety net: freeze the CPU if the kernel returns
+    hlt                         # Catch termination drops and park processor
     jmp _halt
 
 .section .bss
 .align 16
 stack_bottom:
-    .skip 16384                 # Allocate 16KB of stack space
+    .skip 16384                 
 stack_top:

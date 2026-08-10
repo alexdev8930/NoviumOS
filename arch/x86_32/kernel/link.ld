@@ -2,18 +2,14 @@ ENTRY(bootstrap_entry)
 
 SECTIONS
 {
-    /* Link the kernel strictly at the 1 Megabyte wall */
-    . = 1M; 
+    . = 1M;                     /* Base memory location counter */
 
-    /* Group all execution code together */
     .text : ALIGN(4096) 
     {
-        /* The linker will look for bootstrap_entry and force it to be the first byte */
-        KEEP(*(.text.prologue)) 
+        KEEP(*(.text.prologue)) /* Lock entry code to front */
         *(.text*)
     }
 
-    /* Standard read-only data, global variables, and uninitialized stacks */
     .rodata : ALIGN(4096) 
     { 
         *(.rodata*) 
@@ -26,9 +22,9 @@ SECTIONS
     
     .bss : ALIGN(4096) 
     { 
-        _bss_start = .;       /* Mark the beginning of uninitialized variables */
+        _bss_start = .;       /* Start symbol for zero-out routine */
         *(COMMON) 
         *(.bss*) 
-        _bss_end = .;         /* Mark the end */
+        _bss_end = .;         /* End symbol for zero-out routine */
     }
 }
