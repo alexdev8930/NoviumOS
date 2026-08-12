@@ -25,7 +25,7 @@ Right now the focus is on getting the basics working:
 
 ## Project structure
 
-The layout is inspired by the Linux kernel, but kept intentionally simple:
+The layout is inspired by the Linux kernel, but kept pretty simple:
 
 - arch/ - low-level boot and architecture-specific code
 - drivers/ - basic hardware support
@@ -46,35 +46,63 @@ The current boot path is very simple:
 boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 ```
 
-## Build and run
 
-### Prerequisites (Ubuntu/Debian)
+## Build and Run
+
+### Prerequisites (Ubuntu / Debian)
+
+The primary development environment for Novium OS is Linux (Ubuntu/Debian) you can also use Windows with WSL.
 
 ```bash
 sudo apt update && sudo apt install build-essential gcc-multilib g++-multilib qemu-system-x86 make bear mtools
 ```
 
-### Build
+### prerequisites (windows via WSL2)
+
+You can build Novium OS on Windows using the Windows Subsystem for Linux (WSL2) and a native Windows emulator.
+
+1. Install WSL2 (Ubuntu) by running this in PowerShell as Administrator:
+   ```powershell
+   wsl --install
+   ```
+
+2. Download and install [QEMU for Windows](https://qemu.org) to its default path (`C:\Program Files\qemu`).
+
+3. Open your WSL2 Ubuntu terminal and install the compiler tools:
+   ```bash
+   sudo apt update && sudo apt install build-essential gcc-multilib make bear
+   ```
+
+4. Link WSL2 to your Windows QEMU by running these lines in your WSL terminal:
+   ```bash
+   echo "alias qemu-system-i386='\"/mnt/c/Program Files/qemu/qemu-system-i386.exe\"'" >> ~/.bashrc
+   echo "alias qemu-system-x86_64='\"/mnt/c/Program Files/qemu/qemu-system-x86_64.exe\"'" >> ~/.bashrc
+   source ~/.bashrc
+   ```
+
+### Compile
+
+Once your prerequisites are installed (either on native Linux or inside WSL2), build the kernel:
 
 ```bash
 make clean
 bear -- make
 ```
 
+### Execution
 
-### Run
-
-You can skip the bootloader and run the kernel directly using the Makefile target:
+launch the kernel directly through QEMU:
 
 ```bash
 make run
 ```
 
-Or run the raw floppy disk image which does not skip bootloader:
+or run the raw floppy disk image to include the bootloader:
 
 ```bash
 make run-raw
 ```
+
 
 
 ## Roadmap
