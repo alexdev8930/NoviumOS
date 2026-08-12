@@ -1,8 +1,9 @@
 # Novium OS
 
-Novium OS is a personal hobby operating system project. I’m building it to learn how kernels work and to see how far I can take a small, lightweight system on my own.
+Novium OS is a personal hobby operating system project built to explore how kernels work and see how far we can take a small, lightweight system. 
 
-The project is inspired by the structure of the Linux kernel, but it is intentionally simple and focused on learning rather than trying to become a large production operating system.
+The project is heavily inspired by the structure of the Linux kernel, but it is intentionally simple and focused on learning. It is an open playground for anyone interested in low-level engineering—contributions, ideas, and collaborations are incredibly welcome.
+
 
 ## What this project is
 
