@@ -54,7 +54,7 @@ boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 The primary development environment for Novium OS is Linux (Ubuntu/Debian) you can also use Windows with WSL.
 
 ```bash
-sudo apt update && sudo apt install build-essential gcc-multilib g++-multilib qemu-system-x86 make bear mtools
+sudo apt update && sudo apt install build-essential gcc-multilib qemu-system-x86 make bear 
 ```
 
 ### prerequisites (windows via WSL2)
