@@ -51,20 +51,31 @@ boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 ### Prerequisites (Ubuntu/Debian)
 
 ```bash
-sudo apt update && sudo apt install build-essential gcc-multilib g++-multilib qemu-system-x86 make
+sudo apt update && sudo apt install build-essential gcc-multilib g++-multilib qemu-system-x86 make bear mtools
 ```
 
 ### Build
 
 ```bash
-make
+make clean
+bear -- make
 ```
+
 
 ### Run
 
+You can skip the bootloader and run the kernel directly using the Makefile target:
+
 ```bash
-qemu-system-x86_64 -kernel novium_os.bin
+make run
 ```
+
+Or run the raw floppy disk image which does not skip bootloader:
+
+```bash
+make run-raw
+```
+
 
 ## Roadmap
 

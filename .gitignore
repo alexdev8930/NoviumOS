@@ -1,4 +1,4 @@
-# Compiled binaries and kernel images
+# build binaries and image targets
 *.bin
 *.elf
 *.iso
@@ -8,7 +8,7 @@
 vmlinux
 vmlinux.*
 
-# Object files, dependencies, and build artifacts
+# objects and output trees
 *.o
 *.d
 *.out
@@ -20,33 +20,25 @@ build/
 obj/
 out/
 
-# Debug and analysis outputs
+# test and debug outputs
 *.log
 *.core
 *.gch
 *.gcno
 *.gcda
 
-# Toolchain and emulator temp files
+# temp files and editor backups
 *.swp
 *.swo
 *~
-
-# Editor and local environment files
-.vscode/
-.idea/
-.DS_Store
-
-# OS-specific generated files
 *.tmp
 *.bak
 *.orig
-
-# Git local files
 .gitignore~
 
+# ides and tooling configs
 .vscode/
-
-#Other 
+.idea/
+.DS_Store
 compile_commands.json
 .clangd/

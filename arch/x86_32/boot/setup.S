@@ -3,30 +3,35 @@
 .global setup_entry
 
 setup_entry:
-    movb $0x0E, %ah            # Print status character
+    movb $0x0E, %ah            # print 'S' for setup stage
     movb $'S', %al
     int $0x10
 
-    movw $0x2401, %ax          # Route A20 line enable through BIOS
+    # enable A20 using bios
+    movw $0x2401, %ax          
     int $0x15
     jnc a20_done                
     
-    inb $0x92, %al             # Fallback to fast A20 gate switch
+    # fast A20 fallback if bios fails
+    inb $0x92, %al             
     orb $0x02, %al
     outb %al, $0x92
 
 a20_done:
-    lgdt (gdt_descriptor)      # Load staging global descriptor table
+    lgdt (gdt_descriptor)      # load gdt
     
-    movl %cr0, %eax            # Toggle execution tracking mode bit
+    # switch to protected mode (set CR0 PE bit)
+    movl %cr0, %eax            
     orl $0x1, %eax             
     movl %eax, %cr0
 
-    ljmp $0x08, $protected_mode_start # Flush pipeline and step to 32-bit execution
+    # clear prefetch queue and jump to 32-bit mode
+    ljmp $0x08, $protected_mode_start 
 
 .code32
 protected_mode_start:
-    movw $0x10, %ax            # Synchronize selector layout tracking registers
+    # reload segment registers
+    movw $0x10, %ax            
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %fs
@@ -34,23 +39,28 @@ protected_mode_start:
     movw %ax, %ss
     movl $0x90000, %esp        
 
-    movw $0x0F50, (0xB8000)    # Direct absolute screen verification write
+    # print 'P' to top left of screen via VGA memory to verify pm
+    movw $0x0F50, (0xB8000)    
 
-    movl $0x8600, %esi         # Stage 1: Load payload segment 1 to 1MB mark
+    # move kernel chunk 1 to 1MB
+    movl $0x8600, %esi         
     movl $0x100000, %edi       
     movl $1664, %ecx            
     cld                        
     rep movsd
 
-    movl $0xA000, %esi         # Stage 2: Link sequential payload segment 2
+    # append kernel chunk 2
+    movl $0xA000, %esi         
     movl $2304, %ecx            
     rep movsd
 
-    movl $0xC400, %esi         # Stage 3: Link payload tail termination sector
+    # append final kernel sector
+    movl $0xC400, %esi         
     movl $128, %ecx             
     rep movsd
     
-    jmp 0x100000               # Transfer focus straight to bootstrap_entry
+    # jump to kernel entry point at 1MB
+    jmp 0x100000               
 
 .align 4
 gdt_start:

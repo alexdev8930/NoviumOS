@@ -9,7 +9,7 @@ __attribute__((weak)) void pic_init(void) {}
 __attribute__((weak)) void timer_init(int hz) { (void)hz; }
 __attribute__((weak)) void keyboard_init(void) {}
 
-/* Low-level assembly bindings to control CPU interrupt flags */
+/* low-level assembly bindings to control CPU interrupt flags */
 static inline void disable_interrupts(void) {
     __asm__ __volatile__("cli");
 }

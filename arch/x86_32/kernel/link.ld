@@ -2,11 +2,11 @@ ENTRY(bootstrap_entry)
 
 SECTIONS
 {
-    . = 1M;                     /* Base memory location counter */
+    . = 1M;                     /* load kernel at 1mb */
 
     .text : ALIGN(4096) 
     {
-        KEEP(*(.text.prologue)) /* Lock entry code to front */
+        KEEP(*(.text.prologue)) /* make sure entry code comes first */
         *(.text*)
     }
 
@@ -22,9 +22,9 @@ SECTIONS
     
     .bss : ALIGN(4096) 
     { 
-        _bss_start = .;       /* Start symbol for zero-out routine */
+        _bss_start = .;       
         *(COMMON) 
         *(.bss*) 
-        _bss_end = .;         /* End symbol for zero-out routine */
+        _bss_end = .;         
     }
 }

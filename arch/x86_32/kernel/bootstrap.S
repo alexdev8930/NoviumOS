@@ -2,31 +2,34 @@
 .global bootstrap_entry
 
 bootstrap_entry:
-    cli                         # Halt maskable interrupts
+    cli                         # disable interrupts
 
-    movw $0x10, %ax             # Sync segment registers with GDT data selector
+    # reload data segments
+    movw $0x10, %ax             
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %fs
     movw %ax, %gs
     movw %ax, %ss
 
-    movl $stack_top, %esp       # Transition to execution stack allocation pointer
+    movl $stack_top, %esp       # set up stack pointer
     cld                         
 
+    # clear bss section
     .extern _bss_start
     .extern _bss_end
-    movl $_bss_start, %edi      # Baseline address mapping for uninitialized blocks
+    movl $_bss_start, %edi      
     movl $_bss_end, %ecx
     subl %edi, %ecx
     xorl %eax, %eax
-    rep stosb                   # Flash memory range blocks down to zero state
+    rep stosb                   
 
+    # jump to C code
     .extern hw_init
-    call hw_init                # Transition execution thread directly into C logic
+    call hw_init                
 
 _halt:
-    hlt                         # Catch termination drops and park processor
+    hlt                         # loop forever if C returns
     jmp _halt
 
 .section .bss
