@@ -109,10 +109,10 @@ make run-raw
 ## Roadmap
 
 ### Early steps
-- [ ] set up the project layout
-- [ ] define basic kernel types
-- [ ] get basic output working
-- [ ] finish the linker setup
+- [x] set up the project layout
+- [x] define basic kernel types
+- [x] get basic output working
+- [x] finish the linker setup
 
 ### Kernel basics
 - [x] switch into protected mode
