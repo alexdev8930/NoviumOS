@@ -1,28 +1,22 @@
 # Novium OS
+![Novium OS Boot Preview](.github/images/preview.png)
 
-Novium OS is a personal hobby operating system project built to explore how kernels work and see how far we can take a small, lightweight system. 
-
-The project is heavily inspired by the structure of the Linux kernel, but it is intentionally simple and focused on learning. It is an open playground for anyone interested in low-level engineering—contributions, ideas, and collaborations are incredibly welcome.
+Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
 
-## What this project is
+## About the project
 
-This project is meant to be:
+I wanted to build a hobby OS that is clean, and easy to extend. The main idea is just to build it step by step without over-engineering the code.
 
-- small and lightweight
-- practical for learning
-- easy to follow and extend
-- built step by step without overcomplicating things
+## Current status
 
-## Current goals
+Right now, I'm focusing on getting the core x86 foundations solid:
+- Stable x86 booting
+- Basic console output
+- Handling early hardware input
+- Setting up memory management and interrupts
+- Long-term: a lightweight desktop interface
 
-Right now the focus is on getting the basics working:
-
-- booting on x86
-- getting basic output working
-- handling early hardware input
-- setting up memory and interrupts
-- eventually building a simple desktop experience later on
 
 ## Project structure
 
@@ -41,7 +35,7 @@ The layout is inspired by the Linux kernel, but kept pretty simple:
 
 ## Boot flow
 
-The current boot path is very simple:
+The current boot path is pretty straightforward:
 
 ```text
 boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
@@ -50,7 +44,11 @@ boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 
 ## Build and Run
 
-### Prerequisites (Ubuntu / Debian)
+### System Dependencies
+
+To compile and run Novium OS, you need a 32-bit capable compiler toolchain and the QEMU emulator
+
+#### Linux (Ubuntu / Debian)
 
 The primary development environment for Novium OS is Linux (Ubuntu/Debian) you can also use Windows with WSL.
 
@@ -58,7 +56,7 @@ The primary development environment for Novium OS is Linux (Ubuntu/Debian) you c
 sudo apt update && sudo apt install build-essential gcc-multilib qemu-system-x86 make bear 
 ```
 
-### prerequisites (windows via WSL2)
+#### Windows (via WSL2)
 
 You can build Novium OS on Windows using the Windows Subsystem for Linux (WSL2) and a native Windows emulator.
 
@@ -83,7 +81,7 @@ You can build Novium OS on Windows using the Windows Subsystem for Linux (WSL2) 
 
 ### Compile
 
-Once your prerequisites are installed (either on native Linux or inside WSL2), build the kernel:
+Once your dependencies are installed (either on native Linux or inside WSL2), build the OS:
 
 ```bash
 make clean
@@ -109,22 +107,26 @@ make run-raw
 ## Roadmap
 
 ### Early steps
-- [x] set up the project layout
-- [x] define basic kernel types
-- [x] get basic output working
-- [x] finish the linker setup
+- [x] Set up the project layout
+- [x] Define basic kernel types
+- [x] Get basic output working
+- [x] Finish the linker setup
 
 ### Kernel basics
-- [x] switch into protected mode
-- [ ] set up GDT/IDT basics
-- [ ] add interrupt handling
+- [x] Switch into protected mode
+- [ ] Write basic keyboard drivers
+- [ ] Switch to VBE graphics mode
+- [ ] Set up GDT/IDT basics
+- [ ] Add interrupt handling
 
 ### Later steps
-- [ ] add memory management
-- [ ] add basic scheduling
-- [ ] build a simple filesystem
-- [ ] explore lightweight desktop ideas later
+- [ ] Switch bootloader to boot from a hard drive (if floppy disk space is exceeded)
+- [ ] Add memory management
+- [ ] Add basic scheduling
+- [ ] Build a simple filesystem
+- [ ] Build a desktop long term 
 
 ## Notes
 
-This is not meant to become a huge operating system. The goal is to make something small, fast, and useful for learning.
+
+Directories like `mm/`, `ipc/`, `kernel/`, `lib/`, `fs/`, `userspace/` and some files inside of `arch/` currently contain stubs and placeholder files because I still have to write some of the kernal before i can write those.

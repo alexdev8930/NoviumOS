@@ -1,5 +1,3 @@
-#include <stdint.h>
-
 void kernel_main(void);
 
 /* --- FREESTANDING ARCHITECTURE PLACEHOLDERS --- */
