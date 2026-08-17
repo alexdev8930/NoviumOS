@@ -1,7 +1,6 @@
 void kernel_main(void);
 
 /* --- FREESTANDING ARCHITECTURE PLACEHOLDERS --- */
-__attribute__((weak)) void gdt_init(void) {}
 __attribute__((weak)) void idt_init(void) {}
 __attribute__((weak)) void pic_init(void) {}
 __attribute__((weak)) void timer_init(int hz) { (void)hz; }
@@ -19,8 +18,7 @@ static inline void enable_interrupts(void) {
 void hw_init(void) {
 
     disable_interrupts();
-
-    gdt_init();       
+  
     idt_init();       
     
     pic_init();       

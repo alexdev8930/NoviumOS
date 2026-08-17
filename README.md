@@ -114,17 +114,17 @@ make run-raw
 
 ### Kernel basics
 - [x] Switch into protected mode
-- [ ] Write basic keyboard drivers
+- [ ] Set up GDT/IDT basics 
+- [ ] Add interrupt handling 
+- [ ] Write basic keyboard drivers 
 - [ ] Switch to VBE graphics mode
-- [ ] Set up GDT/IDT basics
-- [ ] Add interrupt handling
 
 ### Later steps
-- [ ] Switch bootloader to boot from a hard drive (if floppy disk space is exceeded)
+- [ ] Switch bootloader to boot from a hard drive
 - [ ] Add memory management
 - [ ] Add basic scheduling
 - [ ] Build a simple filesystem
-- [ ] Build a desktop long term 
+- [ ] Build a desktop long term
 
 ## Notes
 

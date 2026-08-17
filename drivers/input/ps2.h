@@ -2,6 +2,7 @@
 #define NOVIUM_PS2_H
 
 #include <asm/io.h>
+#include <novium/types.h>
 
 #define PS2_DATA_PORT       0x60
 #define PS2_STATUS_PORT     0x64
