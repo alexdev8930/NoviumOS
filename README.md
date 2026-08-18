@@ -1,8 +1,15 @@
 # Novium OS
+
 ![Novium OS Boot Preview](.github/images/preview.png)
 
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
+> [!NOTE]
+> Directories like `mm/`, `ipc/`, `lib/`, `fs/`, `userspace/`, and some files inside of `arch/` currently contain stubs and placeholder files because the core kernel is still being built out.
+> 
+> If you want to find files that are not stubs, take a look around here (though a few placeholders are still mixed in):
+> * [arch/](arch/) – Low-level boot and architecture-specific code
+> * [drivers/](drivers/) – Basic hardware support
 
 ## About the project
 
@@ -121,6 +128,3 @@ make run-raw
 
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
 
-## Notes
-
-Directories like `mm/`, `ipc/`, `lib/`, `fs/`, `userspace/` and some files inside of `arch/` currently contain stubs and placeholder files because I still have to write some of the kernel before I can write those.

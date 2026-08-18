@@ -5,8 +5,8 @@
 *.img
 *.sys
 *.map
-vmlinux
-vmlinux.*
+vmnovium
+vmnovium*
 
 # objects and output trees
 *.o

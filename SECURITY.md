@@ -7,3 +7,4 @@ Because Novium OS is an early-stage hobby operating system built from scratch, o
 ## Reporting a Vulnerability
 
 If you discover any critical security flaws or vulnerabilities, please open an issue directly on the GitHub repository or submit a Pull Request with a fix. 
+
