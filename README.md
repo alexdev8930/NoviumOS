@@ -41,6 +41,8 @@ The current boot path is pretty straightforward:
 boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 ```
 
+For a detailed walkthrough of each stage, see [Documentation/boot_flow.md](Documentation/boot_flow.md).
+
 
 ## Build and Run
 
@@ -106,27 +108,19 @@ make run-raw
 
 ## Roadmap
 
-### Early steps
-- [x] Set up the project layout
-- [x] Define basic kernel types
-- [x] Get basic output working
-- [x] Finish the linker setup
+- [x] Boot chain and protected mode
+- [x] Basic console output
+- [ ] Interrupt handling (IDT, PIC, IRQs)
+- [ ] Keyboard and timer drivers
+- [ ] VBE / framebuffer graphics
+- [ ] Memory management
+- [ ] Basic scheduling
+- [ ] Simple filesystem
+- [ ] Boot from a hard drive
+- [ ] Lightweight desktop interface
 
-### Kernel basics
-- [x] Switch into protected mode
-- [ ] Set up GDT/IDT basics 
-- [ ] Add interrupt handling 
-- [ ] Write basic keyboard drivers 
-- [ ] Switch to VBE graphics mode
-
-### Later steps
-- [ ] Switch bootloader to boot from a hard drive
-- [ ] Add memory management
-- [ ] Add basic scheduling
-- [ ] Build a simple filesystem
-- [ ] Build a desktop long term
+See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
 
 ## Notes
 
-
-Directories like `mm/`, `ipc/`, `kernel/`, `lib/`, `fs/`, `userspace/` and some files inside of `arch/` currently contain stubs and placeholder files because I still have to write some of the kernal before i can write those.
+Directories like `mm/`, `ipc/`, `lib/`, `fs/`, `userspace/` and some files inside of `arch/` currently contain stubs and placeholder files because I still have to write some of the kernel before I can write those.

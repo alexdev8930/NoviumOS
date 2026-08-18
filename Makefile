@@ -1,3 +1,7 @@
+OS_NAME = NoviumOS
+KERNEL_NAME = neox
+VERSION = 0.0.1
+
 CC = gcc
 LD = ld
 OBJCOPY = objcopy
@@ -9,13 +13,13 @@ CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-pie \
 
 LDFLAGS = -m elf_i386 -T arch/x86_32/kernel/link.ld
 
-KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/vga_console.o build/main.o
+KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/vga_console.o build/main.o
 
 .PHONY: all run run-raw clean
 
 all: build/novium.bin build/kernel.elf
 
-# Ensure build directory always exists before compiling
+# ensure build directory always exists before compiling
 build:
 	mkdir -p build
 
@@ -24,6 +28,9 @@ build/%.o: init/%.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
 build/%.o: drivers/video/%.c | build
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build/%.o: kernel/%.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
 build/hw_init.o: arch/x86_32/boot/hw_init.c | build
@@ -65,4 +72,8 @@ run-raw: build/novium.bin
 	qemu-system-i386 -drive format=raw,file=build/novium.bin,index=0,if=floppy -boot a
 
 clean:
-	rm -rf build compile_commands.json
+	rm -rf build
+
+# generate compile_commands.json for clangd/IDE support
+compile_commands:
+	bear -- make

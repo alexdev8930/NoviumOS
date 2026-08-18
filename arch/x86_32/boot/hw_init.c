@@ -1,8 +1,10 @@
+#include <kernel/irq.h>
+#include <novium/types.h>
+
+
 void kernel_main(void);
 
 /* --- FREESTANDING ARCHITECTURE PLACEHOLDERS --- */
-__attribute__((weak)) void idt_init(void) {}
-__attribute__((weak)) void pic_init(void) {}
 __attribute__((weak)) void timer_init(int hz) { (void)hz; }
 __attribute__((weak)) void keyboard_init(void) {}
 
