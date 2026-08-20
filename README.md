@@ -2,6 +2,15 @@
 
 ![Novium OS Boot Preview](.github/images/preview.png)
 
+
+---
+
+*If you could please drop a **star**, It encourages me to keep going!*
+
+---
+
+
+
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
 > [!NOTE]
@@ -51,6 +60,22 @@ boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 For a detailed walkthrough of each stage, see [Documentation/boot_flow.md](Documentation/boot_flow.md).
 
 
+## Roadmap
+
+- [x] Boot chain and protected mode
+- [x] Basic console output
+- [ ] Interrupt handling (IDT, PIC, IRQs)
+- [ ] Keyboard and timer drivers
+- [ ] VBE / framebuffer graphics
+- [ ] Memory management
+- [ ] Basic scheduling
+- [ ] Simple filesystem
+- [ ] Boot from a hard drive
+- [ ] Lightweight desktop interface
+
+See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
+
+
 ## Build and Run
 
 ### System Dependencies
@@ -62,7 +87,7 @@ To compile and run Novium OS, you need a 32-bit capable compiler toolchain and t
 The primary development environment for Novium OS is Linux (Ubuntu/Debian) you can also use Windows with WSL.
 
 ```bash
-sudo apt update && sudo apt install build-essential gcc-multilib qemu-system-x86 make bear 
+sudo apt update && sudo apt install build-essential gcc-multilib qemu-system-x86 bear 
 ```
 
 #### Windows (via WSL2)
@@ -78,7 +103,7 @@ You can build Novium OS on Windows using the Windows Subsystem for Linux (WSL2) 
 
 3. Open your WSL2 Ubuntu terminal and install the compiler tools:
    ```bash
-   sudo apt update && sudo apt install build-essential gcc-multilib make bear
+   sudo apt update && sudo apt install build-essential gcc-multilib bear
    ```
 
 4. Link WSL2 to your Windows QEMU by running these lines in your WSL terminal:
@@ -110,21 +135,3 @@ or run the raw floppy disk image to include the bootloader:
 ```bash
 make run-raw
 ```
-
-
-
-## Roadmap
-
-- [x] Boot chain and protected mode
-- [x] Basic console output
-- [ ] Interrupt handling (IDT, PIC, IRQs)
-- [ ] Keyboard and timer drivers
-- [ ] VBE / framebuffer graphics
-- [ ] Memory management
-- [ ] Basic scheduling
-- [ ] Simple filesystem
-- [ ] Boot from a hard drive
-- [ ] Lightweight desktop interface
-
-See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
-
