@@ -1,0 +1,43 @@
+name: Build NoviumOS
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential gcc-multilib qemu-system-x86 
+
+      - name: Build
+        run: |
+          make clean
+          make
+
+      - name: Upload NoviumOS Disk Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: novium-floppy-image
+          path: build/novium.bin
+
+      - name: Run in QEMU
+        run: |
+          # We call the qemu command directly to completely bypass the Makefile rule
+          # NOTE: -nographic already redirects the serial port to stdio,
+          # so adding "-serial stdio" would fail with
+          # "cannot use stdio by multiple character devices" (exit code 1).
+          timeout 10s qemu-system-i386 -drive format=raw,file=build/novium.bin,index=0,if=floppy -boot a -nographic || [ $? -eq 124 ]

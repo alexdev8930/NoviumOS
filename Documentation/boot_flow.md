@@ -40,18 +40,18 @@ This is the kernel's true entry point (`bootstrap_entry`). It runs in 32-bit pro
 ```
 BIOS
   │
-  ▼
+  v
 boot.S       (0x7C00)  — 16-bit real mode, load setup + kernel
   │
-  ▼
+  v
 setup.S      (0x7E00)  — switch to 32-bit protected mode, load kernel to 1 MB
   │
-  ▼
+  v
 bootstrap.S  (1 MB)    — set up stack, clear BSS
   │
-  ▼
+  v
 hw_init.c              — IDT, PIC, timer, keyboard
   │
-  ▼
+  v
 main.c                 — kernel_main()
 ```

@@ -51,5 +51,5 @@ Once this lands, the kernel can actually respond to input instead of sitting in 
 
 ## Notes
 
-- `mm/`, `ipc/`, `kernel/`, `lib/`, `fs/`, `userspace/` and parts of `arch/` are still stubs — they'll get filled in as the kernel matures.
+- `mm/`, `ipc/`, `kernel/`, `lib/`, `fs/`, `userspace/` and parts of `arch/` are still stubs — they'll get filled in as the kernel progresses.
 - `hw_init.c` already calls `idt_init()`, `pic_init()`, `timer_init(100)`, and `keyboard_init()`. Once we implement those functions, they'll get picked up automatically — no wiring changes needed.

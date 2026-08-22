@@ -5,7 +5,7 @@
 
 ---
 
-*If you could please drop a **star**, It encourages me to keep going!*
+*If you could, please drop a **star**, It encourages me to keep going!*
 
 ---
 

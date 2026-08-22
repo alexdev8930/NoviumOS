@@ -65,11 +65,13 @@ build/novium.bin: build/boot.bin build/setup.bin build/kernel.bin
 	$(TRUNCATE) -s 1440K build/novium.bin
 
 # qemu targets
+QEMU_FLAGS ?=
+
 run: build/kernel.elf
-	qemu-system-i386 -kernel build/kernel.elf
+	qemu-system-i386 $(QEMU_FLAGS) -kernel build/kernel.elf
 
 run-raw: build/novium.bin
-	qemu-system-i386 -drive format=raw,file=build/novium.bin,index=0,if=floppy -boot a
+	qemu-system-i386 $(QEMU_FLAGS) -drive format=raw,file=build/novium.bin,index=0,if=floppy -boot a
 
 clean:
 	rm -rf build
