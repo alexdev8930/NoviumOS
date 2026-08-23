@@ -13,7 +13,8 @@ CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-pie \
 
 LDFLAGS = -m elf_i386 -T arch/x86_32/kernel/link.ld
 
-KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/vga_console.o build/main.o
+KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/vga_console.o build/main.o
+
 
 .PHONY: all run run-raw clean
 
@@ -38,6 +39,10 @@ build/hw_init.o: arch/x86_32/boot/hw_init.c | build
 
 build/bootstrap.o: arch/x86_32/kernel/bootstrap.S | build
 	$(CC) $(CFLAGS) -c $< -o $@
+
+build/isr.o: arch/x86_32/kernel/isr.S | build
+	$(CC) $(CFLAGS) -c $< -o $@
+
 
 # build raw boot sector
 build/boot.bin: arch/x86_32/boot/boot.S | build

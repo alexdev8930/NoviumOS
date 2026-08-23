@@ -2,7 +2,7 @@
 .global bootstrap_entry
 
 bootstrap_entry:
-    cli                         # disable interrupts
+    cli                        
 
     # reload data segments
     movw $0x10, %ax             
@@ -24,12 +24,12 @@ bootstrap_entry:
     xorl %eax, %eax
     rep stosb                   
 
-    # jump to C code
+    # jump to c code
     .extern hw_init
     call hw_init                
 
 _halt:
-    hlt                         # loop forever if C returns
+    hlt                         
     jmp _halt
 
 .section .bss

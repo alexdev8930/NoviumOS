@@ -3,20 +3,21 @@
 .global _start
 
 _start:
-    cli                         # disable interrupts for setup
+    # base system configuration and boot sign of life
+    cli                         
     xorw %ax, %ax                    
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %ss
-    movw $0x7C00, %sp           # setup stack below bootloader
-    movb %dl, %bl               # save bios drive id
+    movw $0x7C00, %sp         
+    movb %dl, %bl              
     sti                               
 
-    movb $0x0E, %ah             # print 'L' to show we started
+    movb $0x0E, %ah           
     movb $'L', %al
     int $0x10          
 
-    # load setup segment (4 sectors) to 0x7E00
+    # pull setup stage into memory directly past the bootloader
     movw $0x0000, %ax          
     movw %ax, %es
     movw $0x7E00, %bx          
@@ -29,7 +30,7 @@ _start:
     int $0x13     
     jc disk_error                        
 
-    # load kernel chunk 1 (13 sectors)
+    # load kernel chunk 1 
     movw $0x8600, %bx          
     movb $0x02, %ah            
     movb $13, %al                   
@@ -40,7 +41,7 @@ _start:
     int $0x13     
     jc disk_error                      
 
-    # load kernel chunk 2 (18 sectors)
+    # load kernel chunk 2 
     movw $0xA000, %bx          
     movb $0x02, %ah            
     movb $18, %al                   
@@ -63,6 +64,7 @@ _start:
     jnc boot_ok  
 
 disk_error:
+    # print error and trap execution loop
     movb $0x0E, %ah            
     movb $'E', %al
     int $0x10

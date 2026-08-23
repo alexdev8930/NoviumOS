@@ -1,8 +1,8 @@
 .code16
 .section .text
-.global setup_entry
+.global _start
 
-setup_entry:
+_start:
     movb $0x0E, %ah            # print 'S' for setup stage
     movb $'S', %al
     int $0x10
@@ -18,14 +18,14 @@ setup_entry:
     outb %al, $0x92
 
 a20_done:
-    lgdt (gdt_descriptor)      # load gdt
+    data32 lgdt (gdt_descriptor)    
     
-    # switch to protected mode (set CR0 PE bit)
+    # switch to protected mode 
     movl %cr0, %eax            
     orl $0x1, %eax             
     movl %eax, %cr0
 
-    # clear prefetch queue and jump to 32-bit mode
+   # clear prefetch queue and flush cs to 32-bit segment
     ljmp $0x08, $protected_mode_start 
 
 .code32
@@ -47,17 +47,17 @@ protected_mode_start:
     movl $0x100000, %edi       
     movl $1664, %ecx            
     cld                        
-    rep movsd
+    rep movsl
 
     # append kernel chunk 2
     movl $0xA000, %esi         
     movl $2304, %ecx            
-    rep movsd
+    rep movsl
 
     # append final kernel sector
     movl $0xC400, %esi         
     movl $128, %ecx             
-    rep movsd
+    rep movsl
     
     # jump to kernel entry point at 1MB
     jmp 0x100000               

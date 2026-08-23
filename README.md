@@ -64,7 +64,7 @@ For a detailed walkthrough of each stage, see [Documentation/boot_flow.md](Docum
 
 - [x] Boot chain and protected mode
 - [x] Basic console output
-- [ ] Interrupt handling (IDT, PIC, IRQs)
+- [x] Interrupt handling (IDT, PIC, IRQs)
 - [ ] Keyboard and timer drivers
 - [ ] VBE / framebuffer graphics
 - [ ] Memory management
