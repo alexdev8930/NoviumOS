@@ -1,6 +1,6 @@
 # Novium OS Documentation
 
-Welcome to the design docs and planning files for Novium OS. This is where I map out the architecture, specs, and systems for the kernel.
+Welcome to the design docs and planning files for Novium OS. This is where I map out the  specs, and systems for the kernel.
 
 ## System Specs
 

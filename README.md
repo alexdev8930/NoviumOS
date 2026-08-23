@@ -3,35 +3,12 @@
 ![Novium OS Boot Preview](.github/images/preview.png)
 
 
----
-
-*If you could, please drop a **star**, It encourages me to keep going!*
-
----
-
-
-
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
 > [!NOTE]
-> Directories like `mm/`, `ipc/`, `lib/`, `fs/`, `userspace/`, and some files inside of `arch/` currently contain stubs and placeholder files because the core kernel is still being built out.
-> 
-> If you want to find files that are not stubs, take a look around here (though a few placeholders are still mixed in):
-> * [arch/](arch/) – Low-level boot and architecture-specific code
-> * [drivers/](drivers/) – Basic hardware support
-
-## About the project
-
-I wanted to build a hobby OS that is clean, and easy to extend. The main idea is just to build it step by step without over-engineering the code.
-
-## Current status
-
-Right now, I'm focusing on getting the core x86 foundations solid:
-- Stable x86 booting
-- Basic console output
-- Handling early hardware input
-- Setting up memory management and interrupts
-- Long-term: a lightweight desktop interface
+> Directories like `mm/`, `ipc/`, `lib/`, `fs/`, and `userspace/` currently contain early stubs. Active code lives in:
+> * [arch/](arch/)(boot logic) 
+> * [drivers/](drivers/) (hardware).
 
 
 ## Project structure
@@ -57,22 +34,14 @@ The current boot path is pretty straightforward:
 boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
 ```
 
-For a detailed walkthrough of each stage, see [Documentation/boot_flow.md](Documentation/boot_flow.md).
+For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flow.md).
 
 
-## Roadmap
+## What i've done so far
 
 - [x] Boot chain and protected mode
 - [x] Basic console output
 - [x] Interrupt handling (IDT, PIC, IRQs)
-- [ ] Keyboard and timer drivers
-- [ ] Hard drive support and 64 bit support maybe
-- [ ] VBE / framebuffer graphics
-- [ ] Memory management
-- [ ] Basic scheduling
-- [ ] Simple filesystem
-- [ ] Boot from a hard drive
-- [ ] Lightweight desktop interface
 
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
 
@@ -81,58 +50,69 @@ See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
 
 ### System Dependencies
 
-To compile and run Novium OS, you need a 32-bit capable compiler toolchain and the QEMU emulator
+Compiling Novium OS requires a 32-bit cross-compiler toolchain and the QEMU emulator.
 
-#### Linux (Ubuntu / Debian)
+#### **Linux (Ubuntu, Debian, Fedora, Mint, Arch):**
 
-The primary development environment for Novium OS is Linux (Ubuntu/Debian) you can also use Windows with WSL.
+<br>
 
+**Ubuntu / Debian / Mint:**
 ```bash
-sudo apt update && sudo apt install build-essential gcc-multilib qemu-system-x86 bear 
+sudo apt update && sudo apt install build-essential gcc-multilib qemu-system-x86 bear
 ```
+
+**Fedora:**
+```bash
+sudo dnf groupinstall "Development Tools" && sudo dnf install gcc.i686 glibc-devel.i686 qemu-system-x86 bear
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -Syu base-devel lib32-gcc-libs qemu-desktop bear
+```
+*(Arch users: Ensure `[multilib]` is enabled in your `/etc/pacman.conf` for 32-bit compilation libraries).*
 
 #### Windows (via WSL2)
 
-You can build Novium OS on Windows using the Windows Subsystem for Linux (WSL2) and a native Windows emulator.
+Build on Windows using WSL2 tied to a native Windows QEMU installation:
 
-1. Install WSL2 (Ubuntu) by running this in PowerShell as Administrator:
+1. **Install WSL2 (Ubuntu)** in Administrator PowerShell:
    ```powershell
    wsl --install
    ```
+<br>
 
 2. Download and install [QEMU for Windows](https://qemu.org) to its default path (`C:\Program Files\qemu`).
 
-3. Open your WSL2 Ubuntu terminal and install the compiler tools:
+<br>
+
+3. **Install build tools** inside your WSL2 terminal:
    ```bash
    sudo apt update && sudo apt install build-essential gcc-multilib bear
    ```
+<br>
 
-4. Link WSL2 to your Windows QEMU by running these lines in your WSL terminal:
+4. **Link WSL2 to Windows QEMU** by running this in your WSL2 terminal:
    ```bash
    echo "alias qemu-system-i386='\"/mnt/c/Program Files/qemu/qemu-system-i386.exe\"'" >> ~/.bashrc
-   echo "alias qemu-system-x86_64='\"/mnt/c/Program Files/qemu/qemu-system-x86_64.exe\"'" >> ~/.bashrc
    source ~/.bashrc
    ```
 
 ### Compile
 
-Once your dependencies are installed (either on native Linux or inside WSL2), build the OS:
+After the dependencies are installed build the OS:
 
 ```bash
 make clean
-bear -- make
+bear -- make # or just make
 ```
 
 ### Execution
 
-launch the kernel directly through QEMU:
+Now run the OS:
 
 ```bash
-make run
-```
+make run     # jump straigh to kernel
 
-or run the raw floppy disk image to include the bootloader:
-
-```bash
-make run-raw
+make run-raw # emulate starting from bootloader
 ```
