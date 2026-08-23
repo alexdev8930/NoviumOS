@@ -1,1 +1,10 @@
-// TODO: System stub - implement when ready.
+#ifndef NOVIUM_INPUT_H
+#define NOVIUM_INPUT_H
+
+#include <novium/types.h>
+
+// keyboard - raw scancode interface.
+void keyboard_init(void);      
+int  keyboard_pop(void);       
+
+#endif

@@ -1,6 +1,6 @@
 OS_NAME = NoviumOS
 KERNEL_NAME = neox
-VERSION = 0.0.1
+VERSION = 0.0.2
 
 CC = gcc
 LD = ld
@@ -13,7 +13,7 @@ CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-pie \
 
 LDFLAGS = -m elf_i386 -T arch/x86_32/kernel/link.ld
 
-KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/vga_console.o build/main.o
+KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/debug.o build/ps2.o build/keyboard.o build/vga_console.o build/main.o
 
 
 .PHONY: all run run-raw clean
@@ -41,6 +41,9 @@ build/bootstrap.o: arch/x86_32/kernel/bootstrap.S | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
 build/isr.o: arch/x86_32/kernel/isr.S | build
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build/%.o: drivers/input/%.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
