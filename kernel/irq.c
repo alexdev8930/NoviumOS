@@ -44,7 +44,7 @@ __attribute__((naked)) static void stub_placeholder(void) {
     __asm__ __volatile__("iret");           
 }                
 
-// macro table to quickly define the asm isr stubs
+// i mean like im not gonna write 48+ lines when i can just use a macro table
 #define FOR_EACH_STUB(X) \
     X(0)  X(1)  X(2)  X(3)  X(4)  X(5)  X(6)  X(7)   \
     X(8)  X(9)  X(10) X(11) X(12) X(13) X(14) X(15)  \
@@ -127,12 +127,36 @@ void irq_unregister(int irq) {
     outb(port, inb(port) | (u8)(1 << (irq & 7)));
 }
 
+// helper print hex function
+static void print_hex32(u32 v) {
+    static const char hex[] = "0123456789ABCDEF";
+    console_putchar('0');
+    console_putchar('x');
+    for (int i = 28; i >= 0; i -= 4) {
+        console_putchar(hex[(v >> i) & 0xF]);
+    }
+}
+
 // handles cpu crashes, routes hardware signals, and resets the pic
 void isr_dispatch(struct registers *r) {
     u32 vec = r->int_no;
 
     if (vec < IRQ_BASE) {
-        console_write("PANIC: unhandled exception, halting\n");
+        // unhandled exception = crash out
+        console_write("PANIC: unhandled exception, vector ");
+        print_hex32(vec);
+        console_write(", err_code ");
+        print_hex32(r->err_code);
+
+        if (vec == 14) {
+            // cr2 has the bad address for page faults
+            u32 fault_addr;
+            __asm__ __volatile__("mov %%cr2, %0" : "=r"(fault_addr));
+            console_write("\n  page fault at address: ");
+            print_hex32(fault_addr);
+        }
+
+        console_write("\nhalting\n");
         for (;;) {
             __asm__ __volatile__("hlt");
         }
@@ -140,14 +164,13 @@ void isr_dispatch(struct registers *r) {
 
     int line = vec - IRQ_BASE;
 
-    // drop fake or noisy interrupts from lines 7 and 15
+    // ignore spurious irq7/15 floods
     if (line == 7 || line == 15) {
         u16 port = (line == 7) ? PIC1_CMD : PIC2_CMD;
-        outb(port, 0x0B);           
+        outb(port, 0x0B);
         if (!(inb(port) & 0x80)) {
-           
             if (line == 15) {
-                outb(PIC1_CMD, PIC_EOI);
+                outb(PIC1_CMD, PIC_EOI);   
             }
             return;
         }
@@ -157,7 +180,7 @@ void isr_dispatch(struct registers *r) {
         handlers[vec](r);
     }
 
-    // tell the pic we are done so it can fire the next interrupt
+    // tell the pic we are done
     if (line >= 8) {
         outb(PIC2_CMD, PIC_EOI);
     }

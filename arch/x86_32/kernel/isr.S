@@ -33,7 +33,7 @@ isr_common:
     movw %ax, %fs        
     movw %ax, %gs   
 
-    cld         # clear direction flag so C code doesnt break
+    cld         
 
     # pass stack pointer to C handler as an argument
     pushl %esp

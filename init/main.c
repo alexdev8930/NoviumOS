@@ -1,5 +1,5 @@
 #include <drivers/novium/console.h>
-
+#include <novium/types.h>
 
 // just print hi for now 
 void kernel_main(void) {
