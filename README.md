@@ -66,6 +66,7 @@ For a detailed walkthrough of each stage, see [Documentation/boot_flow.md](Docum
 - [x] Basic console output
 - [x] Interrupt handling (IDT, PIC, IRQs)
 - [ ] Keyboard and timer drivers
+- [ ] Hard drive support and 64 bit support maybe
 - [ ] VBE / framebuffer graphics
 - [ ] Memory management
 - [ ] Basic scheduling
