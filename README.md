@@ -113,7 +113,7 @@ bear -- make # or just make
 Now run the OS:
 
 ```bash
-make run     # jump straigh to kernel
+make run     # jump straight to kernel
 
 make run-raw # emulate starting from bootloader
 ```

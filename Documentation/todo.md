@@ -17,22 +17,23 @@ An honest look at where the project stands and what's on the list. Roughly order
 - [x] Remap the PIC so hardware IRQs don't collide with exceptions
 - [x] IRQ dispatch — route IRQs to the right C handler
 - [x] ISR stubs for CPU exceptions (div-by-zero, page fault, etc.)
+- [x] Basic scancode keyboard drivers
 
 ---
 
-## Next up: interrupt handling
+## Next up: Better keyboard driver
 
-This is the big milestone. Right now interrupts are stubs, so the CPU can't react to anything. The keyboard driver, PIT timer, and scheduler all depend on this.
+Right now it just prints scancodes instead of keys
 
+- [ ] Better keyboard driver
 - [ ] PIT timer driver (~100 Hz tick, needed for scheduling later)
-- [ ] PS/2 keyboard driver — read scancodes via IRQ1
 
 
 Once this lands, the kernel can actually respond to input instead of sitting in a `while(1)` loop.
 
 ---
 
-## Roadmap (after interrupts are solid)
+## Roadmap 
 
 - [ ] Add 64 bit support
 - [ ] Add hard drive support (maybe)
@@ -54,4 +55,3 @@ Once this lands, the kernel can actually respond to input instead of sitting in 
 ## Notes
 
 - `mm/`, `ipc/`, `kernel/`, `lib/`, `fs/`, `userspace/` and parts of `arch/` are still stubs — they'll get filled in as the kernel progresses.
-- `hw_init.c` already calls `idt_init()`, `pic_init()`, `timer_init(100)`, and `keyboard_init()`. Once we implement those functions, they'll get picked up automatically — no wiring changes needed.

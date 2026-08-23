@@ -8,7 +8,7 @@ The BIOS loads the first 512 bytes of the disk (the boot sector) into memory at 
 
 ## 2. Setup (`arch/x86_32/boot/setup.S`)
 
-Loaded right after the boot sector at `0x7E00` (truncated to 2 KB). While still in 16-bit real mode, this stage does the heavy lifting of early hardware setup: it parses the kernel's ELF program headers and copies the kernel segments to their true linked destination at **1 MB** (`0x00100000`). Once the memory copying is complete, it enables the A20 line, loads a basic GDT, sets the PE bit in `cr0` to **switch into 32-bit protected mode**, and jumps to the kernel.
+Loaded right after the boot sector at `0x7E00` (limited to 2 KB). While still in 16-bit real mode, this stage does the heavy lifting of early hardware setup: it parses the kernel's ELF program headers and copies the kernel segments to their true linked destination at **1 MB** (`0x00100000`). Once the memory copying is complete, it enables the A20 line, loads a basic flat GDT, sets the PE bit to **switch into 32-bit protected mode**, and jumps to the kernel.
 
 ## 3. Bootstrap (`arch/x86_32/kernel/bootstrap.S`)
 
@@ -24,34 +24,13 @@ This is the kernel's true entry point (`bootstrap_entry`). It runs in 32-bit pro
 `hw_init()` is where the kernel starts doing real work in C. It runs before `kernel_main()` and sets up the core hardware abstractions:
 
 1. **Disables interrupts** (`cli`) — nothing should fire until we're ready
-2. **`idt_init()`** — Sets up the Interrupt Descriptor Table so the CPU knows where to jump when an interrupt or exception occurs
-3. **`pic_init()`** — Remaps the Programmable Interrupt Controller so hardware IRQs (keyboard, timer, etc.) don't collide with CPU exceptions
-4. **`timer_init(100)`** — Configures the PIT for ~100 Hz ticks (weak stub for now)
-5. **`keyboard_init()`** — Initializes the PS/2 keyboard driver (weak stub for now)
+2. **`idt_init()`** — Sets up the IDT so the CPU knows where to jump when an interrupt or exception occurs
+3. **`pic_init()`** — Remaps the PIC so hardware IRQs (keyboard, timer, etc.) don't collide with CPU exceptions
+4. **`timer_init(100)`** — Configures the PIT for ~100 Hz ticks (stub for now)
+5. **`keyboard_init()`** — Initializes the PS/2 keyboard driver 
 6. **`kernel_main()`** — Hands control to the kernel's main entry point
 
 ## 5. Kernel Main (`init/main.c`)
 
-`kernel_main()` is the kernel's C entry point. Right now it's minimal — it clears the screen, prints "Hello World" via the VGA text-mode console, and halts. As the kernel grows, this is where higher-level initialization (scheduler, memory manager, drivers) will live.
+`kernel_main()` is the kernel's C entry point. Right now it's minimal — it clears the screen, prints "Hello World" via the VGA text-mode console, and halts. Eventually, this is where the scheduler, memory manager, and other drivers will live.
 
-## Visual Summary
-
-
-```
-BIOS
-  │
-  v
-boot.S       (0x7C00)  — 16-bit real mode, load setup + kernel
-  │
-  v
-setup.S      (0x7E00)  — switch to 32-bit protected mode, load kernel to 1 MB
-  │
-  v
-bootstrap.S  (1 MB)    — set up stack, clear BSS
-  │
-  v
-hw_init.c              — IDT, PIC, timer, keyboard
-  │
-  v
-main.c                 — kernel_main()
-```
