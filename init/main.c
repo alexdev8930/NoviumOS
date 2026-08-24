@@ -5,7 +5,7 @@
  
 void kernel_main(void) {
     console_clear();
-    console_write("NoviumOS v0.0.2\n");
+    console_write("NoviumOS v0.0.3\n");
     console_write("System ready. You can now type inside the console:\n");
     console_write("> ");
 
