@@ -43,6 +43,7 @@ For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flo
 - [x] Basic console output
 - [x] Interrupt handling (IDT, PIC, IRQs)
 - [x] Basic keyboard drivers that print scancodes instead of keys
+- [x] Timers
 
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
 

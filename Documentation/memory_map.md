@@ -1,0 +1,1 @@
+# This file is a stub for when i add memory so when im gonna do that ill make this.

@@ -18,25 +18,21 @@ An honest look at where the project stands and what's on the list. Roughly order
 - [x] IRQ dispatch — route IRQs to the right C handler
 - [x] ISR stubs for CPU exceptions (div-by-zero, page fault, etc.)
 - [x] Basic scancode keyboard drivers
-
+- [x] Better keyboard driver
+- [x] PIT timer driver (~100 Hz tick, needed for scheduling later)
 ---
 
-## Next up: Better keyboard driver
+## Next up: Create stdio.h
 
-Right now it just prints scancodes instead of keys
-
-- [ ] Better keyboard driver
-- [ ] PIT timer driver (~100 Hz tick, needed for scheduling later)
-
-
-Once this lands, the kernel can actually respond to input instead of sitting in a `while(1)` loop.
+- [ ] Make stdio.h
+- [ ] Add 64 bit support
+- [ ] Make scheduling
 
 ---
 
 ## Roadmap 
 
-- [ ] Add 64 bit support
-- [ ] Add hard drive support (maybe)
+- [ ] Make the bootloader boot from hard drive instead of floppy
 - [ ] VBE / framebuffer graphics mode
 - [ ] Memory management — paging + page allocator
 - [ ] Basic preemptive scheduling
@@ -54,4 +50,4 @@ Once this lands, the kernel can actually respond to input instead of sitting in 
 
 ## Notes
 
-- `mm/`, `ipc/`, `kernel/`, `lib/`, `fs/`, `userspace/` and parts of `arch/` are still stubs — they'll get filled in as the kernel progresses.
+- `mm/`, `ipc/`, `lib/`, `fs/`, `userspace/` but `arch/` and `kernel/` are mostly done but still have some stubs — they'll get filled in as the kernel progresses.
