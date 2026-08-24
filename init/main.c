@@ -5,16 +5,21 @@
  
 void kernel_main(void) {
     console_clear();
-    console_write("Hello World\n");
-    console_write("scancodes: ");
+    console_write("NoviumOS v0.0.2\n");
+    console_write("System ready. You can now type inside the console:\n");
+    console_write("> ");
 
     for (;;) {
-        int sc = keyboard_pop();
-        if (sc >= 0) {
-            debug_print_hex8((u8)sc);
-            console_putchar(' ');
+        int key = keyboard_getchar();
+        
+        if (key < 0) {
+            continue;
         }
-    }
 
-    while(1); 
+        console_putchar((char)key);
+
+        if (key == '\n') {
+            console_write("> ");
+        }
+    }    
 }

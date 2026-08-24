@@ -1,6 +1,6 @@
 # Novium OS
 
-![Novium OS Boot Preview](.github/images/preview.png)
+![Novium OS Boot Preview](.github/assets/preview.gif)
 
 
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.

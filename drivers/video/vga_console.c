@@ -11,6 +11,23 @@ void console_putchar(char c) {
         return;
     }
 
+    if (c == '\t') {
+        for (int i = 0; i < 4; i++) {
+            console_putchar(' '); 
+        }
+        return;
+    }
+
+    if (c == '\b') {
+        if (cursor > 0) { 
+            cursor--; 
+            video_memory[cursor * 2] = ' '; 
+            video_memory[cursor * 2 + 1] = 0x07; 
+            update_hardware_cursor(cursor); 
+        }
+        return;
+    }
+
     video_memory[cursor * 2] = c;
     video_memory[cursor * 2 + 1] = 0x07;
     cursor++;

@@ -5,6 +5,7 @@
 
 // keyboard - raw scancode interface.
 void keyboard_init(void);      
-int  keyboard_pop(void);       
+int  keyboard_pop(void); 
+int keyboard_getchar(void);      
 
 #endif
