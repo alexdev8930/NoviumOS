@@ -1,3 +1,5 @@
+#include "boot.h"
+
 .code16
 .section .text
 .global _start
@@ -9,7 +11,7 @@ _start:
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %ss
-    movw $0x7C00, %sp         
+    movw $MBR_LOAD_ADDR, %sp         
     movb %dl, %bl              
     sti                               
 
@@ -20,9 +22,9 @@ _start:
     # pull setup stage into memory directly past the bootloader
     movw $0x0000, %ax          
     movw %ax, %es
-    movw $0x7E00, %bx          
+    movw $SETUP_STAGE_LOAD_ADDR, %bx          
     movb $0x02, %ah            
-    movb $4, %al                    
+    movb $SETUP_SECTOR_COUNT, %al                    
     movb $0, %ch                    
     movb $2, %cl                    
     movb $0, %dh                    
@@ -31,9 +33,9 @@ _start:
     jc disk_error                        
 
     # load kernel chunk 1 
-    movw $0x8600, %bx          
+    movw $KERNEL_TEMP_BUFFER, %bx          
     movb $0x02, %ah            
-    movb $13, %al                   
+    movb $KERNEL_CHUNK1_SECTORS, %al                   
     movb $0, %ch                    
     movb $6, %cl                    
     movb $0, %dh                    
@@ -42,9 +44,9 @@ _start:
     jc disk_error                      
 
     # load kernel chunk 2 
-    movw $0xA000, %bx          
+    movw $KERNEL_CHUNK2_ADDR, %bx          
     movb $0x02, %ah            
-    movb $18, %al                   
+    movb $KERNEL_CHUNK2_SECTORS, %al                   
     movb $0, %ch                    
     movb $1, %cl                    
     movb $1, %dh                    
@@ -53,9 +55,9 @@ _start:
     jc disk_error                      
 
     # load final sector
-    movw $0xC400, %bx          
+    movw $KERNEL_CHUNK3_ADDR, %bx          
     movb $0x02, %ah            
-    movb $1, %al                    
+    movb $KERNEL_CHUNK3_SECTORS, %al                    
     movb $1, %ch                    
     movb $1, %cl                    
     movb $0, %dh                    
@@ -75,7 +77,7 @@ _hang:
 
 boot_ok:
     movb %bl, %dl               # pass drive ID to setup
-    ljmp $0x0000, $0x7E00        
+    ljmp $0x0000, $SETUP_STAGE_LOAD_ADDR        
 
 .org 510                        
 .word 0xAA55                   

@@ -1,3 +1,4 @@
+#include "boot.h"
 .code16
 .section .text
 .global _start
@@ -37,30 +38,30 @@ protected_mode_start:
     movw %ax, %fs
     movw %ax, %gs
     movw %ax, %ss
-    movl $0x90000, %esp        
+    movl $INITIAL_STACK_TOP, %esp        
 
     # print 'P' to top left of screen via VGA memory to verify pm
     movw $0x0F50, (0xB8000)    
 
     # move kernel chunk 1 to 1MB
-    movl $0x8600, %esi         
-    movl $0x100000, %edi       
-    movl $1664, %ecx            
+    movl $KERNEL_TEMP_BUFFER, %esi         
+    movl $KERNEL_LOAD_ADDR, %edi       
+    movl $(KERNEL_CHUNK1_SECTORS * 128), %ecx            
     cld                        
     rep movsl
 
     # append kernel chunk 2
-    movl $0xA000, %esi         
-    movl $2304, %ecx            
+    movl $KERNEL_CHUNK2_ADDR, %esi         
+    movl $(KERNEL_CHUNK2_SECTORS * 128), %ecx            
     rep movsl
 
     # append final kernel sector
-    movl $0xC400, %esi         
-    movl $128, %ecx             
+    movl $KERNEL_CHUNK3_ADDR, %esi         
+    movl $(KERNEL_CHUNK3_SECTORS * 128), %ecx             
     rep movsl
     
     # jump to kernel entry point at 1MB
-    jmp 0x100000               
+    jmp KERNEL_LOAD_ADDR               
 
 .align 4
 gdt_start:
