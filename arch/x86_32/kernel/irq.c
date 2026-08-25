@@ -1,6 +1,7 @@
 #include <asm/irq.h>
-#include <kernel/debug.h>
+#include <asm/cpu.h>
 #include <asm/io.h>
+#include <kernel/debug.h>
 #include <drivers/novium/console.h>
 
 // programmable interrupt controller port and command definitions
@@ -152,7 +153,7 @@ void isr_dispatch(struct registers *r) {
 
         console_write("\nhalting\n");
         for (;;) {
-            __asm__ __volatile__("hlt");
+            cpu_hlt();
         }
     }
 
@@ -182,9 +183,9 @@ void isr_dispatch(struct registers *r) {
 }
 
 void irq_disable(void) {
-    __asm__ __volatile__("cli");
+    cpu_cli();
 }
 
 void irq_enable(void) {
-    __asm__ __volatile__("sti");
+    cpu_sti();
 }

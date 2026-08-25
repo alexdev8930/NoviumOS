@@ -1,6 +1,7 @@
 #include <novium/timer.h>
 #include <asm/irq.h>
 #include <asm/io.h>
+#include <asm/cpu.h>
 
 #define PIT_OSC_FREQ   1193182u
 #define PIT_CH0_DATA   0x40
@@ -54,6 +55,6 @@ void timer_sleep_ms(u32 ms) {
     u32 wait_ticks = secs * ticks_per_second    
                    + rem * ticks_per_second / 1000U;
     while ((tick_count - start) < wait_ticks) {
-        __asm__ __volatile__("hlt");
+        cpu_hlt();
     }
 }

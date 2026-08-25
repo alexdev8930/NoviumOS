@@ -2,8 +2,7 @@ OS_NAME = NoviumOS
 KERNEL_NAME = neox
 VERSION = 0.0.3
 
-# Select target architecture (Linux-style: make ARCH=...).
-# Only x86_32 is implemented; add a flag block + dirs for more.
+
 ARCH ?= x86_32
 
 CC = gcc
@@ -11,16 +10,16 @@ LD = ld
 OBJCOPY = objcopy
 TRUNCATE = truncate
 
-# Per-architecture compile/link flags. Add a block here for each new ARCH.
+# per-arch compile/link flags. add a block here for each new arch.
 ifeq ($(ARCH),x86_32)
-CFLAGS_ARCH  = -m32
+CFLAGS_ARCH  = -m32 
 LDFLAGS_ARCH = -m elf_i386
 else
 $(error unsupported ARCH '$(ARCH)')
 endif
 
 CFLAGS = $(CFLAGS_ARCH) -ffreestanding -fno-builtin -fno-stack-protector -fno-pie \
-         -O2 -Wall -Wextra \
+         -O2 -g -Wall -Wextra \
          -Iinclude -Iarch/$(ARCH)/include -I.
 
 LDFLAGS = $(LDFLAGS_ARCH) -T arch/$(ARCH)/kernel/link.ld

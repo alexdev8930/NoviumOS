@@ -1,5 +1,6 @@
 #include <asm/irq.h>
 #include <drivers/novium/input.h>
+#include "asm/cpu.h"
 #include "ps2.h"
 
 #define BUF_SIZE 32
@@ -85,7 +86,7 @@ int keyboard_getchar(void) {
     for (;;) {
         int sc = keyboard_pop();
         if (sc < 0) {
-            asm volatile("hlt"); 
+            cpu_hlt(); 
             continue;
         }
         if (sc & 0x80) {
