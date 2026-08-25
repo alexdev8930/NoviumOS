@@ -1,4 +1,4 @@
-#include <kernel/irq.h>
+#include <asm/irq.h>
 #include <drivers/novium/input.h>
 #include "ps2.h"
 

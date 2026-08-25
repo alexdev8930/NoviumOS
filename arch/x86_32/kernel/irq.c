@@ -1,5 +1,5 @@
-#include "irq.h"
-#include "debug.h"
+#include <asm/irq.h>
+#include <kernel/debug.h>
 #include <asm/io.h>
 #include <drivers/novium/console.h>
 
@@ -9,7 +9,9 @@
 #define PIC2_CMD    0xA0
 #define PIC2_DATA   0xA1
 #define PIC_EOI     0x20
-
+#define IRQ_BASE    0x20
+#define IRQ_COUNT   16
+#define INT_VECTORS 256
 
 // IDT entry tracks the handler address, selector, and gate attributes
 struct idt_entry {                        

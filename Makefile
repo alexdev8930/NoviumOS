@@ -2,18 +2,30 @@ OS_NAME = NoviumOS
 KERNEL_NAME = neox
 VERSION = 0.0.3
 
+# Select target architecture (Linux-style: make ARCH=...).
+# Only x86_32 is implemented; add a flag block + dirs for more.
+ARCH ?= x86_32
+
 CC = gcc
 LD = ld
 OBJCOPY = objcopy
 TRUNCATE = truncate
 
-CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-pie \
+# Per-architecture compile/link flags. Add a block here for each new ARCH.
+ifeq ($(ARCH),x86_32)
+CFLAGS_ARCH  = -m32
+LDFLAGS_ARCH = -m elf_i386
+else
+$(error unsupported ARCH '$(ARCH)')
+endif
+
+CFLAGS = $(CFLAGS_ARCH) -ffreestanding -fno-builtin -fno-stack-protector -fno-pie \
          -O2 -Wall -Wextra \
-         -Iinclude -Iarch/x86_32/include -I.
+         -Iinclude -Iarch/$(ARCH)/include -I.
 
-LDFLAGS = -m elf_i386 -T arch/x86_32/kernel/link.ld
+LDFLAGS = $(LDFLAGS_ARCH) -T arch/$(ARCH)/kernel/link.ld
 
-KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/debug.o build/ps2.o build/keyboard.o build/timer.o build/vga_console.o build/main.o
+KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/debug.o build/ps2.o build/keyboard.o build/pit.o build/vga_console.o build/main.o
 
 
 .PHONY: all run run-raw clean
@@ -34,13 +46,19 @@ build/%.o: drivers/video/%.c | build
 build/%.o: kernel/%.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/hw_init.o: arch/x86_32/boot/hw_init.c | build
+build/hw_init.o: arch/$(ARCH)/boot/hw_init.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/bootstrap.o: arch/x86_32/kernel/bootstrap.S | build
+build/bootstrap.o: arch/$(ARCH)/kernel/bootstrap.S | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/isr.o: arch/x86_32/kernel/isr.S | build
+build/isr.o: arch/$(ARCH)/kernel/isr.S | build
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build/irq.o: arch/$(ARCH)/kernel/irq.c | build
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build/pit.o: arch/$(ARCH)/kernel/pit.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
 build/%.o: drivers/input/%.c | build
@@ -48,15 +66,15 @@ build/%.o: drivers/input/%.c | build
 
 
 # build raw boot sector
-build/boot.bin: arch/x86_32/boot/boot.S | build
+build/boot.bin: arch/$(ARCH)/boot/boot.S | build
 	$(CC) $(CFLAGS) -c $< -o build/boot.o
-	$(LD) -m elf_i386 -Ttext 0x7C00 build/boot.o -o build/boot.elf
+	$(LD) $(LDFLAGS_ARCH) -Ttext 0x7C00 build/boot.o -o build/boot.elf
 	$(OBJCOPY) -O binary build/boot.elf build/boot.bin
 
 # build setup code 
-build/setup.bin: arch/x86_32/boot/setup.S | build
+build/setup.bin: arch/$(ARCH)/boot/setup.S | build
 	$(CC) $(CFLAGS) -c $< -o build/setup.o
-	$(LD) -m elf_i386 -Ttext 0x7E00 build/setup.o -o build/setup.elf
+	$(LD) $(LDFLAGS_ARCH) -Ttext 0x7E00 build/setup.o -o build/setup.elf
 	$(OBJCOPY) -O binary build/setup.elf build/setup.bin
 	$(TRUNCATE) -s 2K build/setup.bin
 

@@ -4,6 +4,7 @@
 .global _start
 
 _start:
+    movb %dl, BOOT_DRIVE_ADDR    # stash BIOS boot drive (%dl) for the kernel
     movb $0x0E, %ah            # print 'S' for setup stage
     movb $'S', %al
     int $0x10

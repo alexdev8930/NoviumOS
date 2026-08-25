@@ -17,10 +17,6 @@ struct registers {
 
 typedef void (*irq_handler_t)(struct registers *regs);
 
-#define IRQ_BASE    0x20      
-#define IRQ_COUNT   16
-#define INT_VECTORS 256 
-
 void idt_init(void);
 void pic_init(void);
 void irq_register(int irq, irq_handler_t handler);

@@ -9,6 +9,7 @@
 #define KERNEL_CHUNK3_ADDR      0xC400u   // 0xA000 + 18 sectors        
 #define KERNEL_LOAD_ADDR        0x100000u // Permanent home of the kernel 
 #define INITIAL_STACK_TOP       0x90000u  // Temporary bootstrap stack top  
+#define BOOT_DRIVE_ADDR         0x5000u   // Handoff byte: BIOS boot drive (%dl) from real mode
 
 
 #define SETUP_SECTOR_COUNT      4         // bytes: 2K (per Makefile truncate) 

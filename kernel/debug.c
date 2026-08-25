@@ -3,20 +3,19 @@
 
 static const char hex_digits[] = "0123456789ABCDEF";
 
-// extra function for later ill need it for mouse drivers
+
 void debug_print_hex8(u8 v) {
     console_putchar(hex_digits[v >> 4]);
     console_putchar(hex_digits[v & 0xF]);
 }
 
-// print a 32 bit value as eight hex chars, e.g. 3735928559 -> "DEADBEEF"
 void debug_print_hex32(u32 v) {
     for (int i = 28; i >= 0; i -= 4) {
         console_putchar(hex_digits[(v >> i) & 0xF]);
     }
 }
 
-// for my next goal after qwerty keyboard drivers is timers this function is for timers
+
 void debug_print_dec(u32 v) {
     char buf[11];               
     int i = 10;

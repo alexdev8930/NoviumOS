@@ -44,6 +44,7 @@ For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flo
 - [x] Interrupt handling (IDT, PIC, IRQs)
 - [x] Basic keyboard drivers that print scancodes instead of keys
 - [x] Timers
+- [x] Added low
 
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
 
