@@ -1,6 +1,6 @@
 OS_NAME = NoviumOS
 KERNEL_NAME = neox
-VERSION = 0.0.3
+VERSION = 0.1.0
 
 
 ARCH ?= x86_32
@@ -27,7 +27,7 @@ LDFLAGS = $(LDFLAGS_ARCH) -T arch/$(ARCH)/kernel/link.ld
 KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/debug.o build/ps2.o build/keyboard.o build/pit.o build/vga_console.o build/main.o
 
 
-.PHONY: all run run-raw clean
+.PHONY: all run run-raw iso clean
 
 all: build/novium.bin build/kernel.elf
 
@@ -88,6 +88,17 @@ build/kernel.bin: build/kernel.elf
 build/novium.bin: build/boot.bin build/setup.bin build/kernel.bin
 	cat build/boot.bin build/setup.bin build/kernel.bin > build/novium.bin
 	$(TRUNCATE) -s 1440K build/novium.bin
+
+# build iso release
+build/iso:
+	mkdir -p build/iso/staging
+
+iso: build/novium.bin | build/iso
+	cp build/novium.bin build/iso/staging/novium.bin
+	xorriso -as mkisofs -quiet -V "$(OS_NAME)" \
+		-o build/iso/novium.iso \
+		-b novium.bin -c boot.cat \
+		build/iso/staging
 
 # qemu targets
 QEMU_FLAGS ?=
