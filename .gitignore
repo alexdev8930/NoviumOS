@@ -17,6 +17,7 @@ vmnovium*
 *.dll
 *.exe
 build/
+dist/
 obj/
 out/
 
