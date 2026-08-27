@@ -1,5 +1,5 @@
 #include <drivers/novium/console.h>
-#include <kernel/debug.h>
+#include <novium/debug.h>
 #include <drivers/novium/input.h>
 #include <novium/boot_info.h>
 

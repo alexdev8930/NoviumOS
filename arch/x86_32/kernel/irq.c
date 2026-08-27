@@ -1,7 +1,7 @@
 #include <asm/irq.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
-#include <kernel/debug.h>
+#include <novium/debug.h>
 #include <drivers/novium/console.h>
 
 // programmable interrupt controller port and command definitions

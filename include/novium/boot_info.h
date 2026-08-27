@@ -1,7 +1,7 @@
 #ifndef NOVIUM_BOOT_INFO_H
 #define NOVIUM_BOOT_INFO_H
 
-#include <novium/types.h>
+#include "types.h"
 
 #define BOOT_INFO_MAGIC         0x4E4F5601u  
 

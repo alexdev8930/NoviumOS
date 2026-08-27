@@ -24,7 +24,7 @@ CFLAGS = $(CFLAGS_ARCH) -ffreestanding -fno-builtin -fno-stack-protector -fno-pi
 
 LDFLAGS = $(LDFLAGS_ARCH) -T arch/$(ARCH)/kernel/link.ld
 
-KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/debug.o build/ps2.o build/keyboard.o build/pit.o build/vga_console.o build/main.o
+KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/debug.o build/ps2.o build/keyboard.o build/pit.o build/vga_console.o build/string.o build/main.o
 
 
 .PHONY: all run run-raw iso clean
@@ -43,6 +43,9 @@ build/%.o: drivers/video/%.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
 build/%.o: kernel/%.c | build
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build/%.o: lib/%.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
 build/hw_init.o: arch/$(ARCH)/boot/hw_init.c | build
