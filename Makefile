@@ -93,6 +93,13 @@ build/novium.bin: build/boot.bin build/setup.bin build/kernel.bin
 build/iso:
 	mkdir -p build/iso/staging
 
+
+# Optional: to build the iso you need xorriso, commands to install:
+
+# Ubuntu / Debian / Mint / WSL2: sudo apt install xorriso
+# Fedora: sudo dnf install xorriso
+# Arch: sudo pacman -S libisoburn
+
 iso: build/novium.bin | build/iso
 	cp build/novium.bin build/iso/staging/novium.bin
 	xorriso -as mkisofs -quiet -V "$(OS_NAME)" \

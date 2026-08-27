@@ -42,9 +42,9 @@ For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flo
 - [x] Boot chain and protected mode
 - [x] Basic console output
 - [x] Interrupt handling (IDT, PIC, IRQs)
-- [x] Basic keyboard drivers that print scancodes instead of keys
+- [x] Working QWERTY keyboard drivers
 - [x] Timers
-- [x] Added low
+- [x] Added low-level boot headers
 
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
 

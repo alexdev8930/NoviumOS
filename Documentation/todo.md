@@ -17,14 +17,13 @@ An honest look at where the project stands and what's on the list. Roughly order
 - [x] Remap the PIC so hardware IRQs don't collide with exceptions
 - [x] IRQ dispatch — route IRQs to the right C handler
 - [x] ISR stubs for CPU exceptions (div-by-zero, page fault, etc.)
-- [x] Basic scancode keyboard drivers
-- [x] Better keyboard driver
+- [x] Working QWERTY keyboard drivers
 - [x] PIT timer driver (~100 Hz tick, needed for scheduling later)
 ---
 
 ## Next up: Create stdio.h
 
-- [ ] Make stdio.h
+- [ ] Make stdio.c and the kernel library
 - [ ] Add 64 bit support
 - [ ] Make scheduling
 
@@ -32,7 +31,7 @@ An honest look at where the project stands and what's on the list. Roughly order
 
 ## Roadmap 
 
-- [ ] Make the bootloader boot from hard drive instead of floppy
+- [ ] Make the bootloader boot from hard drive instead of floppy or just switch to GRUB
 - [ ] VBE / framebuffer graphics mode
 - [ ] Memory management — paging + page allocator
 - [ ] Basic preemptive scheduling
