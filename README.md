@@ -45,6 +45,7 @@ For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flo
 - [x] Working QWERTY keyboard drivers
 - [x] Added low-level boot headers
 - [x] Printf
+- [x] Scheduler
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.
@@ -120,3 +121,4 @@ make run     # jump straight to kernel
 
 make run-raw # emulate starting from bootloader
 ```
+
