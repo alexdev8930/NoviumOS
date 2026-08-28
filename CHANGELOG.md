@@ -5,7 +5,10 @@ project adheres to [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+## 0.1.5 - 2026-08-28
+
 ### Added
+- `printf added in stdio.c` and basic functions in `string.c`
 - `kernel_main` now declared in `init.h`
 - `stdio.h` and `string.h` are now finished
 

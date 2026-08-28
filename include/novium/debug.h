@@ -5,6 +5,5 @@
 
 void debug_print_hex8(u8 v);
 void debug_print_hex32(u32 v);
-void debug_print_dec(u32 v);
 
 #endif

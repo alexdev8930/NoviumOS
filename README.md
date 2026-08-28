@@ -1,6 +1,6 @@
 # Novium OS
 
-![Novium OS Boot Preview](.github/assets/preview-0.1.0.gif)
+![Novium OS Boot Preview](.github/assets/preview.gif)
 
 
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
@@ -44,6 +44,7 @@ For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flo
 - [x] Interrupt handling (IDT, PIC, IRQs)
 - [x] Working QWERTY keyboard drivers
 - [x] Added low-level boot headers
+- [x] Printf
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.

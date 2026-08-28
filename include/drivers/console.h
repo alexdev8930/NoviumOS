@@ -4,6 +4,8 @@
 void console_write(const char *str);
 void console_putchar(char c);
 void console_clear(void);
+void console_prompt(void);
 void update_hardware_cursor(int pos);
+extern int user_cmdline_start;
 
 #endif

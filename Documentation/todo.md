@@ -7,9 +7,8 @@ An honest look at where the project stands and what's on the list. Roughly order
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: Create stdio.h
+## Next up: 64 bit support
 
-- [ ] Make stdio.c and the kernel library
 - [ ] Add 64 bit support
 - [ ] Make scheduling
 

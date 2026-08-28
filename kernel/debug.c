@@ -15,14 +15,3 @@ void debug_print_hex32(u32 v) {
     }
 }
 
-
-void debug_print_dec(u32 v) {
-    char buf[11];               
-    int i = 10;
-    buf[i] = '\0';
-    do {
-        buf[--i] = '0' + (v % 10);
-        v /= 10;
-    } while (v != 0);
-    console_write(&buf[i]);    
-}
