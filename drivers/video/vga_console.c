@@ -1,4 +1,4 @@
-#include <drivers/novium/console.h>
+#include <drivers/console.h>
 #include <asm/io.h>
 
 static char *video_memory = (char *)0xB8000;

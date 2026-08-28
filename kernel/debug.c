@@ -1,5 +1,5 @@
 #include <novium/debug.h>
-#include <drivers/novium/console.h>
+#include <drivers/console.h>
 
 static const char hex_digits[] = "0123456789ABCDEF";
 

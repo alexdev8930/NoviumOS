@@ -2,7 +2,7 @@
 #include <asm/cpu.h>
 #include <asm/io.h>
 #include <novium/debug.h>
-#include <drivers/novium/console.h>
+#include <drivers/console.h>
 
 // programmable interrupt controller port and command definitions
 #define PIC1_CMD    0x20

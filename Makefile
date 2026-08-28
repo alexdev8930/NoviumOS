@@ -2,6 +2,8 @@ OS_NAME = NoviumOS
 KERNEL_NAME = neox
 VERSION = 0.1.0
 
+BUILD_DIR = build
+VPATH = init drivers/video drivers/input kernel lib
 
 ARCH ?= x86_32
 
@@ -20,81 +22,68 @@ endif
 
 CFLAGS = $(CFLAGS_ARCH) -ffreestanding -fno-builtin -fno-stack-protector -fno-pie \
          -O2 -g -Wall -Wextra \
-         -Iinclude -Iarch/$(ARCH)/include -I.
+         -Iinclude -Iarch/$(ARCH)/include
 
 LDFLAGS = $(LDFLAGS_ARCH) -T arch/$(ARCH)/kernel/link.ld
 
-KERNEL_OBJS = build/bootstrap.o build/hw_init.o build/irq.o build/isr.o build/debug.o build/ps2.o build/keyboard.o build/pit.o build/vga_console.o build/string.o build/main.o
-
+KERNEL_OBJS = $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/hw_init.o $(BUILD_DIR)/irq.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/debug.o $(BUILD_DIR)/ps2.o $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/pit.o $(BUILD_DIR)/vga_console.o $(BUILD_DIR)/string.o $(BUILD_DIR)/main.o
 
 .PHONY: all run run-raw iso clean
 
-all: build/novium.bin build/kernel.elf
+all: $(BUILD_DIR)/novium.bin $(BUILD_DIR)/kernel.elf
 
 # ensure build directory always exists before compiling
-build:
-	mkdir -p build
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-# generic pattern rules for building files
-build/%.o: init/%.c | build
+# generic pattern rule for compiling C sources (sources found via VPATH)
+$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/%.o: drivers/video/%.c | build
+$(BUILD_DIR)/bootstrap.o: arch/$(ARCH)/kernel/bootstrap.S | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/%.o: kernel/%.c | build
+$(BUILD_DIR)/isr.o: arch/$(ARCH)/kernel/isr.S | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/%.o: lib/%.c | build
+$(BUILD_DIR)/hw_init.o: arch/$(ARCH)/boot/hw_init.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/hw_init.o: arch/$(ARCH)/boot/hw_init.c | build
+$(BUILD_DIR)/irq.o: arch/$(ARCH)/kernel/irq.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/bootstrap.o: arch/$(ARCH)/kernel/bootstrap.S | build
-	$(CC) $(CFLAGS) -c $< -o $@
-
-build/isr.o: arch/$(ARCH)/kernel/isr.S | build
-	$(CC) $(CFLAGS) -c $< -o $@
-
-build/irq.o: arch/$(ARCH)/kernel/irq.c | build
-	$(CC) $(CFLAGS) -c $< -o $@
-
-build/pit.o: arch/$(ARCH)/kernel/pit.c | build
-	$(CC) $(CFLAGS) -c $< -o $@
-
-build/%.o: drivers/input/%.c | build
+$(BUILD_DIR)/pit.o: arch/$(ARCH)/kernel/pit.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
 # build raw boot sector
-build/boot.bin: arch/$(ARCH)/boot/boot.S | build
-	$(CC) $(CFLAGS) -c $< -o build/boot.o
-	$(LD) $(LDFLAGS_ARCH) -Ttext 0x7C00 build/boot.o -o build/boot.elf
-	$(OBJCOPY) -O binary build/boot.elf build/boot.bin
+$(BUILD_DIR)/boot.bin: arch/$(ARCH)/boot/boot.S | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $(BUILD_DIR)/boot.o
+	$(LD) $(LDFLAGS_ARCH) -Ttext 0x7C00 $(BUILD_DIR)/boot.o -o $(BUILD_DIR)/boot.elf
+	$(OBJCOPY) -O binary $(BUILD_DIR)/boot.elf $(BUILD_DIR)/boot.bin
 
 # build setup code 
-build/setup.bin: arch/$(ARCH)/boot/setup.S | build
-	$(CC) $(CFLAGS) -c $< -o build/setup.o
-	$(LD) $(LDFLAGS_ARCH) -Ttext 0x7E00 build/setup.o -o build/setup.elf
-	$(OBJCOPY) -O binary build/setup.elf build/setup.bin
-	$(TRUNCATE) -s 2K build/setup.bin
+$(BUILD_DIR)/setup.bin: arch/$(ARCH)/boot/setup.S | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $(BUILD_DIR)/setup.o
+	$(LD) $(LDFLAGS_ARCH) -Ttext 0x7E00 $(BUILD_DIR)/setup.o -o $(BUILD_DIR)/setup.elf
+	$(OBJCOPY) -O binary $(BUILD_DIR)/setup.elf $(BUILD_DIR)/setup.bin
+	$(TRUNCATE) -s 2K $(BUILD_DIR)/setup.bin
 
-build/kernel.elf: $(KERNEL_OBJS)
-	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o build/kernel.elf
+$(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS)
+	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o $(BUILD_DIR)/kernel.elf
 
-build/kernel.bin: build/kernel.elf
-	$(OBJCOPY) -O binary build/kernel.elf build/kernel.bin
-	$(TRUNCATE) -s 16384 build/kernel.bin
+$(BUILD_DIR)/kernel.bin: $(BUILD_DIR)/kernel.elf
+	$(OBJCOPY) -O binary $(BUILD_DIR)/kernel.elf $(BUILD_DIR)/kernel.bin
+	$(TRUNCATE) -s 16384 $(BUILD_DIR)/kernel.bin
 
 # glue everything into a single floppy image
-build/novium.bin: build/boot.bin build/setup.bin build/kernel.bin
-	cat build/boot.bin build/setup.bin build/kernel.bin > build/novium.bin
-	$(TRUNCATE) -s 1440K build/novium.bin
+$(BUILD_DIR)/novium.bin: $(BUILD_DIR)/boot.bin $(BUILD_DIR)/setup.bin $(BUILD_DIR)/kernel.bin
+	cat $(BUILD_DIR)/boot.bin $(BUILD_DIR)/setup.bin $(BUILD_DIR)/kernel.bin > $(BUILD_DIR)/novium.bin
+	$(TRUNCATE) -s 1440K $(BUILD_DIR)/novium.bin
 
 # build iso release
-build/iso:
-	mkdir -p build/iso/staging
+$(BUILD_DIR)/iso:
+	mkdir -p $(BUILD_DIR)/iso/staging
 
 
 # Optional: to build the iso you need xorriso, commands to install:
@@ -103,24 +92,24 @@ build/iso:
 # Fedora: sudo dnf install xorriso
 # Arch: sudo pacman -S libisoburn
 
-iso: build/novium.bin | build/iso
-	cp build/novium.bin build/iso/staging/novium.bin
+iso: $(BUILD_DIR)/novium.bin | $(BUILD_DIR)/iso
+	cp $(BUILD_DIR)/novium.bin $(BUILD_DIR)/iso/staging/novium.bin
 	xorriso -as mkisofs -quiet -V "$(OS_NAME)" \
-		-o build/iso/novium.iso \
+		-o $(BUILD_DIR)/iso/novium.iso \
 		-b novium.bin -c boot.cat \
-		build/iso/staging
+		$(BUILD_DIR)/iso/staging
 
 # qemu targets
 QEMU_FLAGS ?=
 
-run: build/kernel.elf
-	qemu-system-i386 $(QEMU_FLAGS) -kernel build/kernel.elf
+run: $(BUILD_DIR)/kernel.elf
+	qemu-system-i386 $(QEMU_FLAGS) -kernel $(BUILD_DIR)/kernel.elf
 
-run-raw: build/novium.bin
-	qemu-system-i386 $(QEMU_FLAGS) -drive format=raw,file=build/novium.bin,index=0,if=floppy -boot a
+run-raw: $(BUILD_DIR)/novium.bin
+	qemu-system-i386 $(QEMU_FLAGS) -drive format=raw,file=$(BUILD_DIR)/novium.bin,index=0,if=floppy -boot a
 
 clean:
-	rm -rf build
+	rm -rf $(BUILD_DIR)
 
 # generate compile_commands.json for clangd/IDE support
 compile_commands:

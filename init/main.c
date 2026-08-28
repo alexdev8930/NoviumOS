@@ -1,6 +1,6 @@
-#include <drivers/novium/console.h>
+#include <drivers/console.h>
 #include <novium/debug.h>
-#include <drivers/novium/input.h>
+#include <drivers/input.h>
 #include <novium/boot_info.h>
 
  

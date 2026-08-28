@@ -1,6 +1,6 @@
 #include <asm/irq.h>
-#include <drivers/novium/input.h>
-#include "asm/cpu.h"
+#include <drivers/input.h>
+#include <asm/cpu.h>
 #include "ps2.h"
 
 #define BUF_SIZE 32
