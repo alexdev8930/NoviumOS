@@ -26,7 +26,7 @@ CFLAGS = $(CFLAGS_ARCH) -ffreestanding -fno-builtin -fno-stack-protector -fno-pi
 
 LDFLAGS = $(LDFLAGS_ARCH) -T arch/$(ARCH)/kernel/link.ld
 
-KERNEL_OBJS = $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/hw_init.o $(BUILD_DIR)/irq.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/debug.o $(BUILD_DIR)/ps2.o $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/pit.o $(BUILD_DIR)/vga_console.o $(BUILD_DIR)/string.o $(BUILD_DIR)/stdio.o $(BUILD_DIR)/main.o
+KERNEL_OBJS = $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/hw_init.o $(BUILD_DIR)/irq.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/debug.o $(BUILD_DIR)/ps2.o $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/pit.o $(BUILD_DIR)/vga_console.o $(BUILD_DIR)/string.o $(BUILD_DIR)/stdio.o $(BUILD_DIR)/main.o $(BUILD_DIR)/sched.o
 
 .PHONY: all run run-raw iso clean
 
