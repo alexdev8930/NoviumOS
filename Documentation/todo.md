@@ -4,22 +4,8 @@ An honest look at where the project stands and what's on the list. Roughly order
 
 ---
 
-## Done
+For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
-- [x] Project layout and directory structure
-- [x] Basic kernel types
-- [x] Boot chain: `boot.S → setup.S → bootstrap.S → hw_init.c → kernel_main`
-- [x] Protected mode switch
-- [x] VGA text-mode console ("Hello World" is up on screen)
-- [x] Low-level PS/2 port I/O helpers
-- [x] Linker script
-- [x] Set up the IDT 
-- [x] Remap the PIC so hardware IRQs don't collide with exceptions
-- [x] IRQ dispatch — route IRQs to the right C handler
-- [x] ISR stubs for CPU exceptions (div-by-zero, page fault, etc.)
-- [x] Working QWERTY keyboard drivers
-- [x] PIT timer driver (~100 Hz tick, needed for scheduling later)
----
 
 ## Next up: Create stdio.h
 

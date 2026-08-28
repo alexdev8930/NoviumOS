@@ -14,10 +14,16 @@ project adheres to [Semantic Versioning](https://semver.org).
 
 ## 0.1.0 - 2026-08-26
 
-### Added
-- x86_32 BIOS boot chain, boot sector, protected-mode entry, and flat kernel layout
-- VGA console kernel output in QEMU
-- Working QWERTY keyboard drivers
-
 ### Fixed
 - PIT: `timer_get_ticks`, no 64-bit division, div-by-zero guard
+
+### Added
+- x86_32 BIOS boot chain, boot sector, protected-mode entry, and flat kernel layout
+- VGA text-mode console output in QEMU
+- Working QWERTY keyboard drivers
+- PIT timer driver with ~100 Hz tick rate
+- ISR stubs for CPU core exceptions (divide-by-zero, page faults, etc.)
+- Full interrupt infrastructure: IDT setup, PIC remapping, and IRQ dispatch routing
+
+
+

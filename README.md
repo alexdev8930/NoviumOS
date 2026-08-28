@@ -43,10 +43,10 @@ For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flo
 - [x] Basic console output
 - [x] Interrupt handling (IDT, PIC, IRQs)
 - [x] Working QWERTY keyboard drivers
-- [x] Timers
 - [x] Added low-level boot headers
 
-See [Documentation/todo.md](Documentation/todo.md) for the detailed task list.
+See [CHANGELOG.md](CHANGELOG.md) for official release history
+See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.
 
 
 ## Build and Run
