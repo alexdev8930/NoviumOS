@@ -1,10 +1,10 @@
 # Boot Flow
 
-Novium doesn't jump from "BIOS" to "kernel" in one step. It climbs a tiny ladder, and each rung sets up just enough for the next one to take over. Nothing here is magical - it's just a few pieces of assembly doing small, boring jobs until the C code can finally breathe. Here's the whole trip, from the moment the BIOS drops us in the boot sector to the moment you're typing into the console.
+This file explains how the custom bootloader I made for NoviumOS works.
 
 ## 1. Boot sector - `arch/x86_32/boot/boot.S`
 
-The BIOS loads the first 512 bytes of the disk image to `0x7C00` and jumps to us, still in plain 16-bit real mode. Our little MBR has two jobs:
+The BIOS loads the first 512 bytes of the disk image to `0x7C00` and jumps to us, still in plain 16-bit real mode. The MBR has 2 jobs:
 
 - **Pull the rest of the boot chain off disk** with BIOS disk reads (`int 0x13`). The setup stage goes to `0x7E00`, then the kernel lands in three fixed chunks at scratch buffers `0x8600`, `0xA000`, and `0xC400`. The kernel image is a raw `objcopy`-flattened binary, so these chunk reads are dumb and predictable - and they match the sizes hardcoded in `arch/x86_32/boot/boot.h`.
 - Print a tiny `L` on screen as a sign of life, then jump to setup.
@@ -34,7 +34,7 @@ Once we hit `hw_init`, assembly is done. Everything from here on is C.
 
 ## 4. Hardware init - `arch/x86_32/boot/hw_init.c`
 
-`hw_init()` is where the kernel starts doing real work. We run with interrupts disabled first (`irq_disable()`), because nothing should fire while we're half-built:
+hw_init() handles early low-level device configuration. Interrupts are disabled via irq_disable() while the subsystems are brought online:
 
 1. `idt_init()` - install the IDT and exception handlers so the CPU knows where to go on interrupts, faults, and syscalls.
 2. `pic_init()` - remap the PIC so hardware IRQs (timer, keyboard) don't collide with CPU exceptions.
