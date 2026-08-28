@@ -110,7 +110,3 @@ run-raw: $(BUILD_DIR)/novium.bin
 
 clean:
 	rm -rf $(BUILD_DIR)
-
-# generate compile_commands.json for clangd/IDE support
-compile_commands:
-	bear -- make

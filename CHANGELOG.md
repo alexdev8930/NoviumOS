@@ -1,8 +1,23 @@
 # Changelog
 
+The format is based on [Keep a Changelog](https://keepachangelog.com), and this
+project adheres to [Semantic Versioning](https://semver.org).
+
 ## [Unreleased]
 
-- cleaned up the repository layout and documentation
-- added a more structured README
-- added a contributing guide
-- finally fixed boot path
+### Added
+- `kernel_main` now declared in `init.h`
+- `stdio.h` and `string.h` are now finished
+
+### Changed
+- `kernel_main` takes `struct boot_info *` (bootloader→kernel handoff start)
+
+## 0.1.0 - 2026-08-26
+
+### Added
+- x86_32 BIOS boot chain, boot sector, protected-mode entry, and flat kernel layout
+- VGA console kernel output in QEMU
+- Working QWERTY keyboard drivers
+
+### Fixed
+- PIT: `timer_get_ticks`, no 64-bit division, div-by-zero guard

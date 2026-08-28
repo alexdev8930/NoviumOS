@@ -3,9 +3,8 @@
 #include <drivers/input.h>
 #include <novium/timer.h>
 #include <novium/boot_info.h>
+#include <novium/init.h>
 #include "boot.h"
-
-void kernel_main(struct boot_info *boot);
 
 
 void hw_init(void) {

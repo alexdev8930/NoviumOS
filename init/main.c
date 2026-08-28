@@ -2,6 +2,7 @@
 #include <novium/debug.h>
 #include <drivers/input.h>
 #include <novium/boot_info.h>
+#include <novium/init.h>
 
  
 void kernel_main(struct boot_info *boot) {
