@@ -53,6 +53,10 @@ See [Documentation/todo.md](Documentation/todo.md) for the detailed task list an
 
 ## Build and Run
 
+**Get the ISO release if you just want to see it instead of compiling it:** [NoviumOS-vX.Y.Z.zip](https://github.com/alexdev8930/NoviumOS/releases/)
+**Make sure you do the System Dependencies steps to get qemu_x86**
+
+
 ### System Dependencies
 
 Compiling Novium OS requires a 32-bit cross-compiler toolchain and the QEMU emulator.
