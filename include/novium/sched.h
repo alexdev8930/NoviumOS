@@ -52,7 +52,6 @@ typedef struct {
     u32 ContextSwitches;
 } SchedStats;
 
-/* Scheduler initialization */
 void SchedInit(void);
 
 /* Task management */
@@ -72,15 +71,12 @@ void SchedWakeTask(u32 Id);
 void SchedExit(void);
 void SchedKill(u32 Id);
 
-/* Scheduling policy */
 void SchedSetPolicy(SchedPolicy Policy);
 SchedPolicy SchedGetPolicy(void);
 
-/* Priority */
 void SchedSetPriority(Task *TaskItem, u32 Priority);
 u32 SchedGetPriority(Task *TaskItem);
 
-/* Statistics */
 void SchedGetStats(SchedStats *Stats);
 
 /* Scheduler locking */
