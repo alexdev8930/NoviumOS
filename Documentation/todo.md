@@ -1,4 +1,4 @@
-# Novium OS — Roadmap & To-Do
+# Novium OS - Roadmap & To-Do
 
 An honest look at where the project stands and what's on the list. Roughly ordered by dependency — the stuff at the top unlocks everything below it.
 
