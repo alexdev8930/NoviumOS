@@ -179,6 +179,8 @@ Task *SchedCreate(const char *Name, u32 Eip, u32 Esp) {
         return 0;
     }
 
+    SchedQueueRemove(&DeadQueue, TaskItem);
+    
     TaskItem->Id = NextTaskId++;
     TaskItem->ParentId = CurrentTask != 0 ? CurrentTask->Id : 0;
     TaskItem->Eip = Eip;
@@ -228,7 +230,7 @@ u32 SchedTaskCount(void) {
 void SchedYield(void) {
     Task *NextTask;
 
-    if (SchedulerLocked != 0 || CurrentTask == 0) {
+    if (SchedulerLocked != 0) {
         return;
     }
 
@@ -268,6 +270,7 @@ void SchedTick(struct registers *Regs) {
 
     if (CurrentTask->TimeUsed >= CurrentTask->TimeSlice) {
         CurrentTask->TimeUsed = 0;
+        SchedYield();
     }
 }
 
@@ -298,7 +301,16 @@ void SchedBlockTask(u32 Id) {
 
     if (TaskItem == CurrentTask) {
         TaskItem->State = TaskBlocked;
+        SchedQueueAdd(&BlockedQueue, TaskItem);
+
+        CurrentTask = 0;
         SchedYield();
+
+        if (CurrentTask == 0) {
+            CurrentTask = &Tasks[0];
+            CurrentTask->State = TaskRunning;
+        }
+
         return;
     }
 
@@ -351,6 +363,11 @@ void SchedExit(void) {
 
     CurrentTask = 0;
     SchedYield();
+
+    if (CurrentTask == 0) {
+        CurrentTask = &Tasks[0];
+        CurrentTask->State = TaskRunning;
+    }
 }
 
 void SchedKill(u32 Id) {

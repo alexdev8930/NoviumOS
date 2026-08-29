@@ -5,6 +5,14 @@ project adheres to [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+## 0.1.6 - 2026-08-28
+
+### Fixed
+- Fixed some scheduler task switching bugs
+- Fixed task blocking issues
+- Fixed time slice handling
+- Fixed dead task queue handling
+
 ### Added
 - C-based scheduler subsystem with task lifecycle management
 - Task states for ready, running, blocked, and dead tasks

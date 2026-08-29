@@ -7,7 +7,7 @@
  
 void kernel_main(struct boot_info *boot) {
     console_clear();
-    printf("NoviumOS v0.1.5\n");
+    printf("NoviumOS\n");
 
     if (boot != NULL && boot->magic == BOOT_INFO_MAGIC) {
         printf("Boot info valid. Boot drive: ");
