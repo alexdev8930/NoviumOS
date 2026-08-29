@@ -7,9 +7,10 @@ An honest look at where the project stands and what's on the list. Roughly order
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: Scheduling
+## Next up: Implement scheduling in `main.c`
 
-- [ ] Add scheduling
+- [ ] Implement scheduling in `main.c`
+- [ ] Add basic memory management
 - [ ] Add 64 bit support
 
 ---
@@ -18,7 +19,6 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 
 - [ ] Make the bootloader boot from hard drive instead of floppy or just switch to GRUB
 - [ ] VBE / framebuffer graphics mode
-- [ ] Memory management — paging + page allocator
 - [ ] Simple filesystem (VFS + initrd)
 - [ ] Basic IPC between kernel threads/processes
 
