@@ -5,19 +5,24 @@ Thanks for wanting to contribute! Whether you're fixing a bug, polishing the doc
 
 ## Guidelines
 
-- **Bug fixing** If you find a bug, you can either open an issue to report it or just submit a Pull Request directly with the fix.
-- **Big changes are welcome:** We are wide open to major overhauls, structural changes, or big feature ideas. Just open a PR directly with your code.
-- **Clarity over cleverness:** We value readable, maintainable code over complex tricks.
-- **Keep it organized:** Respect the existing project structure and layout unless your PR explicitly changes it for a good reason.
-- **Avoid premature complexity:** Build what we need right now. Do not over-engineer solutions for problems we do not have yet.
-
+- **Bug fixing:** If you find a bug, feel free to open an issue or submit a Pull Request with a fix.
+- **Big changes are welcome:** Major changes, rewrites, and new features are welcome. You can open a PR with your changes.
+- **Keep the code clear:** Try to keep code readable and easy to understand instead of using overly complicated solutions.
+- **Keep things organized:** Follow the existing project structure unless you have a good reason to change it.
+- **Don't overcomplicate things:** Focus on what NoviumOS needs now instead of adding things we might need later.
 
 
 ## Before submitting changes
 
-- **Stay on track:** Make sure your changes align directly with the current goals and roadmap of the project.
-- **Update the docs:** Keep the README and project structure updated and consistent with whatever changes you introduce.
-- **Be clear:** Give us a straightforward breakdown of exactly what you are trying to build, fix, or improve.
+- **Stay on track:** Make sure your changes fit with what NoviumOS is currently working towards.
+- **Update the docs:** Update the README or other documentation when your changes affect them.
+- **Explain your changes:** Give a clear explanation of what your PR changes and why.
+
+## AI Policy
+
+AI is allowed in NoviumOS. However, you must understand what the code does and review it yourself before submitting it. AI-assisted contributions must meet the same quality standards as contributions written without AI.
+
+If you use AI to update the README or other docs, make sure to review the changes yourself and remove anything that does not fit the project, such as unnecessary emojis, overly complicated wording, or other AI-generated writing quirks.
 
 
 ## How to contribute

@@ -1,1 +1,3 @@
-Future idea: userspace can be added later once the kernel is more complete.
+[NOTES]
+
+-implement irq.c into sched.c
