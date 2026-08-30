@@ -79,9 +79,10 @@ u32 SchedGetPriority(Task *TaskItem);
 
 void SchedGetStats(SchedStats *Stats);
 
-/* Scheduler locking */
 void SchedLock(void);
 void SchedUnlock(void);
+
+void SchedSwitch(u32 *OldEsp, u32 NewEsp);
 
 #endif
 

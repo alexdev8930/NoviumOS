@@ -5,6 +5,17 @@ project adheres to [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+## 0.2.0 - 2026-08-30
+
+### Changed
+- Made `cpu.h` all arches
+- Changed `sched.c` to have actual cpu scheduling instead of just logic
+
+### Added
+- Demo tasks in `main.c`
+- Added a low-level context switcher, `switch.S`
+- Added an all arch cpu_idle function
+
 ## 0.1.6 - 2026-08-28
 
 ### Fixed

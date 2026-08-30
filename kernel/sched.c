@@ -14,6 +14,7 @@ static u32 SchedulerTicks = 0;
 static u32 ContextSwitches = 0;
 static u32 SchedulerLocked = 0;
 
+/* appends a node to the absolute tail of a list */
 static void SchedQueueAdd(Task **Queue, Task *TaskItem) {
     TaskItem->Next = 0;
 
@@ -31,6 +32,7 @@ static void SchedQueueAdd(Task **Queue, Task *TaskItem) {
     Current->Next = TaskItem;
 }
 
+/* extracts a target node and bridges neighboring elements */
 static void SchedQueueRemove(Task **Queue, Task *TaskItem) {
     Task *Current;
     Task *Previous;
@@ -158,6 +160,31 @@ void SchedInit(void) {
     TaskCountValue = 1;
 }
 
+static void SchedExitStub(void (*Entry)(void)) {
+    Entry();     
+    SchedExit();   
+}
+
+void SchedInitStack(Task *TaskItem, void (*Entry)(void), u32 StackTop) {
+    u32 *sp = (u32 *)StackTop;
+
+    /*
+     * layout matches switch.S:
+     *   switch.S's `ret` pops SchedExitStub, leaving
+     *   [esp+4] = Entry as its first argument.
+     */
+    *--sp = (u32)Entry;            /* arg[0] for SchedExitStub          */
+    *--sp = 0;                     /* SchedExitStub's fake return addr  */
+    *--sp = (u32)SchedExitStub;    /* SchedSwitch `ret` jumps here       */
+    *--sp = 0;                     /* ebp */
+    *--sp = 0;                     /* ebx */
+    *--sp = 0;                     /* esi */
+    *--sp = 0;                     /* edi */
+
+    TaskItem->Esp = (u32)sp;
+}
+
+/* finds an empty descriptor and builds a new process node */
 Task *SchedCreate(const char *Name, u32 Eip, u32 Esp) {
     u32 Index;
     Task *TaskItem;
@@ -183,15 +210,18 @@ Task *SchedCreate(const char *Name, u32 Eip, u32 Esp) {
     
     TaskItem->Id = NextTaskId++;
     TaskItem->ParentId = CurrentTask != 0 ? CurrentTask->Id : 0;
+
+    SchedInitStack(TaskItem, (void (*)(void))Eip, Esp);
+
     TaskItem->Eip = Eip;
-    TaskItem->Esp = Esp;
-    TaskItem->Ebp = Esp;
+    TaskItem->Ebp = TaskItem->Esp; 
     TaskItem->Priority = 1;
     TaskItem->TimeSlice = 10;
     TaskItem->TimeUsed = 0;
     TaskItem->Runtime = 0;
     TaskItem->Switches = 0;
     TaskItem->State = TaskReady;
+
 
     u32 NameIndex;
 
@@ -229,6 +259,7 @@ u32 SchedTaskCount(void) {
 
 void SchedYield(void) {
     Task *NextTask;
+    Task *PrevTask;
 
     if (SchedulerLocked != 0) {
         return;
@@ -240,11 +271,13 @@ void SchedYield(void) {
         return;
     }
 
+    PrevTask = CurrentTask;
+
     SchedQueueRemove(&ReadyQueue, NextTask);
 
-    if (CurrentTask->State == TaskRunning) {
-        CurrentTask->State = TaskReady;
-        SchedQueueAdd(&ReadyQueue, CurrentTask);
+    if (PrevTask != 0 && PrevTask->State == TaskRunning) {
+        PrevTask->State = TaskReady;
+        SchedQueueAdd(&ReadyQueue, PrevTask);
     }
 
     NextTask->State = TaskRunning;
@@ -253,13 +286,14 @@ void SchedYield(void) {
 
     CurrentTask = NextTask;
     ContextSwitches++;
+
+    SchedSwitch(&PrevTask->Esp, NextTask->Esp);
 }
 
 void SchedTick(struct registers *Regs) {
     if (CurrentTask == 0) {
         SchedInit();
     }
-
     if (Regs == 0 || SchedulerLocked != 0) {
         return;
     }
@@ -268,10 +302,6 @@ void SchedTick(struct registers *Regs) {
     CurrentTask->Runtime++;
     CurrentTask->TimeUsed++;
 
-    if (CurrentTask->TimeUsed >= CurrentTask->TimeSlice) {
-        CurrentTask->TimeUsed = 0;
-        SchedYield();
-    }
 }
 
 void SchedBlock(void) {
@@ -342,6 +372,7 @@ void SchedWakeTask(u32 Id) {
     }
 }
 
+/* terminates a thread, detaches it from queues, and shifts CPU focus */
 void SchedExit(void) {
     Task *TaskItem;
 

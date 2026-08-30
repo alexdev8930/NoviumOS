@@ -5,7 +5,7 @@
 
 #define BUF_SIZE 32
 
-// we use volatile because interrupts modify these in RAM
+/* we use volatile because interrupts modify these in RAM */
 static volatile u8 buf[BUF_SIZE];
 static volatile u8 head = 0;
 static volatile u8 tail = 0;
@@ -60,7 +60,7 @@ static void keyboard_callback(struct registers *r) {
 
     u8 sc = ps2_read_scancode();
 
-    // drop the keystroke if the queue is completely full
+    /* drop the keystroke if the queue is completely full */
     u8 next = (head + 1) % BUF_SIZE;
     if (next != tail) {
         buf[head] = sc;
@@ -81,7 +81,7 @@ int keyboard_pop(void) {
     return sc;
 }
 
-// decode the scancodes
+/* decode the scancodes */
 int keyboard_getchar(void) {
     for (;;) {
         int sc = keyboard_pop();

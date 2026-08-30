@@ -2,6 +2,9 @@
 
 Thanks for wanting to contribute! Whether you're fixing a bug, polishing the docs, or suggesting a major new feature, we’re glad you're here. Please take a look at these guidelines before you dive in.
 
+## Comments
+
+We prefer using **`/* comment */`** most of the time but you can use **`// comment  `** for quick notes
 
 ## Guidelines
 

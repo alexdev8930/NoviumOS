@@ -45,7 +45,7 @@ For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flo
 - [x] Working QWERTY keyboard drivers
 - [x] Added low-level boot headers
 - [x] Printf
-- [x] Basic scheduler (not in kernel main yet)
+- [x] Cpu scheduler
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.
@@ -56,6 +56,8 @@ See [Documentation/todo.md](Documentation/todo.md) for the detailed task list an
 **Get the ISO release if you just want to see it instead of compiling it:** [NoviumOS-vX.Y.Z.zip](https://github.com/alexdev8930/NoviumOS/releases/)
 **Make sure you do the System Dependencies steps to get qemu_x86**
 
+>[!NOTE]
+> **The iso release wont come in all versions.**
 
 ### System Dependencies
 
@@ -121,8 +123,6 @@ bear -- make # or just make
 Now run the OS:
 
 ```bash
-make run     # jump straight to kernel
-
-make run-raw # emulate starting from bootloader
+make run-raw     # start from bootloader (no more start at kernel)
 ```
 

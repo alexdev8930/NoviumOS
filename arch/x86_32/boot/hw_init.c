@@ -8,7 +8,7 @@
 
 
 void hw_init(void) {
-    irq_disable();      // cli while wiring IDT/PIC 
+    irq_disable(); /* cli while wiring IDT/PIC */
 
     idt_init();
     pic_init();

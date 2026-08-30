@@ -1,4 +1,5 @@
 #include <novium/timer.h>
+#include <novium/sched.h>
 #include <asm/irq.h>
 #include <asm/io.h>
 #include <asm/cpu.h>
@@ -12,8 +13,8 @@ static volatile u32 tick_count = 0;
 static u32 ticks_per_second = 0;
 
 static void timer_callback(struct registers *regs) {
-    (void)regs;
     tick_count++;
+    SchedTick(regs);
 }
 
 void timer_init(int hz) {

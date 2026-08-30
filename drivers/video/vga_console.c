@@ -77,10 +77,10 @@ void console_clear(void) {
 
 
 void update_hardware_cursor(int pos) {
-    // select low cursor byte register (0x0F) on port 0x3D4, write value to 0x3D5
+    /* select low cursor byte register (0x0F) on port 0x3D4, write value to 0x3D5 */
     outb(0x3D4, 0x0F);
     outb(0x3D5, (u8)(pos & 0xFF));
-    // select high cursor byte register (0x0E) on port 0x3D4, write value to 0x3D5
+    /* select high cursor byte register (0x0E) on port 0x3D4, write value to 0x3D5 */
     outb(0x3D4, 0x0E);
     outb(0x3D5, (u8)((pos >> 8) & 0xFF));
 }

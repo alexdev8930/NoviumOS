@@ -4,7 +4,7 @@
 #include <novium/types.h>
 
 
-// all CPU registers pushed onto the stack during an interrupt
+/* all CPU registers pushed onto the stack during an interrupt */
 struct registers {
     u32 gs, fs, es, ds;         
     u32 edi, esi, ebp, esp;    
@@ -21,7 +21,7 @@ void idt_init(void);
 void pic_init(void);
 void irq_register(int irq, irq_handler_t handler);
 void irq_unregister(int irq);
-void irq_enable(void); // sti 
-void irq_disable(void); // cli
+void irq_enable(void); /* sti */
+void irq_disable(void); /* cli */
 
 #endif

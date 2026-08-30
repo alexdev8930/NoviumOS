@@ -26,7 +26,8 @@ CFLAGS = $(CFLAGS_ARCH) -ffreestanding -fno-builtin -fno-stack-protector -fno-pi
 
 LDFLAGS = $(LDFLAGS_ARCH) -T arch/$(ARCH)/kernel/link.ld
 
-KERNEL_OBJS = $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/hw_init.o $(BUILD_DIR)/irq.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/debug.o $(BUILD_DIR)/ps2.o $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/pit.o $(BUILD_DIR)/vga_console.o $(BUILD_DIR)/string.o $(BUILD_DIR)/stdio.o $(BUILD_DIR)/main.o $(BUILD_DIR)/sched.o
+KERNEL_OBJS = $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/hw_init.o $(BUILD_DIR)/irq.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/debug.o $(BUILD_DIR)/ps2.o $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/pit.o $(BUILD_DIR)/vga_console.o $(BUILD_DIR)/string.o $(BUILD_DIR)/stdio.o $(BUILD_DIR)/main.o $(BUILD_DIR)/sched.o $(BUILD_DIR)/process.o $(BUILD_DIR)/switch.o
+
 .PHONY: all run run-raw iso clean
 
 all: $(BUILD_DIR)/novium.bin $(BUILD_DIR)/kernel.elf
@@ -45,6 +46,9 @@ $(BUILD_DIR)/bootstrap.o: arch/$(ARCH)/kernel/bootstrap.S | $(BUILD_DIR)
 $(BUILD_DIR)/isr.o: arch/$(ARCH)/kernel/isr.S | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(BUILD_DIR)/switch.o: arch/$(ARCH)/kernel/switch.S | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(BUILD_DIR)/hw_init.o: arch/$(ARCH)/boot/hw_init.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -53,6 +57,10 @@ $(BUILD_DIR)/irq.o: arch/$(ARCH)/kernel/irq.c | $(BUILD_DIR)
 
 $(BUILD_DIR)/pit.o: arch/$(ARCH)/kernel/pit.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/process.o: arch/$(ARCH)/kernel/process.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 
 
 # build raw boot sector
@@ -100,9 +108,6 @@ iso: $(BUILD_DIR)/novium.bin | $(BUILD_DIR)/iso
 
 # qemu targets
 QEMU_FLAGS ?=
-
-run: $(BUILD_DIR)/kernel.elf
-	qemu-system-i386 $(QEMU_FLAGS) -kernel $(BUILD_DIR)/kernel.elf
 
 run-raw: $(BUILD_DIR)/novium.bin
 	qemu-system-i386 $(QEMU_FLAGS) -drive format=raw,file=$(BUILD_DIR)/novium.bin,index=0,if=floppy -boot a

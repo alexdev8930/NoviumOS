@@ -7,9 +7,8 @@ An honest look at where the project stands and what's on the list. Roughly order
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: Implement scheduling in `main.c`
+## Next up: Basic Memory Management
 
-- [ ] Implement scheduling in `main.c`
 - [ ] Add basic memory management
 - [ ] Add 64 bit support
 
