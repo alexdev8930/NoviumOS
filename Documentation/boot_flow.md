@@ -1,6 +1,6 @@
 # Boot Flow
 
-This file explains how the custom bootloader I made for NoviumOS works.
+This file explains how the custom bootloader I made for NoviumOS works (soon its gonna have 64 bit support).
 
 ## 1. Boot sector - `arch/x86_32/boot/boot.S`
 

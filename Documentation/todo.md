@@ -1,6 +1,6 @@
 # Novium OS - Roadmap & To-Do
 
-An honest look at where the project stands and what's on the list. Roughly ordered by dependency — the stuff at the top unlocks everything below it.
+This is the NoviumOS todo list this lists things that are going to happen in the future and things that are happening right now.
 
 ---
 
@@ -9,16 +9,16 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 
 ## Next up: Basic Memory Management
 
-- [ ] Add basic memory management
-- [ ] Add 64 bit support
+- [ ] Implement basic Memory Management (PMM/VMM)
+- [ ] Add 64 bit support with UEFI instead of BIOS
 
 ---
 
 ## Roadmap 
 
 - [ ] Make the bootloader boot from hard drive instead of floppy or just switch to GRUB
-- [ ] VBE / framebuffer graphics mode
-- [ ] Simple filesystem (VFS + initrd)
+- [ ] Support framebuffer graphics (VBE for 32-bit BIOS (VBE later maybe) / UEFI GOP for 64-bit)
+- [ ] Simple filesystem (VFS + initrd maybe ext2)
 - [ ] Basic IPC between kernel threads/processes
 
 ---

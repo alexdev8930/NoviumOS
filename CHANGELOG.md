@@ -5,6 +5,9 @@ project adheres to [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+### Added
+- Added `memory_map.md`
+
 ## 0.2.0 - 2026-08-30
 
 ### Changed
