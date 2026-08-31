@@ -1,6 +1,6 @@
 OS_NAME = NoviumOS
 KERNEL_NAME = neox
-VERSION = 0.1.0
+VERSION = 0.2.0
 
 BUILD_DIR = build
 VPATH = init drivers/video drivers/input kernel lib
