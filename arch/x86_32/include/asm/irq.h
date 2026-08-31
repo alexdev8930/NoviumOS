@@ -1,5 +1,5 @@
-#ifndef NOVIUM_IRQ_H
-#define NOVIUM_IRQ_H
+#ifndef NOVIUM_X86_32_IRQ_H
+#define NOVIUM_X86_32_IRQ_H
 
 #include <novium/types.h>
 

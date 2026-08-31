@@ -1,5 +1,5 @@
-#ifndef NOVIUM_IO_H
-#define NOVIUM_IO_H
+#ifndef NOVIUM_X86_32_IO_H
+#define NOVIUM_X86_32_IO_H
 
 #include <novium/types.h>
 

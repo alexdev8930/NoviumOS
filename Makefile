@@ -1,6 +1,8 @@
-OS_NAME = NoviumOS
-KERNEL_NAME = neox
-VERSION = 0.2.0
+MAJOR = 0
+MINOR = 2
+PATCH = 0
+VERSION = $(MAJOR).$(MINOR).$(PATCH)
+NAME = Floppy Duck
 
 BUILD_DIR = build
 VPATH = init drivers/video drivers/input kernel lib
@@ -99,10 +101,15 @@ $(BUILD_DIR)/iso:
 # Fedora: sudo dnf install xorriso
 # Arch: sudo pacman -S libisoburn
 
+# result in build/iso
+# how to run: 
+
+# - cd build/iso 
+# - qemu-system-i386 -boot d -cdrom novium-v$(VERSION).iso
 iso: $(BUILD_DIR)/novium.bin | $(BUILD_DIR)/iso
 	cp $(BUILD_DIR)/novium.bin $(BUILD_DIR)/iso/staging/novium.bin
-	xorriso -as mkisofs -quiet -V "$(OS_NAME)" \
-		-o $(BUILD_DIR)/iso/novium.iso \
+	xorriso -as mkisofs -quiet -V "NoviumOS-v$(VERSION)" \
+		-o $(BUILD_DIR)/iso/novium-v$(VERSION).iso \
 		-b novium.bin -c boot.cat \
 		$(BUILD_DIR)/iso/staging
 
