@@ -72,6 +72,13 @@ void console_clear(void) {
         video_memory[i * 2 + 1] = 0x07;             
     }
     cursor = 0; user_cmdline_start = 0;
+
+    /* GRUB may leave the VGA text cursor disabled. */
+    outb(0x3D4, 0x0A);
+    outb(0x3D5, 0x0E);
+    outb(0x3D4, 0x0B);
+    outb(0x3D5, 0x0F);
+
     update_hardware_cursor(cursor);
 }
 

@@ -1,12 +1,26 @@
 # Changelog
 
-The format is based on [Keep a Changelog](https://keepachangelog.com), and this
-project adheres to [Semantic Versioning](https://semver.org).
+The format is based on [Keep a Changelog](https://keepachangelog.com)
+
+**Versioning works like this:** We just keep counting up 0.1.0 -> 0.2.0 ect, 0.9.0 -> 1.0.0 ect i can also do this 1.5.0 -> 2.0.0 for major updates.
 
 ## [Unreleased]
 
+## 0.3.0 - 2026-09-05
+
 ### Added
 - Added `memory_map.md`
+- Standard GRUB Multiboot 1 boot support
+- Automated GRUB ISO builds and a clean `make run` target for QEMU
+
+### Changed
+- Scrapped the old custom BIOS bootloader for a GRUB-loaded kernel ELF
+- Swapped my custom boot metadata for GRUB's multiboot info structure
+
+### Fixed
+- Saved GRUB's EAX/EBX register parameters before they could get clobbered
+- Fixed segment selectors to play nice with GRUB's flat GDT layout
+- Used a linker `KEEP` directive to retain the Multiboot header in the loadable image
 
 ## 0.2.0 - 2026-08-30
 

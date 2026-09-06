@@ -7,9 +7,8 @@ This is the NoviumOS todo list this lists things that are going to happen in the
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: Switch to GRUB
+## Next up: Memory Managment
 
-- [ ] Switch to GRUB
 - [ ] Implement basic Memory Management (PMM/VMM)
 - [ ] Add 64 bit support with UEFI instead of BIOS
 

@@ -2,34 +2,36 @@
 .global bootstrap_entry
 
 bootstrap_entry:
-    cli                        
+    cli
 
-    # reload data segments
-    movw $0x10, %ax             
+    # Save GRUB values before using EAX for segment setup.
+    movl %eax, %edx
+    movl %ebx, %esi
+
+    movw $0x18, %ax
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %fs
     movw %ax, %gs
     movw %ax, %ss
 
-    movl $stack_top, %esp       # set up stack pointer
-    cld                         
+    movl $stack_top, %esp
+    cld
 
-    # clear bss section
-    .extern _bss_start
-    .extern _bss_end
-    movl $_bss_start, %edi      
+    # clear BSS.
+    movl $_bss_start, %edi
     movl $_bss_end, %ecx
     subl %edi, %ecx
     xorl %eax, %eax
-    rep stosb                   
+    rep stosb
 
-    # jump to c code
-    .extern hw_init
-    call hw_init                
+    # c calling convention: push arguments right-to-left.
+    pushl %esi
+    pushl %edx
+    call hw_init
 
 _halt:
-    hlt                         
+    hlt
     jmp _halt
 
 .section .bss

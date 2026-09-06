@@ -42,8 +42,13 @@ void kernel_main(struct boot_info *boot) {
     console_clear();
     printf("NoviumOS\n\n");
 
-    if (boot != NULL && boot->magic == BOOT_INFO_MAGIC) {
-        printf("OK: Boot info valid.\nINFO: Boot drive: %d\n\n", boot->boot_drive_id);
+    if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC) {
+        printf("OK: Multiboot info valid.\n");
+        if (boot->memory_map_length != 0) {
+            printf("OK: Memory map available.\n\n");
+        } else {
+            printf("WARNING: no memory map available.\n\n");
+        }
     } else {
         printf("WARNING: no valid boot info\n");
     }

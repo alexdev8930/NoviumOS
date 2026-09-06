@@ -36,7 +36,7 @@ static irq_handler_t handlers[INT_VECTORS];
 /* sets up an interrupt gate in the idt_entry */
 static void idt_set_gate(int n, u32 fn) {  
     idt[n].offset_low  = fn & 0xFFFF;    
-    idt[n].selector    = 0x08;       
+    idt[n].selector    = 0x10;
     idt[n].zero        = 0;              
     idt[n].type_attr   = 0x8E;             
     idt[n].offset_high = (fn >> 16) & 0xFFFF;

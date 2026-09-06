@@ -6,9 +6,7 @@
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
 > [!NOTE]
-> Directories like `mm/`, `ipc/`, `lib/`, `fs/`, and `userspace/` currently contain early stubs. Active code lives in:
-> * [arch/](arch/)(boot logic) 
-> * [drivers/](drivers/) (hardware).
+> Directories like `mm/`, `ipc/` and `fs/` currently contain early stubs.
 
 
 ## Project structure
@@ -47,11 +45,8 @@ See [Documentation/todo.md](Documentation/todo.md) for the detailed task list an
 
 ## Build and Run
 
-**Get the ISO release if you just want to see it instead of compiling it:** [NoviumOS-vX.Y.Z.zip](https://github.com/alexdev8930/NoviumOS/releases/)
-**Make sure you do the System Dependencies steps to get qemu_x86**
-
 >[!NOTE]
-> **The iso release wont come in all versions.**
+> Were switching to just tags and no more iso releases cause its easier to just download dependencies and run on your own
 
 ### System Dependencies
 
@@ -63,17 +58,17 @@ Compiling Novium OS requires a 32-bit cross-compiler toolchain and the QEMU emul
 
 **Ubuntu / Debian / Mint:**
 ```bash
-sudo apt update && sudo apt install build-essential gcc-multilib qemu-system-x86 bear
+sudo apt update && sudo apt install -y build-essential gcc-multilib qemu-system-x86 grub-common grub-pc-bin xorriso mtools bear
 ```
 
 **Fedora:**
 ```bash
-sudo dnf groupinstall "Development Tools" && sudo dnf install gcc.i686 glibc-devel.i686 qemu-system-x86 bear
+sudo dnf install gcc make binutils gcc-c++ glibc-devel.i686 qemu-system-x86 grub2-tools grub2-tools-extra xorriso mtools bear -y
 ```
 
 **Arch Linux:**
 ```bash
-sudo pacman -Syu base-devel lib32-gcc-libs qemu-desktop bear
+sudo pacman -Syu --needed base-devel lib32-gcc-libs qemu-desktop grub xorriso mtools bear
 ```
 *(Arch users: Ensure `[multilib]` is enabled in your `/etc/pacman.conf` for 32-bit compilation libraries).*
 
@@ -93,7 +88,7 @@ Build on Windows using WSL2 tied to a native Windows QEMU installation:
 
 3. **Install build tools** inside your WSL2 terminal:
    ```bash
-   sudo apt update && sudo apt install build-essential gcc-multilib bear
+   sudo apt update && sudo apt install -y build-essential gcc-multilib qemu-system-x86 grub-common grub-pc-bin xorriso mtools bear
    ```
 <br>
 
@@ -117,6 +112,6 @@ bear -- make # or just make
 Now run the OS:
 
 ```bash
-make run-raw      # start from bootloader (Legacy raw boot - switching to GRUB next commit)
+make run
 ```
 

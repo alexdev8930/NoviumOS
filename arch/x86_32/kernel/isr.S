@@ -27,7 +27,7 @@ isr_common:
     push %gs
 
     # load kernel segment selector
-    movw $0x10, %ax
+    movw $0x18, %ax
     movw %ax, %ds  
     movw %ax, %es         
     movw %ax, %fs        
@@ -51,7 +51,7 @@ isr_common:
     addl $8, %esp     
     iret
 
-# CPU Exceptions (0-31) 
+# CPU exceptions (0-31)
 ISR_NOERR 0
 ISR_NOERR 1
 ISR_NOERR 2
@@ -85,7 +85,7 @@ ISR_NOERR 29
 ISR_NOERR 30
 ISR_NOERR 31
 
-# Hardware IRQs (32-47) 
+# hardware IRQs (32-47)
 ISR_NOERR 32
 ISR_NOERR 33
 ISR_NOERR 34

@@ -21,23 +21,34 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential gcc-multilib qemu-system-x86 
+          sudo apt install -y build-essential gcc-multilib qemu-system-x86 \
+            grub-common grub-pc-bin xorriso mtools
 
       - name: Build
         run: |
           make clean
           make
 
-      - name: Upload NoviumOS Disk Image
+      - name: Locate NoviumOS ISO
+        run: |
+          ISO_IMAGE="$(find build/iso -maxdepth 1 -type f -name '*.iso' -print -quit)"
+          test -n "$ISO_IMAGE"
+          echo "ISO_IMAGE=$ISO_IMAGE" >> "$GITHUB_ENV"
+
+      - name: Upload NoviumOS ISO
         uses: actions/upload-artifact@v4
         with:
-          name: novium-floppy-image
-          path: build/novium.bin
+          name: novium-iso
+          path: build/iso/*.iso
 
       - name: Run in QEMU
         run: |
-          # We call the qemu command directly to completely bypass the Makefile rule
-          # NOTE: -nographic already redirects the serial port to stdio,
-          # so adding "-serial stdio" would fail with
-          # "cannot use stdio by multiple character devices" (exit code 1).
-          timeout 10s qemu-system-i386 -drive format=raw,file=build/novium.bin,index=0,if=floppy -boot a -nographic || [ $? -eq 124 ]
+          set +e
+          timeout 10s qemu-system-i386 \
+            -cdrom "$ISO_IMAGE" \
+            -boot d \
+            -display none
+          status=$?
+          if [ "$status" -ne 124 ]; then
+            exit "$status"
+          fi

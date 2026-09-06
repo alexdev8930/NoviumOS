@@ -2,29 +2,39 @@ ENTRY(bootstrap_entry)
 
 SECTIONS
 {
-    . = 1M;                     /* load kernel at 1mb */
+    . = 1M;
+    _kernel_start = .;
 
-    .text : ALIGN(4096) 
+    .multiboot : ALIGN(4)
     {
-        KEEP(*(.text.prologue)) /* make sure entry code comes first */
+        KEEP(*(.multiboot))
+    }
+
+    . = ALIGN(4096);
+    .text :
+    {
+        KEEP(*(.text.prologue))
         *(.text*)
     }
 
-    .rodata : ALIGN(4096) 
-    { 
-        *(.rodata*) 
+    .rodata : ALIGN(4096)
+    {
+        *(.rodata*)
     }
-    
-    .data : ALIGN(4096) 
-    { 
-        *(.data*) 
+
+    .data : ALIGN(4096)
+    {
+        *(.data*)
     }
-    
-    .bss : ALIGN(4096) 
-    { 
-        _bss_start = .;       
-        *(COMMON) 
-        *(.bss*) 
-        _bss_end = .;         
+
+    .bss : ALIGN(4096)
+    {
+        _bss_start = .;
+        *(COMMON)
+        *(.bss*)
+        _bss_end = .;
     }
+
+    . = ALIGN(4096);
+    _kernel_end = .;
 }
