@@ -4,9 +4,8 @@ Welcome to the design docs and planning files for Novium OS. This is where I map
 
 ## System Specs
 
-* [boot_flow.md](boot_flow.md) - A breakdown of the x86 boot path from assembly to C kernel init.
 * [todo.md](todo.md) - My task list, upcoming features, and roadmap milestones.
-* [memory_map.md](memory_map.md) - A map of physical memory addresses and kernel limits.
+* [memory_map.md](memory_map.md) - A map of physical memory addresses and kernel limits (right now nothing cause i need to switch to grub).
 
 
 ## Current Status 

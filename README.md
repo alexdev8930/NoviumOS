@@ -28,13 +28,7 @@ The layout is inspired by the Linux kernel, but kept pretty simple:
 
 ## Boot flow
 
-The current boot path is pretty straightforward:
-
-```text
-boot.S -> setup.S -> bootstrap.S -> hw_init.c -> init/main.c
-```
-
-For a detailed bootpath, see [Documentation/boot_flow.md](Documentation/boot_flow.md).
+Im going to switch to grub in my next commit so right now there still is a bootloader but im not going to explain cause im switching right now.
 
 
 ## What i've done so far
@@ -123,6 +117,6 @@ bear -- make # or just make
 Now run the OS:
 
 ```bash
-make run-raw     # start from bootloader (no more start at kernel)
+make run-raw      # start from bootloader (Legacy raw boot - switching to GRUB next commit)
 ```
 
