@@ -4,7 +4,7 @@
 bootstrap_entry:
     cli
 
-    # Save GRUB values before using EAX for segment setup.
+    # save GRUB values before using EAX for segment setup.
     movl %eax, %edx
     movl %ebx, %esi
 
