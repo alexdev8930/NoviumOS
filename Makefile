@@ -4,14 +4,18 @@ SUBLEVEL = 0
 EXTRAVERSION = -dev
 VERSION_TAG = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
-DRIVE_FLAGS = -cdrom
-BUILD_DIR = build
-VPATH = init drivers/video drivers/input kernel lib mm
+CC = gcc
+LD = ld
+QEMU ?= qemu-system-i386
+GRUB_MKRESCUE ?= grub-mkrescue
 
 ARCH ?= x86_32
 
-CC = gcc
-LD = ld
+BUILD_DIR = build
+VPATH = init drivers/video drivers/input kernel lib arch/$(ARCH)/boot arch/$(ARCH)/kernel
+
+DRIVE_FLAGS ?= -cdrom
+QEMU_FLAGS ?= -m 128M -serial stdio
 
 GRUB_CFG = arch/$(ARCH)/boot/grub/grub.cfg
 ISO_ROOT = $(BUILD_DIR)/iso/staging
@@ -24,6 +28,8 @@ else
 $(error unsupported ARCH '$(ARCH)')
 endif
 
+CPPFLAGS = -Iinclude -Iarch/$(ARCH)/include
+
 CFLAGS = $(CFLAGS_ARCH) \
          -ffreestanding \
          -fno-builtin \
@@ -32,9 +38,7 @@ CFLAGS = $(CFLAGS_ARCH) \
          -O2 \
          -g \
          -Wall \
-         -Wextra \
-         -Iinclude \
-         -Iarch/$(ARCH)/include
+         -Wextra 
 
 LDFLAGS = $(LDFLAGS_ARCH) \
           -T arch/$(ARCH)/kernel/link.ld
@@ -64,32 +68,12 @@ all: $(ISO_IMAGE)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
+# VPATH finds the .c/.S files in the dirs listed above
 $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/multiboot.o: arch/$(ARCH)/boot/multiboot.S | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/bootstrap.o: arch/$(ARCH)/kernel/bootstrap.S | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/isr.o: arch/$(ARCH)/kernel/isr.S | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/switch.o: arch/$(ARCH)/kernel/switch.S | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/hw_init.o: arch/$(ARCH)/boot/hw_init.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/irq.o: arch/$(ARCH)/kernel/irq.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/pit.o: arch/$(ARCH)/kernel/pit.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/process.o: arch/$(ARCH)/kernel/process.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(BUILD_DIR)/%.o: %.S | $(BUILD_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS) arch/$(ARCH)/kernel/link.ld
 	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o $@
@@ -98,12 +82,12 @@ $(ISO_IMAGE): $(BUILD_DIR)/kernel.elf $(GRUB_CFG) | $(BUILD_DIR)
 	mkdir -p $(ISO_ROOT)/boot/grub
 	cp $(BUILD_DIR)/kernel.elf $(ISO_ROOT)/boot/novium
 	cp $(GRUB_CFG) $(ISO_ROOT)/boot/grub/grub.cfg
-	grub-mkrescue -o $@ $(ISO_ROOT)
+	$(GRUB_MKRESCUE) -o $@ $(ISO_ROOT)
 
 iso: $(ISO_IMAGE)
 
 run: $(ISO_IMAGE)
-	qemu-system-i386 $(QEMU_FLAGS) $(DRIVE_FLAGS) $(ISO_IMAGE)
+	$(QEMU) $(QEMU_FLAGS) $(DRIVE_FLAGS) $(ISO_IMAGE)
 
 clean:
 	rm -rf $(BUILD_DIR)

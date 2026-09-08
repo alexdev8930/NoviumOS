@@ -37,7 +37,8 @@ Im going to switch to grub in my next commit so right now there still is a bootl
 - [x] Working QWERTY keyboard drivers
 - [x] Added low-level boot headers
 - [x] Printf
-- [x] Cpu scheduler
+- [x] CPU scheduler
+- [x] Switch to GRUB bootloader
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.
@@ -90,6 +91,7 @@ Build on Windows using WSL2 tied to a native Windows QEMU installation:
    ```bash
    sudo apt update && sudo apt install -y build-essential gcc-multilib qemu-system-x86 grub-common grub-pc-bin xorriso mtools bear
    ```
+   
 <br>
 
 4. **Link WSL2 to Windows QEMU** by running this in your WSL2 terminal:

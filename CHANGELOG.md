@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com)
 
 ## [Unreleased]
 
+### Changed
+- Restyled Makefile and added CPPFLAGS and QEMU_FLAGS
+
 ## 0.3.0 - 2026-09-05
 
 ### Added
