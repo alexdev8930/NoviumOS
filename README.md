@@ -26,8 +26,7 @@ The layout is inspired by the Linux kernel, but kept pretty simple:
 
 ## Boot flow
 
-Im going to switch to grub in my next commit so right now there still is a bootloader but im not going to explain cause im switching right now.
-
+GRUB finds and loads the kernel, checks the Multiboot header, and hands control to bootstrap.S. That setup code sets up the stack, clears BSS, and calls `hw_init` before the C kernel takes over.
 
 ## What i've done so far
 
