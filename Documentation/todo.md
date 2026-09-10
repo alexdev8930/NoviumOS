@@ -7,9 +7,9 @@ This is the NoviumOS todo list this lists things that are going to happen in the
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: Memory Managment
+## Next up: Virtual Memory Management
 
-- [ ] Implement basic Memory Management (PMM/VMM)
+- [ ] Implement basic Virtual Memory Management 
 - [ ] Add 64 bit support with UEFI instead of BIOS
 
 ---

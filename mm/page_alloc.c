@@ -25,6 +25,7 @@ static void PageSet(u32 Page, u32 Free) {
 	}
 }
 
+/* marks a range of memory addresses as free or used, rounding to 4KB page boundaries. */
 static void PageSetRange(u64 Base, u64 Length, u32 Free) {
 	u64 End = Base + Length;
 	u64 First;
@@ -50,6 +51,7 @@ static void PageSetRange(u64 Base, u64 Length, u32 Free) {
 	}
 }
 
+/* clears the bitmap, parses GRUB's memory map, and protects the kernel's memory space. */
 void PageAllocInit(const struct boot_info *Boot) {
 	u32 Index;
 	u32 Offset;
@@ -108,6 +110,7 @@ u32 PageAlloc(void) {
 	return 0;
 }
 
+/* scans the bitmap for the first free 4KB page and returns its physical address. */
 void PageFree(u32 Address) {
 	if (Address == 0 || (Address & (PAGE_SIZE - 1u)) != 0) {
 		return;
