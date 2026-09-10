@@ -12,7 +12,7 @@ GRUB_MKRESCUE ?= grub-mkrescue
 ARCH ?= x86_32
 
 BUILD_DIR = build
-VPATH = init drivers/video drivers/input kernel lib arch/$(ARCH)/boot arch/$(ARCH)/kernel
+VPATH = init drivers/video drivers/input kernel lib mm arch/$(ARCH)/boot arch/$(ARCH)/kernel
 
 DRIVE_FLAGS ?= -cdrom
 QEMU_FLAGS ?= -m 128M -serial stdio
@@ -28,7 +28,7 @@ else
 $(error unsupported ARCH '$(ARCH)')
 endif
 
-CPPFLAGS = -Iinclude -Iarch/$(ARCH)/include
+CPPFLAGS = -I. -Iinclude -Iarch/$(ARCH)/include
 
 CFLAGS = $(CFLAGS_ARCH) \
          -ffreestanding \
@@ -56,6 +56,7 @@ KERNEL_OBJS = \
     $(BUILD_DIR)/vga_console.o \
     $(BUILD_DIR)/string.o \
     $(BUILD_DIR)/stdio.o \
+    $(BUILD_DIR)/page_alloc.o \
     $(BUILD_DIR)/main.o \
     $(BUILD_DIR)/sched.o \
     $(BUILD_DIR)/process.o \
