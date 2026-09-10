@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com)
 
 ## [Unreleased]
 
+## 0.4.0 - 2026-09-09
+
+### Added
+- Added basic bitmap page allocater
+
 ### Changed
 - Restyled Makefile and added CPPFLAGS and QEMU_FLAGS
 
