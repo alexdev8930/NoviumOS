@@ -7,6 +7,7 @@
 #include <novium/sched.h>
 #include <novium/timer.h>
 #include <novium/cpu.h>
+#include <mm/page_alloc.h>
 
 #define TASK_STACK_SIZE 4096
 static u8 ShellStack[TASK_STACK_SIZE] __attribute__((aligned(16)));
@@ -52,6 +53,9 @@ void kernel_main(struct boot_info *boot) {
     } else {
         printf("WARNING: no valid boot info\n");
     }
+
+    PageAllocInit(boot);
+    printf("OK: %u physical pages available.\n\n", PageAllocFreeCount());
 
     SchedInit();
     printf("OK: Scheduling Init Succesfull\n");
