@@ -59,6 +59,7 @@ KERNEL_OBJS = \
     $(BUILD_DIR)/string.o \
     $(BUILD_DIR)/stdio.o \
     $(BUILD_DIR)/page_alloc.o \
+    $(BUILD_DIR)/paging.o \
     $(BUILD_DIR)/main.o \
     $(BUILD_DIR)/sched.o \
     $(BUILD_DIR)/process.o \
