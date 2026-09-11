@@ -1,7 +1,8 @@
 # Memory Map
 
-Addresses are physical 32-bit addresses. Paging is currently disabled, so
-physical and virtual addresses are identical.
+Physical addresses are 32-bit addresses and are managed in 4 KiB pages. The
+kernel enables identity paging for the complete 32-bit address space, from
+`0x00000000` through `0xFFFFFFFF` (4 GiB).
 
 ## Fixed Hardware Regions
 
@@ -41,9 +42,9 @@ map.
 
 ## Current Status
 
-- No paging yet
-- No PMM yet
-- No VMM yet
-- No heap
-- Kernel end is currently `0x0010C000`
-- Free memory must be determined from the GRUB Multiboot memory map
+- 4 KiB physical page allocator backed by the GRUB Multiboot memory map
+- Identity paging for the full 4 GiB 32-bit address space
+- Runtime page mapping and unmapping helpers
+- No heap yet
+- Kernel end changes as the kernel grows
+- Free memory is determined from the GRUB Multiboot memory map

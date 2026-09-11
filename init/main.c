@@ -8,6 +8,7 @@
 #include <novium/timer.h>
 #include <novium/cpu.h>
 #include <mm/page_alloc.h>
+#include <mm/paging.h>
 
 #define TASK_STACK_SIZE 4096
 static u8 ShellStack[TASK_STACK_SIZE] __attribute__((aligned(16)));
@@ -56,6 +57,9 @@ void kernel_main(struct boot_info *boot) {
 
     PageAllocInit(boot);
     printf("OK: %u physical pages available.\n\n", PageAllocFreeCount());
+
+    PagingInit();
+    printf("OK: 4 GiB paging enabled with 4 KiB pages.\n\n");
 
     SchedInit();
     printf("OK: Scheduling Init Succesfull\n");
