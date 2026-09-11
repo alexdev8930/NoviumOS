@@ -7,7 +7,7 @@ This is the NoviumOS todo list this lists things that are going to happen in the
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: 
+## Next up: Heap allocater (kmalloc/kfree)
 
 - [ ] Heap allocator (kmalloc/kfree) - simple bump allocator or free-list allocator to start
 - [ ] Simple filesystem (VFS + initrd maybe ext2)

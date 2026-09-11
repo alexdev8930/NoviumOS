@@ -6,7 +6,7 @@
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
 > [!NOTE]
-> Directories like `mm/`, `ipc/` and `fs/` currently contain early stubs.
+> Directories like `ipc/` and `fs/` currently contain early stubs.
 
 
 ## Project structure
