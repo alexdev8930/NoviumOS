@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com)
 
 ## [Unreleased]
 
+### Fixed
+- Disabled SSE2 generation in the x86_32 kernel build flags.
+
 ## 0.4.1 - 2026-09-10
 
 ### Fixed

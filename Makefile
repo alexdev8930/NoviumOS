@@ -35,6 +35,8 @@ CFLAGS = $(CFLAGS_ARCH) \
          -fno-builtin \
          -fno-stack-protector \
          -fno-pie \
+         -mno-sse \
+         -mno-sse2 \
          -O2 \
          -g \
          -Wall \
