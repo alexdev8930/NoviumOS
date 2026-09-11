@@ -2,7 +2,7 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com)
 
-**Versioning works like this:** We just keep counting up 0.1.0 -> 0.2.0 ect, 0.9.0 -> 1.0.0 ect i can also do this 1.5.0 -> 2.0.0 for major updates.
+**Versioning works like this:** We just keep counting up 0.1.0 -> 0.2.0 ect, 0.9.0 -> 1.0.0 ect i can also do this 1.5.0 -> 2.0.0 for major updates. For bug fixes or patches It works like this: 1.5.0 -> 1.5.1.
 
 ## [Unreleased]
 
