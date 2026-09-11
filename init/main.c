@@ -15,7 +15,7 @@ static u8 ShellStack[TASK_STACK_SIZE] __attribute__((aligned(16)));
 static u8 WorkerStack[TASK_STACK_SIZE] __attribute__((aligned(16)));
 
 void shell_task(void) {
-    printf("System ready. You can now type inside the console:\n");
+    kprintf("System ready. You can now type inside the console:\n");
     console_prompt();
 
     for (;;) {
@@ -42,27 +42,27 @@ void worker_task(void) {
 
 void kernel_main(struct boot_info *boot) {
     console_clear();
-    printf("NoviumOS\n\n");
+    kprintf("NoviumOS\n\n");
 
     if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC) {
-        printf("OK: Multiboot info valid.\n");
+        kprintf("OK: Multiboot info valid.\n");
         if (boot->memory_map_length != 0) {
-            printf("OK: Memory map available.\n\n");
+            kprintf("OK: Memory map available.\n\n");
         } else {
-            printf("WARNING: no memory map available.\n\n");
+            kprintf("WARNING: no memory map available.\n\n");
         }
     } else {
-        printf("WARNING: no valid boot info\n");
+        kprintf("WARNING: no valid boot info\n");
     }
 
     PageAllocInit(boot);
-    printf("OK: %u physical pages available.\n\n", PageAllocFreeCount());
+    kprintf("OK: %u physical pages available.\n\n", PageAllocFreeCount());
 
     PagingInit();
-    printf("OK: 4 GiB paging enabled with 4 KiB pages.\n\n");
+    kprintf("OK: 4 GiB paging enabled with 4 KiB pages.\n\n");
 
     SchedInit();
-    printf("OK: Scheduling Init Succesfull\n");
+    kprintf("OK: Scheduling Init Succesfull\n");
 
     SchedCreate("Worker", (u32)worker_task, (u32)&WorkerStack[TASK_STACK_SIZE]);
     SchedCreate("Shell",  (u32)shell_task,  (u32)&ShellStack[TASK_STACK_SIZE]);

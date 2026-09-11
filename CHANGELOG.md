@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com)
 
 ## [Unreleased]
 
-### Added
+## 0.5.1-dev - 2026-09-11
 
+### Changed
+- printf is now kprintf
+
+## 0.5.0-dev - 2026-09-11
+
+### Added
 - Initial x86 32-bit identity-mapped paging.
 - Page directory and page table structures covering the full 4 GiB address space.
 - `invlpg`-based TLB invalidation for unmapped addresses.
@@ -16,12 +22,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com)
 ### Fixed
 - Disabled SSE2 generation in the x86_32 kernel build flags.
 
-## 0.4.1 - 2026-09-10
+## 0.4.1-dev - 2026-09-10
 
 ### Fixed
 - Validate physical page bounds before freeing
 
-## 0.4.0 - 2026-09-09
+## 0.4.0-dev - 2026-09-09
 
 ### Added
 - Added basic bitmap page allocator

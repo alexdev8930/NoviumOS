@@ -56,7 +56,7 @@ void console_putchar(char c) {
 
 
 void console_prompt(void) {
-    printf("> ");
+    kprintf("> ");
     user_cmdline_start = cursor;
 }
 

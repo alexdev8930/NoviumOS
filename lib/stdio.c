@@ -17,7 +17,7 @@ static void print_u32(u32 value, u32 base, const char *digits) {
     }
 }
 
-int printf(const char *fmt, ...) {
+int kprintf(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
