@@ -6,10 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com)
 
 ## [Unreleased]
 
+## 0.4.1 - 2026-09-10
+
+### Fixed
+- Validate physical page bounds before freeing
+
 ## 0.4.0 - 2026-09-09
 
 ### Added
-- Added basic bitmap page allocater
+- Added basic bitmap page allocator
 
 ### Changed
 - Restyled Makefile and added CPPFLAGS and QEMU_FLAGS
