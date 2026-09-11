@@ -116,6 +116,10 @@ void PageFree(u32 Address) {
 		return;
 	}
 
+	if (Address / PAGE_SIZE >= PAGE_COUNT) {
+		return;
+	}
+
 	PageSet(Address / PAGE_SIZE, 1);
 }
 
