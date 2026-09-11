@@ -7,18 +7,19 @@ This is the NoviumOS todo list this lists things that are going to happen in the
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: Virtual Memory Management
+## Next up: 
 
-- [ ] Implement basic Virtual Memory Management 
-- [ ] Add 64 bit support with UEFI instead of BIOS
+- [ ] Heap allocator (kmalloc/kfree) - simple bump allocator or free-list allocator to start
+- [ ] Simple filesystem (VFS + initrd maybe ext2)
+- [ ] Basic IPC between kernel threads/processes
 
 ---
 
 ## Roadmap 
 
+- [ ] Add 64 bit support with UEFI instead of BIOS
 - [ ] Support framebuffer graphics (VBE for 32-bit BIOS (VBE later maybe) / UEFI GOP for 64-bit)
-- [ ] Simple filesystem (VFS + initrd maybe ext2)
-- [ ] Basic IPC between kernel threads/processes
+
 
 ---
 
