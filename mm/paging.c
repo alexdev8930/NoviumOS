@@ -17,6 +17,7 @@ static u32 PageTableIndex(u32 Address) {
 	return (Address >> 12) & 0x3ffu;
 }
 
+/* maps a virtual address to a physical address with custom flags */
 void PagingMap(u32 VirtualAddress, u32 PhysicalAddress, u32 Flags) {
 	u32 DirectoryIndex;
 	u32 TableIndex;
@@ -35,6 +36,7 @@ void PagingMap(u32 VirtualAddress, u32 PhysicalAddress, u32 Flags) {
 	__asm__ __volatile__("invlpg (%0)" : : "r"(VirtualAddress) : "memory");
 }
 
+/* removes an existing virtual page mapping */
 void PagingUnmap(u32 VirtualAddress) {
 	u32 DirectoryIndex;
 	u32 TableIndex;
@@ -47,6 +49,7 @@ void PagingUnmap(u32 VirtualAddress) {
 	__asm__ __volatile__("invlpg (%0)" : : "r"(VirtualAddress) : "memory");
 }
 
+/* set up basic identity maps and enable paging via CR0 and CR3 registers */
 void PagingInit(void) {
 	u32 DirectoryIndex;
 	u32 TableIndex;
