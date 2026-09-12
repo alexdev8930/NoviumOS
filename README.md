@@ -117,3 +117,6 @@ Now run the OS:
 make run
 ```
 
+<br>
+
+If you like the code or cloned the repo, please drop a **star** to help other devs find the project!
