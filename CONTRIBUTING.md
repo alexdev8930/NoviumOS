@@ -18,7 +18,7 @@ We prefer using **`/* comment */`** most of the time but you can use **`// comme
 ## Before submitting changes
 
 - **Stay on track:** Make sure your changes fit with what NoviumOS is currently working towards.
-- **Update the docs:** Update the README or other documentation when your changes affect them.
+- **Update the docs:** Update the `README.md`, `kernel_api.md`, `todo.md`, ect, when your changes affect them.
 - **Explain your changes:** Give a clear explanation of what your PR changes and why.
 
 ## AI Policy

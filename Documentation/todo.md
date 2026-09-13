@@ -32,4 +32,4 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 
 ## Notes
 
-- `mm/`, `ipc/`, `lib/`, `fs/`, `userspace/` but `arch/` and `kernel/` are mostly done but still have some stubs — they'll get filled in as the kernel progresses.
+- `mm/`, `ipc/`, `lib/`, `fs/`, `userspace/` but `arch/` and `kernel/` are mostly done but still have some stubs: they'll get filled in as the kernel progresses.

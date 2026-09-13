@@ -1,12 +1,12 @@
-# Novium OS Documentation
+# NoviumOS Documentation
 
-Welcome to the design docs and planning files for Novium OS. This is where I map out the specs, and systems for the kernel.
+Welcome to the design documentation for NoviumOS, where we map out the core specifications and systems for the kernel.
 
 ## System Specs
 
 * [todo.md](todo.md) - My task list, upcoming features, and roadmap milestones.
 * [memory_map.md](memory_map.md) - A map of physical memory addresses and kernel limits.
-
+* [kernel_api.md](kernel_api.md) - Lists kernel functions like `kmalloc()` or `kprintf()`, ect.
 
 ## Current Status 
 

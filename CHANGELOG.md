@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com)
 
 ## [Unreleased]
 
+### Changed
+- Finished mm.h header for kmalloc/kfree
+
 ## 0.5.1-dev - 2026-09-11
 
 ### Changed
@@ -107,5 +110,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com)
 - PIT timer driver with ~100 Hz tick rate
 - ISR stubs for CPU core exceptions (divide-by-zero, page faults, etc.)
 - Full interrupt infrastructure: IDT setup, PIC remapping, and IRQ dispatch routing
+
+note: the repo was private for a bit so thats why it looks like i just made everything in 0.1.0 in one day
 
 
