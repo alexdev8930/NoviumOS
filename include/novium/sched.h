@@ -1,7 +1,7 @@
 #ifndef NOVIUM_SCHED_H
 #define NOVIUM_SCHED_H
 
-#include <novium/types.h>
+#include "types.h"
 #include <asm/irq.h>
 
 #define SchedMaxTasks 32

@@ -7,6 +7,7 @@
 #include <novium/sched.h>
 #include <novium/timer.h>
 #include <novium/cpu.h>
+#include <novium/heap.h>
 #include <mm/page_alloc.h>
 #include <mm/paging.h>
 
@@ -47,22 +48,38 @@ void kernel_main(struct boot_info *boot) {
     if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC) {
         kprintf("OK: Multiboot info valid.\n");
         if (boot->memory_map_length != 0) {
-            kprintf("OK: Memory map available.\n\n");
+            kprintf("OK: Memory map available.\n");
         } else {
-            kprintf("WARNING: no memory map available.\n\n");
+            kprintf("WARNING: no memory map available.\n");
         }
     } else {
         kprintf("WARNING: no valid boot info\n");
     }
 
     PageAllocInit(boot);
-    kprintf("OK: %u physical pages available.\n\n", PageAllocFreeCount());
+    kprintf("OK: %u physical pages available.\n", PageAllocFreeCount());
 
     PagingInit();
-    kprintf("OK: 4 GiB paging enabled with 4 KiB pages.\n\n");
+    kprintf("OK: 4 GiB paging enabled with 4 KiB pages.\n");
+
+    u32 HeapPagesBefore = PageAllocFreeCount();
+    void *HeapTestMemory = kmalloc(64);
+
+    if (HeapTestMemory == 0) {
+        kprintf("ERROR: kmalloc test failed.\n");
+    } else {
+        kprintf("OK: kmalloc(64) returned 0x%x.\n", (u32)HeapTestMemory);
+        kfree(HeapTestMemory);
+
+        if (PageAllocFreeCount() == HeapPagesBefore) {
+            kprintf("OK: kfree restored the physical page.\n");
+        } else {
+            kprintf("WARNING: kfree did not restore the physical page.\n");
+        }
+    }
 
     SchedInit();
-    kprintf("OK: Scheduling Init Succesfull\n");
+    kprintf("OK: Scheduling Init Succesfull\n\n");
 
     SchedCreate("Worker", (u32)worker_task, (u32)&WorkerStack[TASK_STACK_SIZE]);
     SchedCreate("Shell",  (u32)shell_task,  (u32)&ShellStack[TASK_STACK_SIZE]);

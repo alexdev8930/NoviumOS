@@ -1,18 +1,24 @@
 # Changelog
 
 The format is based on [Keep a Changelog](https://keepachangelog.com)
-
-**Versioning works like this:** We just keep counting up 0.1.0 -> 0.2.0 ect, 0.9.0 -> 1.0.0 ect. I can also do this 1.5.0 -> 2.0.0 for major updates. For bug fixes or patches It works like this: 1.5.0 -> 1.5.1.
+Versioning is similar to [semver](https://semver.org) but is more flexible and uses custom tags (like `-dev` and `-rc`).
 
 ## [Unreleased]
 
+## 0.6.0-dev - 2026-09-14
+
+### Added
+- Tested allocation/free behavior in the kernel
+- Finished the first single-page kernel heap allocator with `kmalloc()` and `kfree()`.
+- Added heap allocation metadata validation with a magic value and page tracking.
+
 ### Changed
-- Finished mm.h header for kmalloc/kfree
+- Finished heap.h header for `kmalloc()` and `kfree()`.
 
 ## 0.5.1-dev - 2026-09-11
 
 ### Changed
-- printf is now kprintf
+- printf is now `kprintf()`.
 
 ## 0.5.0-dev - 2026-09-11
 

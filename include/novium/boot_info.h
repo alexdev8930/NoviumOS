@@ -1,7 +1,7 @@
 #ifndef NOVIUM_BOOT_INFO_H
 #define NOVIUM_BOOT_INFO_H
 
-#include <novium/types.h>
+#include "types.h"
 
 #define MULTIBOOT_BOOTLOADER_MAGIC 0x2BADB002u
 #define MULTIBOOT_INFO_MEMORY_MAP  (1u << 6)

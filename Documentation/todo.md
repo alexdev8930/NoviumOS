@@ -7,9 +7,10 @@ This is the NoviumOS todo list this lists things that are going to happen in the
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: Heap allocater (kmalloc/kfree)
+## Next up: Heap expansion
 
-- [ ] Heap allocator (kmalloc/kfree) - simple bump allocator or free-list allocator to start
+- [ ] Add contiguous multi-page allocations
+- [ ] Add sub-page block reuse with splitting and coalescing
 - [ ] Simple filesystem (VFS + initrd maybe ext2)
 - [ ] Basic IPC between kernel threads/processes
 

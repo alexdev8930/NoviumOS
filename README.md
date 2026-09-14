@@ -28,7 +28,7 @@ The layout is inspired by the Linux kernel, but kept pretty simple:
 
 GRUB finds and loads the kernel, checks the Multiboot header, and hands control to bootstrap.S. That setup code sets up the stack, clears BSS, and calls `hw_init` before the C kernel takes over.
 
-## What i've done so far
+## What I've done so far
 
 - [x] Boot chain and protected mode
 - [x] Basic console output
@@ -39,15 +39,13 @@ GRUB finds and loads the kernel, checks the Multiboot header, and hands control 
 - [x] CPU scheduler
 - [x] Switch to GRUB bootloader
 - [x] Added a basic Memory Manager
+- [x] Basic heap allocator
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.
 
 
 ## Build and Run
-
->[!NOTE]
-> Were switching to just tags and no more iso releases cause its easier to just download dependencies and run on your own
 
 ### System Dependencies
 

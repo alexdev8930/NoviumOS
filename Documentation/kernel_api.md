@@ -142,9 +142,12 @@ void  kfree(void *address);
 
 The string functions provide the usual freestanding C behavior. `memmove()`
 supports overlapping ranges, and `strcmp()` returns the unsigned-character
-difference at the first mismatch. `kmalloc()` and `kfree()` are declared in
-the memory API, but `kernel/memory.c` is still a system stub. The heap is not
-implemented yet.
+difference at the first mismatch. The first heap implementation is in
+`mm/heap.c`. `kmalloc()` allocates one physical 4 KiB page through
+`PageAlloc()`, stores allocation metadata before the returned memory, and
+returns `0` for zero-size or oversized requests. `kfree()` validates the heap
+metadata and returns the page to `PageFree()`. Allocations larger than one
+page and sub-page block reuse are not supported yet.
 
 ## Internal Kernel APIs
 

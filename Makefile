@@ -1,6 +1,6 @@
 VERSION = 0
-PATCHLEVEL = 5
-SUBLEVEL = 1
+PATCHLEVEL = 6
+SUBLEVEL = 0
 EXTRAVERSION = -dev
 VERSION_TAG = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
@@ -15,7 +15,7 @@ BUILD_DIR = build
 VPATH = init drivers/video drivers/input kernel lib mm arch/$(ARCH)/boot arch/$(ARCH)/kernel
 
 DRIVE_FLAGS ?= -cdrom
-QEMU_FLAGS ?= -m 128M -serial stdio
+QEMU_FLAGS ?= -m 64M -serial stdio
 
 GRUB_CFG = arch/$(ARCH)/boot/grub/grub.cfg
 ISO_ROOT = $(BUILD_DIR)/iso/staging
@@ -63,7 +63,8 @@ KERNEL_OBJS = \
     $(BUILD_DIR)/main.o \
     $(BUILD_DIR)/sched.o \
     $(BUILD_DIR)/process.o \
-    $(BUILD_DIR)/switch.o
+    $(BUILD_DIR)/switch.o \
+    $(BUILD_DIR)/heap.o
 
 .PHONY: all iso run clean
 

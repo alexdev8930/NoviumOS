@@ -14,12 +14,13 @@ kernel enables identity paging for the complete 32-bit address space, from
 
 ## GRUB Kernel Layout
 
-- **0x00100000**: kernel start and Multiboot header
-- **0x00100000–0x00100FFF**: Multiboot header/loadable metadata area
-- **0x00101000–0x00103FFF**: kernel text
-- **0x00104000–0x0010B6BF**: kernel BSS
-- **0x00104000–0x00107FFF**: bootstrap stack inside BSS
-- **0x0010C000**: aligned kernel end
+- **0x00100000**: kernel image load address and `_kernel_start`
+- **`.multiboot`**: retained Multiboot header near the start of the image
+- **`.text`**: executable code, page-aligned after the Multiboot section
+- **`.rodata`**: read-only data, page-aligned
+- **`.data`**: initialized writable data, page-aligned
+- **`.bss`**: zero-initialized data and stacks
+- **`_kernel_end`**: page-aligned end of the kernel image
 
 The kernel is loaded by GRUB from its ELF image at `0x00100000`.
 The exact kernel end changes as the kernel grows.
@@ -44,6 +45,8 @@ The PMM needs to read usable memory regions directly from GRUB's memory map inst
 - 4 KiB physical page allocator backed by the GRUB Multiboot memory map
 - Identity paging for the full 4 GiB 32-bit address space
 - Runtime page mapping and unmapping helpers
-- No heap yet
+- Single-page kernel heap allocations through `kmalloc()` and `kfree()`
+- Heap metadata validation using a magic value and page tracking
+- Allocations larger than one page and sub-page block reuse are not supported yet
 - Kernel end changes as the kernel grows
 - Free memory is determined from the GRUB Multiboot memory map
