@@ -11,7 +11,7 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 
 - [ ] Add contiguous multi-page allocations
 - [ ] Add sub-page block reuse with splitting and coalescing
-- [ ] Simple filesystem (VFS + initrd maybe ext2)
+- [ ] Simple filesystem (VFS + ext2)
 - [ ] Basic IPC between kernel threads/processes
 
 ---
