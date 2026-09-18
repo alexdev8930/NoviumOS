@@ -5,6 +5,13 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and u
 
 ## [Unreleased]
 
+## 0.7.0-dev - 2026-09-17
+
+### Added
+- Contiguous multi-page physical allocations with `PageAllocPages()`.
+- Contiguous physical page range freeing with `PageFreePages()`.
+- Multi-page kernel heap allocations and frees through `kmalloc()` and `kfree()`.
+
 ## 0.6.0-dev - 2026-09-14
 
 ### Added

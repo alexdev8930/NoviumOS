@@ -43,10 +43,10 @@ The PMM needs to read usable memory regions directly from GRUB's memory map inst
 ## Current Status
 
 - 4 KiB physical page allocator backed by the GRUB Multiboot memory map
+- Contiguous multi-page physical allocations and range frees
 - Identity paging for the full 4 GiB 32-bit address space
 - Runtime page mapping and unmapping helpers
-- Single-page kernel heap allocations through `kmalloc()` and `kfree()`
-- Heap metadata validation using a magic value and page tracking
-- Allocations larger than one page and sub-page block reuse are not supported yet
+- Kernel heap metadata validation using a magic value and page tracking
+- Sub-page heap block reuse is not supported yet
 - Kernel end changes as the kernel grows
 - Free memory is determined from the GRUB Multiboot memory map

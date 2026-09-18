@@ -9,7 +9,6 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 
 ## Next up: Heap expansion
 
-- [ ] Add contiguous multi-page allocations
 - [ ] Add sub-page block reuse with splitting and coalescing
 - [ ] Simple filesystem (VFS + ext2)
 - [ ] Basic IPC between kernel threads/processes

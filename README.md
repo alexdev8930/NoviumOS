@@ -38,8 +38,8 @@ GRUB finds and loads the kernel, checks the Multiboot header, and hands control 
 - [x] Printf
 - [x] CPU scheduler
 - [x] Switch to GRUB bootloader
-- [x] Added a basic Memory Manager
-- [x] Basic heap allocator
+- [x] Added a basic Memory Manager (PMM/VMM)
+- [x] Basic multi-page heap allocator
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.

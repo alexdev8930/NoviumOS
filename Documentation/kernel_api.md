@@ -143,11 +143,12 @@ void  kfree(void *address);
 The string functions provide the usual freestanding C behavior. `memmove()`
 supports overlapping ranges, and `strcmp()` returns the unsigned-character
 difference at the first mismatch. The first heap implementation is in
-`mm/heap.c`. `kmalloc()` allocates one physical 4 KiB page through
-`PageAlloc()`, stores allocation metadata before the returned memory, and
-returns `0` for zero-size or oversized requests. `kfree()` validates the heap
-metadata and returns the page to `PageFree()`. Allocations larger than one
-page and sub-page block reuse are not supported yet.
+`mm/heap.c`. The heap stores allocation metadata before returned memory.
+`kmalloc()` rounds the requested size plus heap metadata up to a whole number
+of pages, allocates a contiguous physical range, and stores the range metadata
+before the returned memory. `kfree()` validates the metadata and releases the
+complete range. Zero-size, overflowing, and unavailable allocations return
+`0`. Sub-page block reuse is not supported yet.
 
 ## Internal Kernel APIs
 
@@ -158,15 +159,21 @@ page and sub-page block reuse are not supported yet.
 
 void PageAllocInit(const struct boot_info *boot);
 u32  PageAlloc(void);
+u32  PageAllocPages(u32 count);
 void PageFree(u32 address);
+void PageFreePages(u32 address, u32 count);
 u32  PageAllocFreeCount(void);
 ```
 
 `PageAllocInit()` clears the bitmap, marks Multiboot type-1 memory-map ranges
 free, and reserves page zero and the linked kernel image. `PageAlloc()` returns
 the first free 4 KiB physical page, or `0` if there are no free pages.
-`PageFree()` only accepts nonzero, page-aligned addresses in the 32-bit address
-space. Invalid addresses are ignored. `PageAllocFreeCount()` returns the
+`PageAllocPages()` searches for the requested number of consecutive free pages,
+marks the complete run as used, and returns the physical address of its first
+page. It returns `0` when `count` is zero, exceeds the available pages, or no
+contiguous run exists. `PageFree()` frees one page. `PageFreePages()` frees a
+contiguous range. Both free functions ignore zero, unaligned, or out-of-range
+addresses, and invalid ranges are ignored. `PageAllocFreeCount()` returns the
 current number of free pages.
 
 ### Paging

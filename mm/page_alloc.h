@@ -8,7 +8,9 @@
 
 void PageAllocInit(const struct boot_info *Boot);
 u32 PageAlloc(void);
+u32 PageAllocPages(u32 count);
 void PageFree(u32 Address);
+void PageFreePages(u32 Address, u32 count);
 u32 PageAllocFreeCount(void);
 
 #endif

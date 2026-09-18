@@ -10,4 +10,4 @@ Welcome to the design documentation for NoviumOS, where we map out and list the 
 
 ## Current Status 
 
-I update these files as the core code evolves. If you want to jump in and contribute to any of the subsystems on the roadmap, please take a quick look through these docs first so you can see how i want to develop.
+We update these files as the core code evolves. If you want to jump in and contribute to any of the subsystems on the roadmap, please take a quick look through these docs first so you can see how we want to develop.

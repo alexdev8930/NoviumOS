@@ -110,6 +110,39 @@ u32 PageAlloc(void) {
 	return 0;
 }
 
+u32 PageAllocPages(u32 count) {
+	u32 Start;
+	u32 Run;
+	u32 Page;
+
+	if (count == 0 || count > FreePages || count > PAGE_COUNT) {
+        return 0;
+    }
+
+	for (Start = 0; Start <= PAGE_COUNT - count; Start++) {
+        for (Run = 0; Run < count; Run++) {
+            Page = Start + Run;
+
+            if ((PageBitmap[Page / 32u] &
+                 (1u << (Page % 32u))) == 0) {
+                break;
+            }
+        }
+		
+		if (Run == count) {
+            for (Run = 0; Run < count; Run++) {
+                PageSet(Start + Run, 0);
+            }
+
+            return Start * PAGE_SIZE;
+        }
+
+		/* Skip past the first used page found, no valid run can begin before that page. */
+        Start += Run;
+	}
+	return 0;
+}
+
 /* scans the bitmap for the first free 4KB page and returns its physical address. */
 void PageFree(u32 Address) {
 	if (Address == 0 || (Address & (PAGE_SIZE - 1u)) != 0) {
@@ -121,6 +154,26 @@ void PageFree(u32 Address) {
 	}
 
 	PageSet(Address / PAGE_SIZE, 1);
+}
+
+void PageFreePages(u32 Address, u32 Count) {
+	u32 Start;
+	u32 Index;
+
+	if (Address == 0 || (Address & (PAGE_SIZE - 1u)) != 0 || Count == 0) {
+        return;
+    }
+
+	Start = Address / PAGE_SIZE;
+
+	if (Start >= PAGE_COUNT ||
+        Count > PAGE_COUNT - Start) {
+        return;
+    }
+
+    for (Index = 0; Index < Count; Index++) {
+        PageSet(Start + Index, 1);
+    }
 }
 
 u32 PageAllocFreeCount(void) {

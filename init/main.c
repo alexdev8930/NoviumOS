@@ -63,18 +63,28 @@ void kernel_main(struct boot_info *boot) {
     kprintf("OK: 4 GiB paging enabled with 4 KiB pages.\n");
 
     u32 HeapPagesBefore = PageAllocFreeCount();
-    void *HeapTestMemory = kmalloc(64);
+    void *HeapTestMemory = kmalloc(PAGE_SIZE + 1);
 
     if (HeapTestMemory == 0) {
-        kprintf("ERROR: kmalloc test failed.\n");
+        kprintf("ERROR: multi-page kmalloc test failed.\n");
     } else {
-        kprintf("OK: kmalloc(64) returned 0x%x.\n", (u32)HeapTestMemory);
+        u32 HeapPagesAfterAlloc = PageAllocFreeCount();
+
+        kprintf("OK: kmalloc(PAGE_SIZE + 1) returned 0x%x.\n",
+                (u32)HeapTestMemory);
+
+        if (HeapPagesBefore - HeapPagesAfterAlloc == 2) {
+            kprintf("OK: multi-page kmalloc allocated 2 pages.\n");
+        } else {
+            kprintf("WARNING: multi-page kmalloc allocated an unexpected number of pages.\n");
+        }
+
         kfree(HeapTestMemory);
 
         if (PageAllocFreeCount() == HeapPagesBefore) {
-            kprintf("OK: kfree restored the physical page.\n");
+            kprintf("OK: multi-page kfree restored both pages.\n");
         } else {
-            kprintf("WARNING: kfree did not restore the physical page.\n");
+            kprintf("WARNING: multi-page kfree did not restore both pages.\n");
         }
     }
 
