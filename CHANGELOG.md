@@ -5,6 +5,27 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and u
 
 ## [Unreleased]
 
+## 0.7.1-dev - 2026-09-24
+
+### Added
+- Blocking `timer_sleep_ms()` on per-task wake ticks, so a sleep costs one wakeup instead of one per timer tick.
+- `SchedSleepUntil()`, `SchedWakeExpired()`, and `SchedHasRunnable()` for sleep and wakeup handling.
+- Spurious interrupt counters with `irq_spurious_count()`.
+- `cpu_irq_enabled()` for checking the interrupt flag.
+
+### Changed
+- Spurious IRQ7/15 handling now reads the PIC ISR, restores OCW3 back to the IRR, counts each event, and warns once instead of returning silently.
+- Keyboard ring buffer indices widened from `u8` to `u16` so `BUF_SIZE` can grow.
+- `timer_init()` clamps the PIT divisor to 16 bits and stores the rate the timer actually runs at.
+- Unhandled exceptions now report through `kprintf()`.
+
+### Fixed
+- `timer_sleep_ms()` returning immediately for sleeps shorter than one tick, and the truncated tick conversion.
+- Sleep tick math no longer needs 64-bit division, so the kernel links without compiler runtime helpers.
+- `SchedTick()` no longer reinitialises the scheduler from the timer interrupt when no task is current.
+- `SchedYield()` no longer saves a stack pointer through a null task pointer.
+- `SchedBlockTask()` undoes the block when a self-block finds nothing else runnable.
+
 ## 0.7.0-dev - 2026-09-17
 
 ### Added

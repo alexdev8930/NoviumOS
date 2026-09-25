@@ -21,6 +21,7 @@ void idt_init(void);
 void pic_init(void);
 void irq_register(int irq, irq_handler_t handler);
 void irq_unregister(int irq);
+u32 irq_spurious_count(int irq); 
 void irq_enable(void); /* sti */
 void irq_disable(void); /* cli */
 

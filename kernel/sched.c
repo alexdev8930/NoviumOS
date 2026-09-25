@@ -118,6 +118,7 @@ static void SchedResetTask(Task *TaskItem) {
     TaskItem->TimeUsed = 0;
     TaskItem->Runtime = 0;
     TaskItem->Switches = 0;
+    TaskItem->WakeTick = 0;
     TaskItem->State = TaskDead;
     TaskItem->Name[0] = 0;
     TaskItem->Next = 0;
@@ -260,6 +261,7 @@ u32 SchedTaskCount(void) {
 void SchedYield(void) {
     Task *NextTask;
     Task *PrevTask;
+    u32 ScratchEsp;   /* used when there is no current task to save into */
 
     if (SchedulerLocked != 0) {
         return;
@@ -287,21 +289,23 @@ void SchedYield(void) {
     CurrentTask = NextTask;
     ContextSwitches++;
 
-    SchedSwitch(&PrevTask->Esp, NextTask->Esp);
+    SchedSwitch(PrevTask != 0 ? &PrevTask->Esp : &ScratchEsp, NextTask->Esp);
 }
 
 void SchedTick(struct registers *Regs) {
-    if (CurrentTask == 0) {
-        SchedInit();
-    }
     if (Regs == 0 || SchedulerLocked != 0) {
         return;
     }
 
     SchedulerTicks++;
+
+    /* a blocking task leaves no current task for a moment, never reinit here */
+    if (CurrentTask == 0) {
+        return;
+    }
+
     CurrentTask->Runtime++;
     CurrentTask->TimeUsed++;
-
 }
 
 void SchedBlock(void) {
@@ -330,15 +334,16 @@ void SchedBlockTask(u32 Id) {
     }
 
     if (TaskItem == CurrentTask) {
+        SchedQueueRemove(&ReadyQueue, TaskItem);
         TaskItem->State = TaskBlocked;
         SchedQueueAdd(&BlockedQueue, TaskItem);
 
-        CurrentTask = 0;
         SchedYield();
 
-        if (CurrentTask == 0) {
-            CurrentTask = &Tasks[0];
-            CurrentTask->State = TaskRunning;
+        /* if the yield found nothing to run we never left, so undo the block */
+        if (TaskItem->State == TaskBlocked) {
+            SchedQueueRemove(&BlockedQueue, TaskItem);
+            TaskItem->State = TaskRunning;
         }
 
         return;
@@ -370,6 +375,55 @@ void SchedWakeTask(u32 Id) {
     if (TaskItem != 0) {
         SchedUnblock(TaskItem);
     }
+}
+
+/* blocks the caller until the absolute tick WakeTick */
+void SchedSleepUntil(u32 WakeTick) {
+    Task *TaskItem = CurrentTask;
+
+    if (TaskItem == 0 || TaskItem->Id == 0) {
+        return;   /* task 0 is the idle task and cannot block */
+    }
+
+    TaskItem->WakeTick = WakeTick;
+    SchedBlockTask(TaskItem->Id);   /* returns once we are woken */
+    TaskItem->WakeTick = 0;
+}
+
+/* wakes sleepers whose deadline passed, called from the timer irq */
+u32 SchedWakeExpired(u32 NowTick) {
+    Task *TaskItem = BlockedQueue;
+    u32 Woken = 0;
+
+    while (TaskItem != 0) {
+        Task *Next = TaskItem->Next;   /* SchedUnblock() clears Next */
+
+        if (TaskItem->WakeTick != 0 &&
+            (s32)(NowTick - TaskItem->WakeTick) >= 0) {
+            TaskItem->WakeTick = 0;
+            SchedUnblock(TaskItem);
+            Woken++;
+        }
+
+        TaskItem = Next;
+    }
+
+    return Woken;
+}
+
+/* nonzero when something other than the caller can run */
+u32 SchedHasRunnable(void) {
+    Task *TaskItem = ReadyQueue;
+
+    while (TaskItem != 0) {
+        if (TaskItem != CurrentTask) {
+            return 1;
+        }
+
+        TaskItem = TaskItem->Next;
+    }
+
+    return 0;
 }
 
 /* terminates a thread, detaches it from queues, and shifts CPU focus */

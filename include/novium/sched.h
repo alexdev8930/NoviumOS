@@ -33,6 +33,7 @@ typedef struct Task {
 
     u32 Runtime;
     u32 Switches;
+    u32 WakeTick;
 
     TaskState State;
 
@@ -67,6 +68,12 @@ void SchedBlock(void);
 void SchedBlockTask(u32 Id);
 void SchedUnblock(Task *TaskItem);
 void SchedWakeTask(u32 Id);
+
+void SchedSleepUntil(u32 WakeTick);   /* block until an absolute tick */
+u32  SchedWakeExpired(u32 NowTick);   /* wake sleepers whose tick passed */
+
+/* nonzero when something other than the caller can run */
+u32 SchedHasRunnable(void);
 
 void SchedExit(void);
 void SchedKill(u32 Id);

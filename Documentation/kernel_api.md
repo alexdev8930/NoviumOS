@@ -7,7 +7,8 @@ NoviumOS. The headers have the final say on exact types and constants.
 
 - The kernel is freestanding and currently targets 32-bit x86.
 - `u8`, `u16`, `u32`, `u64`, `s32`, and `size_t` are defined in
-	`include/novium/types.h` (the kernel's equivalent to standard headers like `<stdint.h>` and `<stddef.h>`).
+  `include/novium/types.h` (the kernel's equivalent to standard headers like
+  `<stdint.h>` and `<stddef.h>`).
 - Functions that return a pointer or physical address use `0` to report
 	failure where noted below.
 - Most of these functions are not reentrant. Be careful when calling them from
@@ -35,11 +36,14 @@ void cpu_idle(void);
 static inline void cpu_cli(void);
 static inline void cpu_sti(void);
 static inline void cpu_hlt(void);
+static inline int  cpu_irq_enabled(void);
 ```
 
 `cpu_idle()` halts until an interrupt arrives. `cpu_cli()` and `cpu_sti()`
 disable and enable maskable interrupts. `cpu_hlt()` halts the processor until
 the next interrupt and should only be used when interrupt wake-up is possible.
+`cpu_irq_enabled()` reports whether maskable interrupts are currently allowed
+by reading the interrupt flag in `eflags`.
 
 #### Port I/O
 
@@ -87,6 +91,7 @@ void idt_init(void);
 void pic_init(void);
 void irq_register(int irq, irq_handler_t handler);
 void irq_unregister(int irq);
+u32  irq_spurious_count(int irq);
 void irq_enable(void);
 void irq_disable(void);
 ```
@@ -98,6 +103,17 @@ null handlers are ignored. `irq_unregister()` removes the handler and masks
 the line again. Handlers run in interrupt context and receive the saved
 register frame.
 
+Spurious IRQ7 and IRQ15 are the 8259's usual spurious-interrupt cases and can
+be raised even when their lines are masked. The dispatcher reads the in-service
+register, switches the command port back to the interrupt request register, and
+counts the event. Spurious IRQ7 gets no end-of-interrupt because it has nothing
+in service; spurious IRQ15 still acknowledges the master because the slave is
+connected through the master's cascade line. The first spurious interrupt on
+each line is reported on the console. `irq_spurious_count()` returns the count
+for a line, or `0` for invalid lines; a growing count can indicate a missing
+acknowledgement, a line dropping before acknowledgement, or PIC initialization
+timing.
+
 ### Timers
 
 ```c
@@ -108,9 +124,18 @@ void timer_sleep_ms(u32 milliseconds);
 ```
 
 `timer_init()` programs PIT channel 0 and registers IRQ 0. Non-positive
-frequencies are ignored. Before initialization, tick and uptime queries return
-zero, and `timer_sleep_ms()` returns immediately. Sleep uses `hlt()` in a busy
-wait loop, so interrupts need to be enabled.
+frequencies are ignored, the reload divisor is clamped to 16 bits, and the tick
+rate stored is the one the PIT actually runs at rather than the requested one.
+Before initialization, tick and uptime queries return zero.
+
+`timer_sleep_ms()` rounds the request up to a whole number of ticks, so a
+supported duration does not finish early; very large values can overflow the
+current 32-bit deadline calculation. For a runnable task, it sets a per-task
+wake tick and blocks. The timer interrupt wakes that task when the deadline
+passes, so a one-second sleep causes one wakeup rather than one per timer tick.
+The idle task and a task with no other runnable task halt and wait in place
+instead. If interrupts are disabled, or the timer is not initialized, the call
+returns immediately.
 
 ### Input
 
@@ -121,11 +146,12 @@ int  keyboard_getchar(void);
 ```
 
 `keyboard_init()` registers the PS/2 keyboard on IRQ 1. `keyboard_pop()`
-returns a raw scancode, or `-1` when the 32-entry ring buffer is empty.
-`keyboard_getchar()` uses `hlt()` until it can return a decoded US-layout
-character. It handles shift, caps-lock state, key release codes, and common
-control characters. Keystrokes that arrive while the ring buffer is full are
-discarded.
+returns a raw scancode, or `-1` when the 32-entry ring buffer is empty. The ring
+indices are `u16`, allowing the buffer to grow beyond 256 entries without index
+truncation. `keyboard_getchar()` uses `hlt()` until it can return a decoded
+US-layout character. It handles shift, key release codes, and common control
+characters. The `0x3A` Caps Lock scancode currently toggles shift state. Keystrokes
+that arrive while the ring buffer is full are discarded.
 
 ### Memory and string utilities
 
@@ -136,7 +162,7 @@ void  *memcpy(void *dest, const void *src, size_t length);
 size_t strlen(const char *str);
 int    strcmp(const char *left, const char *right);
 
-void *kmalloc(size_t size); 
+void *kmalloc(size_t size);
 void  kfree(void *address);
 ```
 
@@ -146,9 +172,9 @@ difference at the first mismatch. The first heap implementation is in
 `mm/heap.c`. The heap stores allocation metadata before returned memory.
 `kmalloc()` rounds the requested size plus heap metadata up to a whole number
 of pages, allocates a contiguous physical range, and stores the range metadata
-before the returned memory. `kfree()` validates the metadata and releases the
-complete range. Zero-size, overflowing, and unavailable allocations return
-`0`. Sub-page block reuse is not supported yet.
+before the returned memory. `kfree()` checks the block magic and nonzero page
+count before releasing its stored range. Zero-size, overflowing, and
+unavailable allocations return `0`. Sub-page block reuse is not supported yet.
 
 ## Internal Kernel APIs
 
@@ -165,16 +191,17 @@ void PageFreePages(u32 address, u32 count);
 u32  PageAllocFreeCount(void);
 ```
 
-`PageAllocInit()` clears the bitmap, marks Multiboot type-1 memory-map ranges
-free, and reserves page zero and the linked kernel image. `PageAlloc()` returns
-the first free 4 KiB physical page, or `0` if there are no free pages.
-`PageAllocPages()` searches for the requested number of consecutive free pages,
-marks the complete run as used, and returns the physical address of its first
-page. It returns `0` when `count` is zero, exceeds the available pages, or no
-contiguous run exists. `PageFree()` frees one page. `PageFreePages()` frees a
-contiguous range. Both free functions ignore zero, unaligned, or out-of-range
-addresses, and invalid ranges are ignored. `PageAllocFreeCount()` returns the
-current number of free pages.
+`PageAllocInit()` clears the bitmap, marks valid Multiboot type-1 memory-map
+ranges free, and reserves page zero and the linked kernel image. If boot
+information has no memory map, initialization leaves the allocator empty.
+`PageAlloc()` returns the first free 4 KiB physical page, or `0` if there are no
+free pages. `PageAllocPages()` searches for the requested number of consecutive
+free pages, marks the complete run as used, and returns the physical address of
+its first page. It returns `0` when `count` is zero, exceeds the available
+pages, or no contiguous run exists. `PageFree()` frees one page.
+`PageFreePages()` frees a contiguous range. Both free functions ignore zero,
+unaligned, or out-of-range addresses, and invalid ranges are ignored.
+`PageAllocFreeCount()` returns the current number of free pages.
 
 ### Paging
 
@@ -203,7 +230,7 @@ start with priority `1` and a time slice of `10`. Task names are truncated to
 
 ```c
 typedef enum {
-		TaskDead = 0, TaskReady, TaskRunning, TaskBlocked
+    TaskDead = 0, TaskReady, TaskRunning, TaskBlocked
 } TaskState;
 
 typedef enum {
@@ -225,6 +252,11 @@ void SchedBlock(void);
 void SchedBlockTask(u32 id);
 void SchedUnblock(Task *task);
 void SchedWakeTask(u32 id);
+
+void SchedSleepUntil(u32 wake_tick);
+u32  SchedWakeExpired(u32 now_tick);
+u32  SchedHasRunnable(void);
+
 void SchedExit(void);
 void SchedKill(u32 id);
 
@@ -245,6 +277,18 @@ to the next ready task using the selected policy. `SchedTick()` updates the
 runtime counters from the timer interrupt, but does not currently force a
 context switch. `SchedLock()` and `SchedUnlock()` use a nesting counter to
 temporarily stop scheduling.
+
+Each task has a `WakeTick` field for a blocked sleeper's absolute deadline.
+`SchedSleepUntil()` sets the field and blocks the caller, clearing it after the
+task wakes; it returns immediately for the idle task or when no other task can
+run. `SchedWakeExpired()` is called from the timer interrupt and moves each
+blocked sleeper whose deadline has passed to the ready queue, returning the
+number it woke. `SchedHasRunnable()` reports whether a task other than the
+caller is ready.
+
+`SchedBlockTask()` on the calling task yields after marking it blocked, and
+undoes the block if the yield found nothing runnable, so a task is never left
+running while marked blocked.
 
 Priority scheduling chooses the highest priority, clamped to `255`. Round
 robin scheduling chooses the next ready task by increasing task ID and wraps

@@ -1,8 +1,7 @@
 #include <asm/irq.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
-#include <novium/debug.h>
-#include <drivers/console.h>
+#include <novium/stdio.h>
 
 /* programmable interrupt controller port and command definitions */
 #define PIC1_CMD    0x20
@@ -13,6 +12,12 @@
 #define IRQ_BASE    0x20
 #define IRQ_COUNT   16
 #define INT_VECTORS 256
+
+/* OCW3 command selects which register the command port returns on the next read */
+#define PIC_OCW3_IRR    0x0A
+#define PIC_OCW3_ISR    0x0B
+#define PIC_IN_SERVICE  0x80
+
 
 /* IDT entry tracks the handler address, selector, and gate attributes */
 struct idt_entry {                        
@@ -32,6 +37,8 @@ struct idtr {
 static struct idt_entry idt[INT_VECTORS];
 static struct idtr idtp;
 static irq_handler_t handlers[INT_VECTORS];
+static u32 spurious_count[IRQ_COUNT];
+static u32 spurious_reported = 0;
 
 /* sets up an interrupt gate in the idt_entry */
 static void idt_set_gate(int n, u32 fn) {  
@@ -130,6 +137,14 @@ void irq_unregister(int irq) {
     outb(port, inb(port) | (u8)(1 << (irq & 7)));
 }
 
+/* number of spurious interrupts seen on a line */
+u32 irq_spurious_count(int irq) {
+    if (irq < 0 || irq >= IRQ_COUNT) {
+        return 0;
+    }
+
+    return spurious_count[irq];
+}
 
 
 /* handles cpu crashes, routes hardware signals, and resets the pic */
@@ -138,20 +153,18 @@ void isr_dispatch(struct registers *r) {
 
     if (vec < IRQ_BASE) {
         /* unhandled exception = crash out */
-        console_write("PANIC: unhandled exception, vector ");
-        debug_print_hex32(vec);
-        console_write(", err_code ");
-        debug_print_hex32(r->err_code);
+        kprintf("PANIC: unhandled exception, vector 0x%x, err_code 0x%x\n",
+                vec, r->err_code);
 
         if (vec == 14) {
             /* cr2 has the bad address for page faults */
             u32 fault_addr;
             __asm__ __volatile__("mov %%cr2, %0" : "=r"(fault_addr));
-            console_write("\n  page fault at address: ");
-            debug_print_hex32(fault_addr);
+            kprintf("  page fault at address 0x%x\n", fault_addr);
         }
 
-        console_write("\nhalting\n");
+        kprintf("halting\n");
+
         for (;;) {
             cpu_hlt();
         }
@@ -159,14 +172,33 @@ void isr_dispatch(struct registers *r) {
 
     int line = vec - IRQ_BASE;
 
-    /* ignore spurious irq7/15 floods */
+    /*
+     * Spurious IRQ7/15 handling: If a hardware line drops prematurely, the 
+     * 8259 PIC raises a ghost interrupt. We read the In-Service Register (ISR) 
+     * to verify if the interrupt is real. If the ISR bit is clear, it's 
+     * spurious. For IRQ15, we must still send an EOI to the master PIC only.
+     */
     if (line == 7 || line == 15) {
         u16 port = (line == 7) ? PIC1_CMD : PIC2_CMD;
-        outb(port, 0x0B);
-        if (!(inb(port) & 0x80)) {
+
+        outb(port, PIC_OCW3_ISR); /* read In-Service Register */
+        u8 in_service = inb(port);
+        
+        outb(port, PIC_OCW3_IRR); /* reset sticky register to IRR */
+
+        if (!(in_service & PIC_IN_SERVICE)) {
+            spurious_count[line]++;
+
             if (line == 15) {
-                outb(PIC1_CMD, PIC_EOI);   
+                outb(PIC1_CMD, PIC_EOI);
             }
+
+            if ((spurious_reported & (1u << line)) == 0) {
+                spurious_reported |= 1u << line;
+                kprintf("WARNING: spurious IRQ %u (ISR 0x%x), check PIC/EOI\n",
+                        (u32)line, (u32)in_service);
+            }
+
             return;
         }
     }

@@ -7,8 +7,8 @@
 
 /* we use volatile because interrupts modify these in RAM */
 static volatile u8 buf[BUF_SIZE];
-static volatile u8 head = 0;
-static volatile u8 tail = 0;
+static volatile u16 head = 0;
+static volatile u16 tail = 0;
 
 
 static const char kbd_layout[] = {

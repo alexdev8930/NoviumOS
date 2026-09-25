@@ -1,6 +1,6 @@
 VERSION = 0
 PATCHLEVEL = 7
-SUBLEVEL = 0
+SUBLEVEL = 1
 EXTRAVERSION = -dev
 VERSION_TAG = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
@@ -14,7 +14,7 @@ ARCH ?= x86_32
 BUILD_DIR = build
 VPATH = init drivers/video drivers/input kernel lib mm arch/$(ARCH)/boot arch/$(ARCH)/kernel
 
-DRIVE_FLAGS ?= -cdrom
+DRIVE_FLAGS ?= -hda
 QEMU_FLAGS ?= -m 64M -serial stdio
 
 GRUB_CFG = arch/$(ARCH)/boot/grub/grub.cfg
