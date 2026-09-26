@@ -5,6 +5,17 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and u
 
 ## [Unreleased]
 
+## 0.7.2-dev - 2026-09-26
+
+### Added
+- `console_line_echo`, set by the shell while it echoes a command line, so a row that fills up restarts the next one with `> `.
+
+### Fixed
+- `console_putchar()` writing past the 80x25 text page on a newline at the last row, which ate the next prompt's `>` and left the cursor off screen.
+- The cursor and the hardware cursor register being able to point outside the text page; every move now goes through one clamped `console_set_cursor()`.
+- `console_scroll()` not moving `user_cmdline_start`, which broke backspace after the screen wrapped.
+- `kprintf()` reading past the end of a format string that ends with `%`.
+
 ## 0.7.1-dev - 2026-09-24
 
 ### Added

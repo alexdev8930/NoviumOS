@@ -65,6 +65,7 @@ void console_clear(void);
 void console_prompt(void);
 void update_hardware_cursor(int position);
 extern int user_cmdline_start;
+extern int console_line_echo;
 
 int kprintf(const char *format, ...); /* equivalent to printf() in libc */
 
@@ -72,14 +73,27 @@ void debug_print_hex8(u8 value);
 void debug_print_hex32(u32 value);
 ```
 
-The console uses VGA text memory at `0xB8000`. `console_putchar()` handles
-newlines, tabs, and backspace. Backspace cannot move before
+The console uses VGA text memory at `0xB8000` and owns the visible 80x25 page
+(`0xB8000`-`0xB8F9F`). `console_putchar()` handles newlines, tabs, and backspace,
+and scrolls when a line reaches the last row. Backspace cannot move before
 `user_cmdline_start`. `console_prompt()` writes `> ` and records where the
 editable command line starts.
 
+All cursor moves go through one clamped setter, so the cursor and the hardware
+cursor register stay inside the page and no character is ever written past cell
+1999. A newline on the last row scrolls before the next character goes out, and
+scrolling takes `user_cmdline_start` up with the prompt, so backspace still
+works after a wrap.
+
+`console_line_echo` is set by whoever is echoing a command line. While it is
+nonzero, a row that fills up starts the next row with `> `, so a wrapped command
+keeps its marker. Printers leave it clear, so ordinary messages wrap on their
+own and no `>` shows up in the middle of them.
+
 `kprintf()` supports `%c`, `%s`, `%d`, `%i`, `%u`, `%x`, `%X`, and `%%`. It
-always returns `0`. Unsupported format characters are printed literally. The
-debug helpers print fixed-width uppercase hexadecimal values.
+always returns `0`. Unsupported format characters are printed literally, and a
+format string that ends with a stray `%` stops there instead of running off the
+end. The debug helpers print fixed-width uppercase hexadecimal values.
 
 ### Interrupts
 

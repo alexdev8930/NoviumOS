@@ -7,5 +7,6 @@ void console_clear(void);
 void console_prompt(void);
 void update_hardware_cursor(int pos);
 extern int user_cmdline_start;
+extern int console_line_echo;
 
 #endif

@@ -27,7 +27,9 @@ void shell_task(void) {
             continue;
         }
 
+        console_line_echo = 1;
         console_putchar((char)key);
+        console_line_echo = 0;
 
         if (key == '\n') {
             console_prompt();

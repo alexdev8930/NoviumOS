@@ -28,6 +28,10 @@ int kprintf(const char *fmt, ...) {
         }
 
         fmt++;
+        if (*fmt == '\0') {
+            break;
+        }
+        
         switch (*fmt){
             case 'c':
                 console_putchar((char)va_arg(args, int));
