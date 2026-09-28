@@ -59,6 +59,7 @@ void kernel_main(struct boot_info *boot) {
     }
 
     PageAllocInit(boot);
+    HeapInit();
     kprintf("OK: %u physical pages available.\n", PageAllocFreeCount());
 
     PagingInit();

@@ -1,63 +1,90 @@
 #include "page_alloc.h"
 #include <novium/heap.h>
 
-#define HEAP_MAGIC 0x48454150u /* ASCII "HEAP" */
+#define HEAP_MAGIC 0x48454150u   /* ASCII "HEAP", catches a bad pointer */
+#define HEAP_GROW_PAGES 16
 
-typedef struct HeapBlock {
+typedef struct Block Block;
+
+typedef struct BlockMeta {
     u32 Magic;
-    u32 PageCount;
-    u32 Address;
-} HeapBlock;
+    u32 Size;
+    u32 PrevSize;
+    bool IsFree;
+} BlockMeta;
 
-/* allocate one or more contiguous kernel memory pages */
-void *kmalloc(size_t size) {    
-    size_t TotalSize;
-    u32 pages;
+typedef struct FreeNode {
+    Block *Prev;
+    Block *Next;
+} FreeNode;
 
-    if (size == 0) {
-        return 0;
-    }
+struct Block {
+    BlockMeta Meta;
+    union {
+        FreeNode Node;
+        u8 Payload[0]; /* GCC extension: zero bytes, just marks where data starts */
+    };
+};
 
-    if (size > (size_t)-1 - sizeof(HeapBlock) - (PAGE_SIZE - 1u)) {
-        return 0;
-    }
+static Block *FreeListHead;
 
-    TotalSize = size + sizeof(HeapBlock) + PAGE_SIZE - 1u;
-    pages = (u32)(TotalSize / PAGE_SIZE);
-
-    u32 Address = PageAllocPages(pages);
-
-    if (Address == 0) {
-        return 0;
-    }
-
-    HeapBlock *Block = (HeapBlock *)Address;
-
-    Block->Magic = HEAP_MAGIC;
-    Block->PageCount = pages;
-    Block->Address = Address;
-
-    return (void *)(Block + 1);
-}
-
-/* free a contiguous kernel memory allocation */
-void kfree(void *addr) {
+void HeapInit(void) {
+    FreeListHead = 0;
+    u32 addr = PageAllocPages(HEAP_GROW_PAGES);
     if (addr == 0) {
         return;
     }
 
-    HeapBlock *Block = ((HeapBlock *)addr) - 1;
+    Block *b = (Block *)addr;
+    b->Meta.Magic = HEAP_MAGIC;
+    b->Meta.Size = HEAP_GROW_PAGES * PAGE_SIZE;
+    b->Meta.PrevSize = 0;
+    b->Meta.IsFree = true;
+    b->Node.Prev = 0;
+    b->Node.Next = 0;
 
-    if (Block->Magic != HEAP_MAGIC || Block->PageCount == 0) {
-        return;
+    FreeListHead = b;
+}
+
+/* WORK IN PROGRESS */
+void *kmalloc(size_t size) {
+    u32 TotalSize = size + sizeof(BlockMeta);
+
+    Block *prev = 0;
+    Block *b = FreeListHead;
+
+    while (b != 0) {
+        if (b->Meta.Size >= TotalSize) break;
+        prev = b;
+        b = b->Node.Next;
     }
 
-    u32 Address = Block->Address;
-    u32 PageCount = Block->PageCount;
+    if (b == 0) {
+        return 0; /* Genuinely out of memory */
+    }
 
-    Block->Magic = 0;
-    Block->PageCount = 0;
-    Block->Address = 0;
 
-    PageFreePages(Address, PageCount);
+    if (b != 0) {
+        if (prev) {
+            prev->Node.Next = b->Node.Next;     
+        } else {
+            FreeListHead = b->Node.Next;       
+        }
+        if (b->Node.Next) {
+            b->Node.Next->Node.Prev = prev; 
+        }
+    }
+
+    b->Meta.Magic    = HEAP_MAGIC;
+    b->Meta.Size     = TotalSize;
+    b->Meta.PrevSize = 0;
+    b->Meta.IsFree   = false;
+
+    return (void *)((u8 *)b + sizeof(BlockMeta));
+}
+
+/* WORK IN PROGRESS */
+void kfree(void *addr) {
+    Block *b = (Block *)((u8 *)addr - sizeof(BlockMeta));
+    (void)b;
 }

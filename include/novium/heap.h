@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+void HeapInit(void);
 void *kmalloc(size_t size);
 void kfree(void *addr);
 
