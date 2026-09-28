@@ -13,18 +13,19 @@ static u32 TaskCountValue = 0;
 static u32 NextTaskId = 0;
 static u32 SchedulerTicks = 0;
 static u32 ContextSwitches = 0;
+/* Nesting counter, not a flag: SchedLock can nest. */
 static u32 SchedulerLocked = 0;
-static u32 PreemptPending = 0;
+static bool PreemptPending = false;
 
 /* Helper: saves interrupt status and disables interrupts */
-static inline u32 SchedLockIrq(void) {
-    u32 was_enabled = cpu_irqs_enabled() ? 1 : 0;
+static inline bool SchedLockIrq(void) {
+    bool was_enabled = cpu_irqs_enabled();
     cpu_disable_irqs();
     return was_enabled;
 }
 
 /* Helper: restores interrupts only if they were originally on */
-static inline void SchedUnlockIrq(u32 was_enabled) {
+static inline void SchedUnlockIrq(bool was_enabled) {
     if (was_enabled) {
         cpu_enable_irqs();
     }
@@ -154,7 +155,7 @@ void SchedInit(void) {
     SchedulerTicks = 0;
     ContextSwitches = 0;
     SchedulerLocked = 0;
-    PreemptPending = 0;
+    PreemptPending = false;
 
     for (Index = 0; Index < SchedMaxTasks; Index++) {
         SchedResetTask(&Tasks[Index]);
@@ -218,7 +219,7 @@ Task *SchedCreate(const char *Name, u32 Eip, u32 Esp) {
         return 0;
     }
 
-    u32 was_enabled = SchedLockIrq();
+    bool was_enabled = SchedLockIrq();
 
     TaskItem = 0;
 
@@ -288,7 +289,7 @@ void SchedYield(void) {
     Task *PrevTask;
     u32 ScratchEsp;
 
-    u32 was_enabled = SchedLockIrq();
+    bool was_enabled = SchedLockIrq();
 
     if (SchedulerLocked != 0) {
         SchedUnlockIrq(was_enabled);
@@ -354,12 +355,12 @@ void SchedTick(struct registers *Regs) {
      */
     if (CurrentTask->TimeUsed >= CurrentTask->TimeSlice) {
         CurrentTask->TimeUsed = 0;
-        PreemptPending = 1;
+        PreemptPending = true;
     }
 }
 
 void SchedPreempt(void) {
-    if (PreemptPending == 0) {
+    if (!PreemptPending) {
         return;
     }
 
@@ -371,7 +372,7 @@ void SchedPreempt(void) {
         return;
     }
 
-    PreemptPending = 0;
+    PreemptPending = false;
 
     SchedYield();
 }
@@ -385,7 +386,7 @@ void SchedBlock(void) {
 }
 
 void SchedBlockTask(u32 Id) {
-    u32 was_enabled = SchedLockIrq();
+    bool was_enabled = SchedLockIrq();
 
     Task *TaskItem = SchedFind(Id);
 
@@ -426,7 +427,7 @@ void SchedUnblock(Task *TaskItem) {
         return;
     }
 
-    u32 was_enabled = SchedLockIrq();
+    bool was_enabled = SchedLockIrq();
     SchedQueueRemove(&BlockedQueue, TaskItem);
     TaskItem->State = TaskReady;
     SchedQueueAdd(&ReadyQueue, TaskItem);
@@ -453,7 +454,7 @@ void SchedSleepUntil(u32 WakeTick) {
 }
 
 u32 SchedWakeExpired(u32 NowTick) {
-    u32 was_enabled = SchedLockIrq();
+    bool was_enabled = SchedLockIrq();
     Task *TaskItem = BlockedQueue;
     u32 Woken = 0;
 
@@ -476,21 +477,21 @@ u32 SchedWakeExpired(u32 NowTick) {
     return Woken;
 }
 
-u32 SchedHasRunnable(void) {
-    u32 was_enabled = SchedLockIrq();
+bool SchedHasRunnable(void) {
+    bool was_enabled = SchedLockIrq();
     Task *TaskItem = ReadyQueue;
 
     while (TaskItem != 0) {
         if (TaskItem != CurrentTask) {
             SchedUnlockIrq(was_enabled);
-            return 1;
+            return true;
         }
 
         TaskItem = TaskItem->Next;
     }
 
     SchedUnlockIrq(was_enabled);
-    return 0;
+    return false;
 }
 
 void SchedExit(void) {
@@ -500,7 +501,7 @@ void SchedExit(void) {
         return;
     }
 
-    u32 was_enabled = SchedLockIrq();
+    bool was_enabled = SchedLockIrq();
 
     TaskItem = CurrentTask;
 
@@ -537,7 +538,7 @@ void SchedKill(u32 Id) {
         return;
     }
 
-    u32 was_enabled = SchedLockIrq();
+    bool was_enabled = SchedLockIrq();
 
     TaskItem = SchedFind(Id);
 
@@ -598,7 +599,7 @@ void SchedGetStats(SchedStats *Stats) {
         return;
     }
 
-    u32 was_enabled = SchedLockIrq();
+    bool was_enabled = SchedLockIrq();
 
     Stats->TotalTasks = TaskCountValue;
     Stats->RunningTasks = 0;

@@ -43,6 +43,7 @@ GRUB finds and loads the kernel, checks the Multiboot header, and hands control 
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.
+See [kernel_api.md](Documentation/kernel_api.md) for the documentation on the kernel API
 
 
 ## Build and Run

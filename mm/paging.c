@@ -7,7 +7,7 @@ static u32 PageDirectory[PAGE_TABLE_ENTRIES]
 	__attribute__((aligned(PAGING_PAGE_SIZE)));
 static u32 PageTables[PAGE_TABLE_ENTRIES][PAGE_TABLE_ENTRIES]
 	__attribute__((aligned(PAGING_PAGE_SIZE)));
-static u32 PagingEnabled;
+static bool PagingEnabled = false;
 
 static u32 PageDirectoryIndex(u32 Address) {
 	return Address >> 22;
@@ -77,9 +77,9 @@ void PagingInit(void) {
 		:
 		: "eax", "memory");
 
-	PagingEnabled = 1;
+	PagingEnabled = true;
 }
 
-u32 PagingIsEnabled(void) {
+bool PagingIsEnabled(void) {
 	return PagingEnabled;
 }

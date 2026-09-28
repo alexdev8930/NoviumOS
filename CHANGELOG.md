@@ -1,9 +1,23 @@
 # Changelog
 
 The format is based on [Keep a Changelog](https://keepachangelog.com),
-Versioning is similar to [semver](https://semver.org) but is more flexible and uses custom tags (like `-dev` and `-rc`).
+Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
 ## [Unreleased]
+
+## 0.7.4-dev - 2026-09-28
+
+### Added
+- `bool` support in `<novium/types.h>`, so flags stop pretending to be `int`.
+- A packed `VgaColor` palette for the text attribute byte, with a `_Static_assert` on its size, so an enumerator added past 255 fails the build instead of silently widening the byte and shifting every cell after it.
+- Enums for what used to be macros or magic numbers: the console geometry (`ConsoleWidth`, `ConsoleHeight`, `ConsoleCells`), the page allocator's `PageState`, the five multiboot memory map types in `MultibootMemoryType`, and `EflagsInterruptEnable`.
+
+### Changed
+- Predicates that can only be true or false are `bool` now: `cpu_irqs_enabled()`, `cpu_irq_enabled()`, `SchedHasRunnable()` and `PagingIsEnabled()` return one, and `console_line_echo`, `PagingEnabled` and `PreemptPending` store one.
+- The `true` and `false` macros in `<novium/types.h>` are gone in favour of `<stdbool.h>`, so `bool`, `true` and `false` come from the language rather than from `int` literals.
+- `SchedLockIrq()` and its callers pass a `bool` instead of a `u32` holding 0 or 1.
+- `PageSet()` and `PageSetRange()` take a `PageState` instead of a bare `0` or `1`, so reserving a page reads as `PageStateUsed` at the call site.
+- A cleared cell's attribute is `ConsoleAttribute` instead of a literal `0x07`, and `MULTIBOOT_MEMORY_AVAILABLE` is now the shared `MultibootMemoryAvailable` from `<novium/boot_info.h>`.
 
 ## 0.7.3-dev - 2026-09-27
 

@@ -6,6 +6,15 @@
 #define MULTIBOOT_BOOTLOADER_MAGIC 0x2BADB002u
 #define MULTIBOOT_INFO_MEMORY_MAP  (1u << 6)
 
+/* Memory map entry types, Multiboot spec 3.3. No .S file includes this header, so an enum is safe here. */
+typedef enum {
+    MultibootMemoryAvailable = 1,
+    MultibootMemoryReserved = 2,
+    MultibootMemoryAcpiReclaimable = 3,
+    MultibootMemoryAcpiNvs = 4,
+    MultibootMemoryBadRam = 5
+} MultibootMemoryType;
+
 struct multiboot_info {
     u32 flags;
     u32 mem_lower;
@@ -23,7 +32,7 @@ struct multiboot_mmap {
     u32 size;
     u64 base_addr;
     u64 length;
-    u32 type;
+    u32 type;   /* A MultibootMemoryType; u32 on the wire. */
 };
 
 struct boot_info {

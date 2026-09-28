@@ -11,7 +11,7 @@
  void PagingInit(void);
  void PagingMap(u32 VirtualAddress, u32 PhysicalAddress, u32 Flags);
  void PagingUnmap(u32 VirtualAddress);
- u32 PagingIsEnabled(void);
+ bool PagingIsEnabled(void);
 
  #endif
 

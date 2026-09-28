@@ -13,6 +13,6 @@ void cpu_enable_irqs(void) {
     cpu_sti();
 }
 
-int cpu_irqs_enabled(void) {
+bool cpu_irqs_enabled(void) {
     return cpu_irq_enabled();
 }

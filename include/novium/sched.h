@@ -79,8 +79,8 @@ void SchedWakeTask(u32 Id);
 void SchedSleepUntil(u32 WakeTick);   /* block until an absolute tick */
 u32  SchedWakeExpired(u32 NowTick);   /* wake sleepers whose tick passed */
 
-/* nonzero when something other than the caller can run */
-u32 SchedHasRunnable(void);
+/* True when something other than the caller can run. */
+bool SchedHasRunnable(void);
 
 void SchedExit(void);
 void SchedKill(u32 Id);

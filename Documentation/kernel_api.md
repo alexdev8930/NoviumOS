@@ -35,11 +35,11 @@ console.
 void cpu_idle(void);
 void cpu_disable_irqs(void);
 void cpu_enable_irqs(void);
-int  cpu_irqs_enabled(void);
+bool cpu_irqs_enabled(void);
 static inline void cpu_cli(void);
 static inline void cpu_sti(void);
 static inline void cpu_hlt(void);
-static inline int  cpu_irq_enabled(void);
+static inline bool cpu_irq_enabled(void);
 ```
 
 `cpu_idle()` halts until an interrupt arrives. `cpu_disable_irqs()` and
@@ -71,7 +71,7 @@ void console_clear(void);
 void console_prompt(void);
 void update_hardware_cursor(int position);
 extern int user_cmdline_start;
-extern int console_line_echo;
+extern bool console_line_echo;
 
 int kprintf(const char *format, ...); /* equivalent to printf() in libc */
 
@@ -92,7 +92,7 @@ scrolling takes `user_cmdline_start` up with the prompt, so backspace still
 works after a wrap.
 
 `console_line_echo` is set by whoever is echoing a command line. While it is
-nonzero, a row that fills up starts the next row with `> `, so a wrapped command
+set, a row that fills up starts the next row with `> `, so a wrapped command
 keeps its marker. Printers leave it clear, so ordinary messages wrap on their
 own and no `>` shows up in the middle of them.
 
@@ -276,7 +276,7 @@ void SchedWakeTask(u32 id);
 
 void SchedSleepUntil(u32 wake_tick);
 u32  SchedWakeExpired(u32 now_tick);
-u32  SchedHasRunnable(void);
+bool SchedHasRunnable(void);
 
 void SchedExit(void);
 void SchedKill(u32 id);

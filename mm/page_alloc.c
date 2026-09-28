@@ -2,7 +2,12 @@
 
 #define PAGE_COUNT 1048576u
 #define BITMAP_WORDS (PAGE_COUNT / 32u)
-#define MULTIBOOT_MEMORY_AVAILABLE 1u
+
+/* Bit to write for a page in the bitmap: 1 is free, 0 is used. */
+typedef enum {
+    PageStateUsed = 0,
+    PageStateAvailable = 1
+} PageState;
 
 extern char _kernel_start;
 extern char _kernel_end;
@@ -10,11 +15,11 @@ extern char _kernel_end;
 static u32 PageBitmap[BITMAP_WORDS];
 static u32 FreePages;
 
-static void PageSet(u32 Page, u32 Free) {
+static void PageSet(u32 Page, PageState State) {
 	u32 Word = Page / 32u;
 	u32 Bit = Page % 32u;
 
-	if (Free != 0) {
+	if (State == PageStateAvailable) {
 		if ((PageBitmap[Word] & (1u << Bit)) == 0) {
 			PageBitmap[Word] |= 1u << Bit;
 			FreePages++;
@@ -26,7 +31,7 @@ static void PageSet(u32 Page, u32 Free) {
 }
 
 /* marks a range of memory addresses as free or used, rounding to 4KB page boundaries. */
-static void PageSetRange(u64 Base, u64 Length, u32 Free) {
+static void PageSetRange(u64 Base, u64 Length, PageState State) {
 	u64 End = Base + Length;
 	u64 First;
 	u64 Last;
@@ -46,7 +51,7 @@ static void PageSetRange(u64 Base, u64 Length, u32 Free) {
 	for (; First < Last; First += PAGE_SIZE) {
 		Page = (u32)(First / PAGE_SIZE);
 		if (Page < PAGE_COUNT) {
-			PageSet(Page, Free);
+			PageSet(Page, State);
 		}
 	}
 }
@@ -76,16 +81,16 @@ void PageAllocInit(const struct boot_info *Boot) {
 			break;
 		}
 
-		if (Entry->type == MULTIBOOT_MEMORY_AVAILABLE) {
-			PageSetRange(Entry->base_addr, Entry->length, 1);
+		if (Entry->type == MultibootMemoryAvailable) {
+			PageSetRange(Entry->base_addr, Entry->length, PageStateAvailable);
 		}
 
 		Offset += sizeof(u32) + EntrySize;
 	}
 
-	PageSetRange(0, PAGE_SIZE, 0);
+	PageSetRange(0, PAGE_SIZE, PageStateUsed);
 	PageSetRange((u32)&_kernel_start,
-				 (u32)&_kernel_end - (u32)&_kernel_start, 0);
+				 (u32)&_kernel_end - (u32)&_kernel_start, PageStateUsed);
 }
 
 u32 PageAlloc(void) {
@@ -101,7 +106,7 @@ u32 PageAlloc(void) {
 		for (Bit = 0; Bit < 32u; Bit++) {
 			if ((PageBitmap[Word] & (1u << Bit)) != 0) {
 				Page = Word * 32u + Bit;
-				PageSet(Page, 0);
+				PageSet(Page, PageStateUsed);
 				return Page * PAGE_SIZE;
 			}
 		}
@@ -131,7 +136,7 @@ u32 PageAllocPages(u32 count) {
 		
 		if (Run == count) {
             for (Run = 0; Run < count; Run++) {
-                PageSet(Start + Run, 0);
+                PageSet(Start + Run, PageStateUsed);
             }
 
             return Start * PAGE_SIZE;
@@ -153,7 +158,7 @@ void PageFree(u32 Address) {
 		return;
 	}
 
-	PageSet(Address / PAGE_SIZE, 1);
+	PageSet(Address / PAGE_SIZE, PageStateAvailable);
 }
 
 void PageFreePages(u32 Address, u32 Count) {
@@ -172,7 +177,7 @@ void PageFreePages(u32 Address, u32 Count) {
     }
 
     for (Index = 0; Index < Count; Index++) {
-        PageSet(Start + Index, 1);
+        PageSet(Start + Index, PageStateAvailable);
     }
 }
 

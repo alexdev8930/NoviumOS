@@ -1,4 +1,16 @@
 [NOTES]
 
 - scheduler interrupt safety, preemption, and stack flags addressed
-- investigate page allocator boundary rounding and multiboot memory map reservation
+
+- page allocator: PageSetRange() rounds the start up and the end down, which is correct
+  for available ranges but wrong for reserved ones, since a reserved range must cover
+  everything it touches. a non aligned reserved range can reserve zero pages, so the
+  multiboot map and boot_info reservation creates no protection until the reserved case
+  rounds outward. confirmed: 0x9000 + 0x420 reserves 0 pages today
+
+- the kernel reservation is only safe today because link.ld aligns _kernel_start and
+  _kernel_end to 4096. without that ALIGN the kernel's last page stays marked free and
+  the allocator can hand out kernel memory
+  
+- kprintf %d negates INT32_MIN, which is undefined, ubsan flags it. prints the right
+  digits only by accident at -O2
