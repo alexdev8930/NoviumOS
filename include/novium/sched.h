@@ -64,6 +64,13 @@ u32 SchedTaskCount(void);
 void SchedYield(void);
 void SchedTick(struct registers *Regs);
 
+/*
+ * Runs a preemption that SchedTick() requested. Must be called from the irq
+ * epilogue *after* the pic has been acknowledged: switching away with the
+ * line still in service would leave the eoi pending and freeze the unit.
+ */
+void SchedPreempt(void);
+
 void SchedBlock(void);
 void SchedBlockTask(u32 Id);
 void SchedUnblock(Task *TaskItem);

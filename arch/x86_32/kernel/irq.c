@@ -1,6 +1,7 @@
 #include <asm/irq.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
+#include <novium/sched.h>
 #include <novium/stdio.h>
 
 /* programmable interrupt controller port and command definitions */
@@ -212,6 +213,14 @@ void isr_dispatch(struct registers *r) {
         outb(PIC2_CMD, PIC_EOI);
     }
     outb(PIC1_CMD, PIC_EOI);
+
+    /*
+     * Only now is it safe to act on a preemption the handler asked for. The
+     * scheduler must not switch tasks while the line is still in service,
+     * because the interrupted handler would be suspended with its eoi pending
+     * and the controller would stop delivering interrupts.
+     */
+    SchedPreempt();
 }
 
 void irq_disable(void) {

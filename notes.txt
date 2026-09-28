@@ -1,3 +1,4 @@
 [NOTES]
 
--there still could be some bugs in sched.c
+- scheduler interrupt safety, preemption, and stack flags addressed
+- investigate page allocator boundary rounding and multiboot memory map reservation

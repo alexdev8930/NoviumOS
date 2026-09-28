@@ -1,6 +1,6 @@
 VERSION = 0
 PATCHLEVEL = 7
-SUBLEVEL = 2
+SUBLEVEL = 3
 EXTRAVERSION = -dev
 VERSION_TAG = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
@@ -40,7 +40,9 @@ CFLAGS = $(CFLAGS_ARCH) \
          -O2 \
          -g \
          -Wall \
-         -Wextra 
+         -Wextra \
+         -MMD \
+         -MP 
 
 LDFLAGS = $(LDFLAGS_ARCH) \
           -T arch/$(ARCH)/kernel/link.ld
@@ -66,6 +68,9 @@ KERNEL_OBJS = \
     $(BUILD_DIR)/switch.o \
     $(BUILD_DIR)/heap.o
 
+# Header dependencies collected by -MMD, one .d next to each .o
+KERNEL_DEPS = $(KERNEL_OBJS:.o=.d)
+
 .PHONY: all iso run clean
 
 all: $(ISO_IMAGE)
@@ -79,6 +84,10 @@ $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
 
 $(BUILD_DIR)/%.o: %.S | $(BUILD_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+# Pull in the header dependencies.  A missing .d is fine on a fresh tree, and
+# -MP keeps a deleted header from turning into a "no rule to make target" stop.
+-include $(KERNEL_DEPS)
 
 $(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS) arch/$(ARCH)/kernel/link.ld
 	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o $@

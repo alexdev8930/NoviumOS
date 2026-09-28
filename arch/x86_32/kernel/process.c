@@ -4,3 +4,15 @@
 void cpu_idle(void) {
     cpu_hlt();
 }
+
+void cpu_disable_irqs(void) {
+    cpu_cli();
+}
+
+void cpu_enable_irqs(void) {
+    cpu_sti();
+}
+
+int cpu_irqs_enabled(void) {
+    return cpu_irq_enabled();
+}

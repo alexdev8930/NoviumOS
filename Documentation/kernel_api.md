@@ -33,14 +33,20 @@ console.
 
 ```c
 void cpu_idle(void);
+void cpu_disable_irqs(void);
+void cpu_enable_irqs(void);
+int  cpu_irqs_enabled(void);
 static inline void cpu_cli(void);
 static inline void cpu_sti(void);
 static inline void cpu_hlt(void);
 static inline int  cpu_irq_enabled(void);
 ```
 
-`cpu_idle()` halts until an interrupt arrives. `cpu_cli()` and `cpu_sti()`
-disable and enable maskable interrupts. `cpu_hlt()` halts the processor until
+`cpu_idle()` halts until an interrupt arrives. `cpu_disable_irqs()` and
+`cpu_enable_irqs()` provide portable interrupt masking across architectures,
+while `cpu_irqs_enabled()` checks whether interrupts are currently enabled.
+`cpu_cli()` and `cpu_sti()` are architecture-level helpers that disable and
+enable maskable interrupts directly. `cpu_hlt()` halts the processor until
 the next interrupt and should only be used when interrupt wake-up is possible.
 `cpu_irq_enabled()` reports whether maskable interrupts are currently allowed
 by reading the interrupt flag in `eflags`.
@@ -262,6 +268,7 @@ u32   SchedTaskCount(void);
 
 void SchedYield(void);
 void SchedTick(struct registers *regs);
+void SchedPreempt(void);
 void SchedBlock(void);
 void SchedBlockTask(u32 id);
 void SchedUnblock(Task *task);
@@ -288,9 +295,14 @@ void SchedSwitch(u32 *old_esp, u32 new_esp);
 is the task entry address and `esp` is the top of its stack. Task ID `0` is the
 idle task, so it cannot be blocked, killed, or exited. `SchedYield()` switches
 to the next ready task using the selected policy. `SchedTick()` updates the
-runtime counters from the timer interrupt, but does not currently force a
-context switch. `SchedLock()` and `SchedUnlock()` use a nesting counter to
-temporarily stop scheduling.
+runtime counters from the timer interrupt and requests a preemption once a task
+exceeds its time slice. The switch itself is not performed there: the timer
+handler still runs with its PIC line in service, so switching away would leave
+the EOI unsent and the controller would stop delivering interrupts. Instead
+`SchedTick()` raises an internal flag, and `SchedPreempt()` performs the switch
+from the interrupt epilogue in `isr_dispatch()`, immediately after the EOI.
+`SchedLock()` and `SchedUnlock()` use a nesting counter to temporarily stop
+scheduling.
 
 Each task has a `WakeTick` field for a blocked sleeper's absolute deadline.
 `SchedSleepUntil()` sets the field and blocks the caller, clearing it after the

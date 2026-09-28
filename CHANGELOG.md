@@ -1,9 +1,24 @@
 # Changelog
 
-The format is based on [Keep a Changelog](https://keepachangelog.com)
+The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and uses custom tags (like `-dev` and `-rc`).
 
 ## [Unreleased]
+
+## 0.7.3-dev - 2026-09-27
+
+### Added
+- Portable CPU interrupt control helpers in `<novium/cpu.h>`: `cpu_disable_irqs()`, `cpu_enable_irqs()`, and `cpu_irqs_enabled()`.
+- `SchedPreempt()` in `<novium/sched.h>`, which performs a time slice preemption from the interrupt epilogue once the PIC line has been acknowledged.
+
+### Fixed
+- `switch.S` not saving and restoring `EFLAGS`, so a task preempted out of an interrupt handler (where the interrupt flag is clear) handed that cleared flag to whichever task it resumed. The resumed task could then reach `hlt` with interrupts masked and never be woken again, which froze the timer and the keyboard. The context now carries `eflags`, and new task stacks are built with `0x202` so a fresh task starts with interrupts enabled.
+- A preemption happening inside `SchedTick()`, which ran with the timer's PIC line still in service. Switching tasks there suspended the handler before `isr_dispatch()` sent the EOI, so the controller kept the line in service and stopped delivering `IRQ0` and `IRQ1`. The timer now only requests a preemption, and `SchedPreempt()` runs it after the EOI.
+- The context switch no longer re-enables interrupts midway through the switch. It stays atomic and the resumed task's own saved `eflags` are restored, so a task interrupted inside a handler returns with interrupts off and a task that yielded normally returns with them on.
+- Protected scheduler queues (`ReadyQueue`, `BlockedQueue`, `DeadQueue`) and task operations against interrupt race conditions using `SchedLockIrq()` and `SchedUnlockIrq()`.
+- `SchedWakeExpired()` and `SchedHasRunnable()` are no longer reachable in a state where a stalled handler could delay a sleeper's wakeup.
+- Replaced stale descriptor data in `SchedExit()` and `SchedKill()` with `SchedResetTask()`, preventing task information leaks.
+- `SchedKill()` no longer looks the target up before checking for a self-kill, which removed a use of `SchedFind()` outside the scheduler lock.
 
 ## 0.7.2-dev - 2026-09-26
 
