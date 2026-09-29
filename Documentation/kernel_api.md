@@ -198,10 +198,12 @@ a free flag, so a double free is caught instead of corrupting the list.
 `kmalloc()` returns 8-byte aligned memory, searches the free list for a block
 that fits, splits an oversized block so the remainder stays available, and only
 calls `PageAllocPages()` when the list cannot satisfy the request. A 64 byte
-request therefore costs 88 bytes rather than a full page. `kfree()` is still a
-stub, so freed blocks do not return to the list yet, and adjacent free blocks
-are not coalesced, so two neighbouring free blocks cannot be merged into one
-larger allocation. Zero-size, overflowing, and unavailable allocations return
+request therefore costs 88 bytes rather than a full page. `kfree()` returns a
+block to the free list, merging it with free neighbours on both sides and
+restamping the `PrevSize` of the block that follows the merge. A double free is
+ignored. `HeapGrow()` refuses a growth that is not adjacent to the current heap,
+so the heap stays one contiguous run; freeing a block never returns its pages to
+the page allocator. Zero-size, overflowing, and unavailable allocations return
 `0`.
 
 ## Internal Kernel APIs

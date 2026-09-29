@@ -7,9 +7,8 @@ This is the NoviumOS todo list this lists things that are going to happen in the
 For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.md).
 
 
-## Next up: Heap expansion
+## Next up: Filesystem
 
-- [ ] Add coalescing for adjacent free blocks, and make `kfree()` return blocks to the free list
 - [ ] Simple filesystem (VFS + ext2)
 - [ ] Basic IPC between kernel threads/processes
 

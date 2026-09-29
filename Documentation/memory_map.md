@@ -46,7 +46,7 @@ The PMM needs to read usable memory regions directly from GRUB's memory map inst
 - Contiguous multi-page physical allocations and range frees
 - Identity paging for the full 4 GiB 32-bit address space
 - Runtime page mapping and unmapping helpers
-- Kernel heap with a sorted free list, 8-byte aligned sub-page allocations, and block splitting, so a small request no longer costs a whole page
-- `kfree()` does not return blocks to the free list yet, and adjacent free blocks are not coalesced
+- Kernel heap with a sorted free list, 8-byte aligned sub-page allocations, block splitting, coalescing on free, and returning large free blocks to the page allocator
+- The heap grows in one contiguous run, and the block touching the heap end is never returned
 - Kernel end changes as the kernel grows
 - Free memory is determined from the GRUB Multiboot memory map

@@ -1,0 +1,18 @@
+BasedOnStyle: LLVM
+IndentWidth: 8
+TabWidth: 8
+UseTab: Always
+ColumnLimit: 100
+
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+InsertBraces: true
+
+BreakBeforeBraces: Attach
+
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false

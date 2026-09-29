@@ -4,7 +4,7 @@ Thanks for wanting to contribute! Whether you're fixing a bug, polishing the doc
 
 ## Comments
 
-We prefer using **`/* comment */`** most of the time but you can use **`// comment  `** for quick notes
+We prefer using **`/* comment */`** most of the time but you can use **`// comment`** for quick notes
 
 ## Guidelines
 
