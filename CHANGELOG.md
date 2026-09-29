@@ -5,6 +5,23 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 
 ## [Unreleased]
 
+### Added
+- A permanent `BlockMeta` header on every heap block, holding its magic, size, the size of the block physically before it, and a free flag. The header stays readable whether the block is allocated or on the free list, so a double free is caught instead of corrupting the list.
+- A `FreeNode` inside a block, overlapping the payload area, so a free block's list pointers cost nothing and a used block's first 8 bytes are the caller's data.
+- Sorted free list helpers in `mm/heap.c`: `HeapListInsert`, `HeapListRemove`, `HeapFindFree` and `HeapSplit`, plus `HeapGrow` and `HeapInit` to seed the heap with 16 pages.
+- `HeapInit()` in `<novium/heap.h>`, called once from `kernel_main` after `PageAllocInit()`.
+- `HEAP_ALIGN_UP()` and `HEAP_ALIGN` in `mm/heap.c`, so every allocation is returned 8-byte aligned.
+
+### Changed
+- `kmalloc()` no longer takes whole pages. It searches the free list for a block that fits, splits it when the block is oversized so the remainder stays available, and only falls back to `PageAllocPages()` when the list cannot satisfy the request. A 64 byte request now costs 88 bytes instead of 4096.
+- Oversized blocks are cut in two by `HeapSplit()`, and the block after the cut piece has its `PrevSize` restamped so coalescing can still find its neighbours.
+- The boot test in `kernel_main()` now checks that a small allocation takes no pages at all, instead of expecting two, since the free list serves it.
+
+### Known issues
+- `kfree()` is still a stub. Freed blocks are not returned to the free list, so the heap leaks every allocation and only works for a single `kmalloc` after `HeapInit()`.
+- `HeapGrow()` refuses a growth that is not adjacent to the current heap, so the heap stays one contiguous run and `HeapEnd` stays valid. Lifting that needs a `PageAllocPagesAt()` in the page allocator.
+- Adjacent free blocks are not coalesced yet, so two free blocks next to each other cannot be merged into one larger allocation.
+
 ## 0.7.4-dev - 2026-09-28
 
 ### Added

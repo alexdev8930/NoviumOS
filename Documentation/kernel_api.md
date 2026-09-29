@@ -182,19 +182,27 @@ void  *memcpy(void *dest, const void *src, size_t length);
 size_t strlen(const char *str);
 int    strcmp(const char *left, const char *right);
 
+void HeapInit(void);
 void *kmalloc(size_t size);
 void  kfree(void *address);
 ```
 
 The string functions provide the usual freestanding C behavior. `memmove()`
 supports overlapping ranges, and `strcmp()` returns the unsigned-character
-difference at the first mismatch. The first heap implementation is in
-`mm/heap.c`. The heap stores allocation metadata before returned memory.
-`kmalloc()` rounds the requested size plus heap metadata up to a whole number
-of pages, allocates a contiguous physical range, and stores the range metadata
-before the returned memory. `kfree()` checks the block magic and nonzero page
-count before releasing its stored range. Zero-size, overflowing, and
-unavailable allocations return `0`. Sub-page block reuse is not supported yet.
+difference at the first mismatch. The heap is in `mm/heap.c`, and it keeps a
+sorted free list of blocks rather than allocating whole pages. `HeapInit()`
+reserves 16 pages and seeds the list; `kernel_main()` calls it once after
+`PageAllocInit()`. Every block carries a permanent `BlockMeta` header holding a
+magic value, its size in bytes, the size of the block physically before it, and
+a free flag, so a double free is caught instead of corrupting the list.
+`kmalloc()` returns 8-byte aligned memory, searches the free list for a block
+that fits, splits an oversized block so the remainder stays available, and only
+calls `PageAllocPages()` when the list cannot satisfy the request. A 64 byte
+request therefore costs 88 bytes rather than a full page. `kfree()` is still a
+stub, so freed blocks do not return to the list yet, and adjacent free blocks
+are not coalesced, so two neighbouring free blocks cannot be merged into one
+larger allocation. Zero-size, overflowing, and unavailable allocations return
+`0`.
 
 ## Internal Kernel APIs
 

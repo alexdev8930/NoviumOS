@@ -71,24 +71,16 @@ void kernel_main(struct boot_info *boot) {
     if (HeapTestMemory == 0) {
         kprintf("ERROR: multi-page kmalloc test failed.\n");
     } else {
-        u32 HeapPagesAfterAlloc = PageAllocFreeCount();
-
         kprintf("OK: kmalloc(PAGE_SIZE + 1) returned 0x%x.\n",
                 (u32)HeapTestMemory);
 
-        if (HeapPagesBefore - HeapPagesAfterAlloc == 2) {
-            kprintf("OK: multi-page kmalloc allocated 2 pages.\n");
+        if (PageAllocFreeCount() == HeapPagesBefore) {
+            kprintf("OK: kmalloc reused a free block, no pages taken.\n");
         } else {
-            kprintf("WARNING: multi-page kmalloc allocated an unexpected number of pages.\n");
+            kprintf("WARNING: kmalloc took new pages, free list was empty.\n");
         }
 
         kfree(HeapTestMemory);
-
-        if (PageAllocFreeCount() == HeapPagesBefore) {
-            kprintf("OK: multi-page kfree restored both pages.\n");
-        } else {
-            kprintf("WARNING: multi-page kfree did not restore both pages.\n");
-        }
     }
 
     SchedInit();

@@ -9,7 +9,7 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 
 ## Next up: Heap expansion
 
-- [ ] Add sub-page block reuse with splitting and coalescing
+- [ ] Add coalescing for adjacent free blocks, and make `kfree()` return blocks to the free list
 - [ ] Simple filesystem (VFS + ext2)
 - [ ] Basic IPC between kernel threads/processes
 
@@ -32,4 +32,4 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 
 ## Notes
 
-- `ipc/`, `fs/`, have some stub but they'll get filled in as the kernel progresses.
+- `ipc/`, `fs/`, have stubs but they'll get filled in as the kernel progresses.
