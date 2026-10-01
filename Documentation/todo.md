@@ -10,7 +10,6 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 ## Next up: Filesystem
 
 - [ ] Simple filesystem (VFS + ext2)
-- [ ] Basic IPC between kernel threads/processes
 
 ---
 
@@ -31,4 +30,4 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 
 ## Notes
 
-- `ipc/`, `fs/`, have stubs but they'll get filled in as the kernel progresses.
+- `fs/` has stubs but it will get filled in as the kernel progresses.

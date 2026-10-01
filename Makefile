@@ -1,7 +1,7 @@
 VERSION = 0
-PATCHLEVEL = 8
+PATCHLEVEL = 9
 SUBLEVEL = 0
-EXTRAVERSION = -rc1
+EXTRAVERSION = -dev
 VERSION_TAG = $(VERSION).$(PATCHLEVEL)$(if $(filter-out 0,$(SUBLEVEL)),.$(SUBLEVEL))$(EXTRAVERSION)
 
 CC = gcc
@@ -12,7 +12,7 @@ GRUB_MKRESCUE ?= grub-mkrescue
 ARCH ?= x86_32
 
 BUILD_DIR = build
-VPATH = init drivers/video drivers/input kernel lib mm arch/$(ARCH)/boot arch/$(ARCH)/kernel
+VPATH = init drivers/video drivers/input kernel lib mm ipc arch/$(ARCH)/boot arch/$(ARCH)/kernel
 
 DRIVE_FLAGS ?= -hda
 QEMU_FLAGS ?= -m 64M -serial stdio
@@ -66,7 +66,10 @@ KERNEL_OBJS = \
     $(BUILD_DIR)/sched.o \
     $(BUILD_DIR)/process.o \
     $(BUILD_DIR)/switch.o \
-    $(BUILD_DIR)/heap.o
+    $(BUILD_DIR)/heap.o \
+    $(BUILD_DIR)/ipc.o \
+    $(BUILD_DIR)/message.o \
+    $(BUILD_DIR)/sync.o
 
 # Header dependencies collected by -MMD, one .d next to each .o
 KERNEL_DEPS = $(KERNEL_OBJS:.o=.d)
