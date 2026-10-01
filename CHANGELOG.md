@@ -3,6 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
+## 0.8-rc2 - Unreleased
+
+### Fixed
+- Corrected the page allocator range rounding bug: free ranges are rounded inward and reserved ranges are rounded outward so partial first/last pages are never left unprotected.
+- Added the first-megabyte reservation in `PageAllocInit()` to keep the heap away from the BIOS, EBDA, interrupt vectors, and VGA text RAM.
+- Kept the kernel reservation aligned to page boundaries so the allocator does not hand out kernel memory after the linker layout is applied.
+
+This candidate is still being tested and is not yet tagged or published.
+
 ## 0.8-rc1 - 2026-09-29
 
 Frozen for testing. No code changes since `0.8-dev`; see that section for what is in this release.

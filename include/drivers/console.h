@@ -12,6 +12,9 @@ void update_hardware_cursor(int pos);
 /* Cursor position, in cells. */
 extern int user_cmdline_start;
 
+/* Where the next character will land, in cells. 0 is the top left. */
+int console_cursor(void);
+
 /* True while a command line is echoed, so the prompt is reprinted on wrap. */
 extern bool console_line_echo;
 
