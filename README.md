@@ -1,6 +1,6 @@
 # Novium OS
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/alexdev8930/NoviumOS?style=flat&logo=github&color=dfb317)](https://github.com/alexdev8930/NoviumOS/stargazers) [![GitHub latest tag](https://img.shields.io/github/v/tag/alexdev8930/NoviumOS?style=flat&logo=github&color=0066cc)](https://github.com/alexdev8930/NoviumOS/tags) [![GitHub forks](https://img.shields.io/github/forks/alexdev8930/NoviumOS?style=flat&logo=github&color=ff9800)](https://github.com/alexdev8930/NoviumOS/forks) [![GitHub contributors](https://img.shields.io/github/contributors/alexdev8930/NoviumOS?style=flat&logo=github&color=009688)](https://github.com/alexdev8930/NoviumOS/graphs/contributors)
+![GitHub Repo stars](https://img.shields.io/github/stars/alexdev8930/NoviumOS?style=flat&logo=github&color=dfb317) [![GitHub latest tag](https://img.shields.io/github/v/tag/alexdev8930/NoviumOS?style=flat&logo=github&color=0066cc)](https://github.com/alexdev8930/NoviumOS/tags) [![GitHub forks](https://img.shields.io/github/forks/alexdev8930/NoviumOS?style=flat&logo=github&color=ff9800)](https://github.com/alexdev8930/NoviumOS/forks) [![GitHub contributors](https://img.shields.io/github/contributors/alexdev8930/NoviumOS?style=flat&logo=github&color=009688)](https://github.com/alexdev8930/NoviumOS/graphs/contributors)
 
 ![Novium OS Boot Preview](.github/assets/preview.gif)
 
@@ -105,7 +105,7 @@ After the dependencies are installed build the OS:
 
 ```bash
 make clean
-bear -- make # or just make
+bear -- make # or just make if you dont want compile_commands.json
 ```
 
 ### Execution

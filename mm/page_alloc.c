@@ -145,6 +145,45 @@ u32 PageAllocPages(u32 count) {
 	return 0;
 }
 
+/* Allocates a contiguous run of pages starting at or after the given hint. */
+u32 PageAllocPagesAt(u32 start_hint, u32 count) {
+	u32 start;
+	u32 run;
+	u32 page;
+	u32 hint_page;
+
+	if (count == 0 || count > FreePages || count > PAGE_COUNT) {
+		return 0;
+	}
+
+	if (start_hint == 0) {
+		hint_page = 0;
+	} else {
+		hint_page = start_hint / PAGE_SIZE;
+	}
+
+	for (start = hint_page; start <= PAGE_COUNT - count; start++) {
+		for (run = 0; run < count; run++) {
+			page = start + run;
+			if ((PageBitmap[page / 32u] & (1u << (page % 32u))) == 0) {
+				break;
+			}
+		}
+
+		if (run == count) {
+			for (run = 0; run < count; run++) {
+				PageSet(start + run, PageStateUsed);
+			}
+
+			return start * PAGE_SIZE;
+		}
+
+		start += run;
+	}
+
+	return 0;
+}
+
 /* scans the bitmap for the first free 4KB page and returns its physical address. */
 void PageFree(u32 Address) {
 	if (Address == 0 || (Address & (PAGE_SIZE - 1u)) != 0) {

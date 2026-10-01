@@ -87,25 +87,22 @@ static Block *HeapFindFree(u32 Size) {
 
 /* Take pages from the page allocator and put the block on the free list. */
 static Block *HeapGrow(u32 pages) {
-	u32 addr = PageAllocPages(pages);
+	u32 addr;
+	Block *b;
+
+	addr = PageAllocPagesAt((HeapEnd != 0) ? (u32)HeapEnd : 0, pages);
 	if (addr == 0) {
 		return 0;
 	}
 
-	/* Only allowed to extend the same run */
-	if (HeapEnd != 0 && (u32)HeapEnd != addr) {
-		PageFreePages(addr, pages); /* Hand it straight back */
-		return 0;
-	}
-
-	Block *b = (Block *)addr;
+	b = (Block *)addr;
 	b->Meta.Magic = HEAP_MAGIC;
 	b->Meta.Size = pages * PAGE_SIZE;
 	b->Meta.PrevSize = 0;
 	b->Meta.IsFree = true;
 
 	HeapListInsert(b);
-	HeapEnd = (Block *)(addr + pages * PAGE_SIZE);
+	HeapEnd = (Block *)((u8 *)b + b->Meta.Size);
 	return b;
 }
 
@@ -235,10 +232,10 @@ void kfree(void *addr) {
 		}
 
 		split = (Block *)((u8 *)b + Keep);
-		split->Meta.Magic    = HEAP_MAGIC;
-		split->Meta.Size     = Give;
+		split->Meta.Magic = HEAP_MAGIC;
+		split->Meta.Size = Give;
 		split->Meta.PrevSize = Keep;
-		split->Meta.IsFree   = true;
+		split->Meta.IsFree = true;
 
 		beyond = (Block *)((u8 *)split + Give);
 		if (beyond < HeapEnd) {

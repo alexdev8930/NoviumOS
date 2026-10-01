@@ -9,6 +9,7 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 - Corrected the page allocator range rounding bug: free ranges are rounded inward and reserved ranges are rounded outward so partial first/last pages are never left unprotected.
 - Added the first-megabyte reservation in `PageAllocInit()` to keep the heap away from the BIOS, EBDA, interrupt vectors, and VGA text RAM.
 - Kept the kernel reservation aligned to page boundaries so the allocator does not hand out kernel memory after the linker layout is applied.
+- Heap growth now uses `PageAllocPagesAt()` and accepts a free run beginning at or after the current heap end instead of rejecting any non-adjacent extension.
 
 This candidate is still being tested and is not yet tagged or published.
 
@@ -35,7 +36,7 @@ Frozen for testing. No code changes since `0.8-dev`; see that section for what i
 - `kfree()` now returns blocks to the free list, and a double free is ignored.
 
 ### Known issues
-- `HeapGrow()` refuses a growth that is not adjacent to the current heap, so the heap stays one contiguous run and `HeapEnd` stays valid. Lifting that needs a `PageAllocPagesAt()` in the page allocator.
+- `HeapGrow()` previously refused a growth that was not adjacent to the current heap; that limitation is now lifted by the `PageAllocPagesAt()` allocator helper.
 - A freed block that touches `HeapEnd` is never returned to the page allocator, so the tail of the heap is held for the life of the kernel.
 - The page return threshold is a compile-time constant rather than something the kernel adapts to its working set.
 

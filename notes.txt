@@ -9,10 +9,8 @@
 - kprintf %d negates INT32_MIN, which is undefined, ubsan flags it. prints the right
   digits only by accident at -O2
 
-- HEAP: HeapGrow refuses a growth that is not adjacent to the current heap, so the
-  heap stays one contiguous run and HeapEnd stays valid. switching to option C later
-  means adding a PageAllocPagesAt(address) to the page allocator that finds the run
-  of free pages immediately after an address, instead of scanning from page zero.
-  until then a second growth that lands somewhere else gives back its pages and
-  reports out of memory. a scattered heap needs per block end flags instead of one
-  global HeapEnd
+- HEAP: HeapGrow now calls PageAllocPagesAt(HeapEnd, pages) so it can append from the
+  current heap end without rejecting valid growth just because the allocator found a
+  different nearby run. this keeps HeapEnd monotonic for the current contiguous-grow
+  design. a fully scattered heap would still need per-block end metadata and a more
+  general segment model.
