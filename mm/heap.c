@@ -4,6 +4,7 @@
 #define HEAP_MAGIC 0x48454150u /* ASCII "HEAP", catches a bad pointer */
 #define HEAP_GROW_PAGES 16
 #define HEAP_KEEP_PAGES HEAP_GROW_PAGES
+#define HEAP_SEGMENT_CAP 8
 #define HEAP_ALIGN 8
 #define HEAP_ALIGN_UP(x) (((x) + (HEAP_ALIGN - 1)) & ~(u32)(HEAP_ALIGN - 1))
 
@@ -29,8 +30,57 @@ struct Block {
 	};
 };
 
+typedef struct HeapSegment {
+	Block *Base;
+	Block *End;
+	struct HeapSegment *Next;
+} HeapSegment;
+
+static HeapSegment *HeapSegments;
+static HeapSegment HeapSegmentTable[HEAP_SEGMENT_CAP];
+static u32 HeapSegmentCount;
 static Block *FreeListHead;
-static Block *HeapEnd;
+
+/* Return the highest end address currently used by any heap segment. This is only
+ * a search hint for the page allocator; the actual heap still validates block and
+ * segment boundaries on each allocation or free.
+ */
+static u32 HeapGrowthHint(void) {
+	HeapSegment *seg = HeapSegments;
+	u32 hint = 0;
+
+	while (seg != 0) {
+		u32 seg_end = (u32)seg->End;
+		if (seg_end > hint) {
+			hint = seg_end;
+		}
+		seg = seg->Next;
+	}
+
+	return hint;
+}
+
+/* Looks up the owning HeapSegment for a given memory block by scanning their raw byte boundaries.
+ */
+static HeapSegment *HeapFindSegment(Block *b) {
+	if (b == 0) {
+		return 0;
+	}
+	u32 block_addr = (u32)b;
+	HeapSegment *seg = HeapSegments;
+
+	while (seg != 0) {
+		u32 seg_base = (u32)seg->Base;
+		u32 seg_end = (u32)seg->End;
+
+		if (block_addr >= seg_base && block_addr < seg_end) {
+			return seg;
+		}
+		seg = seg->Next;
+	}
+
+	return 0;
+}
 
 /* Put a block on the free list, keeping it sorted by address. */
 static void HeapListInsert(Block *b) {
@@ -89,8 +139,9 @@ static Block *HeapFindFree(u32 Size) {
 static Block *HeapGrow(u32 pages) {
 	u32 addr;
 	Block *b;
+	HeapSegment *seg;
 
-	addr = PageAllocPagesAt((HeapEnd != 0) ? (u32)HeapEnd : 0, pages);
+	addr = PageAllocPagesAt(HeapGrowthHint(), pages);
 	if (addr == 0) {
 		return 0;
 	}
@@ -101,8 +152,18 @@ static Block *HeapGrow(u32 pages) {
 	b->Meta.PrevSize = 0;
 	b->Meta.IsFree = true;
 
+	if (HeapSegmentCount >= HEAP_SEGMENT_CAP) {
+		return 0;
+	}
+
+	seg = &HeapSegmentTable[HeapSegmentCount++];
+	seg->Base = b;
+	seg->End = (Block *)((u8 *)b + b->Meta.Size);
+	seg->Next = HeapSegments;
+	HeapSegments = seg;
+
 	HeapListInsert(b);
-	HeapEnd = (Block *)((u8 *)b + b->Meta.Size);
+
 	return b;
 }
 
@@ -123,8 +184,13 @@ static void HeapSplit(Block *b, u32 Size) {
 	rest->Meta.IsFree = true;
 
 	next = (Block *)((u8 *)rest + LeftOver); /* From rest, not b */
-	if (next < HeapEnd) {
-		next->Meta.PrevSize = LeftOver;
+	HeapSegment *seg = HeapFindSegment(b);
+	if (seg != 0) {
+		Block *segment_end = seg->End;
+
+		if (next < segment_end) {
+			next->Meta.PrevSize = LeftOver;
+		}
 	}
 
 	b->Meta.Size = Size; /* Shrink last */
@@ -171,8 +237,13 @@ void *kmalloc(size_t size) {
 	b->Meta.IsFree = false;
 
 	next = (Block *)((u8 *)b + b->Meta.Size);
-	if (next < HeapEnd) {
-		next->Meta.PrevSize = b->Meta.Size;
+	HeapSegment *seg = HeapFindSegment(b);
+	if (seg != 0) {
+		Block *segment_end = seg->End;
+
+		if (next < segment_end) {
+			next->Meta.PrevSize = b->Meta.Size;
+		}
 	}
 
 	return (void *)((u8 *)b + sizeof(BlockMeta));
@@ -197,16 +268,23 @@ void kfree(void *addr) {
 	}
 
 	Block *next = (Block *)((u8 *)b + b->Meta.Size);
+	HeapSegment *seg = HeapFindSegment(b);
+	if (seg != 0) {
+		Block *segment_end = seg->End;
 
-	if (next < HeapEnd && next->Meta.IsFree) {
-		HeapListRemove(next);
-		b->Meta.Size += next->Meta.Size;
+		if (next < segment_end && next->Meta.IsFree) {
+			HeapListRemove(next);
+			b->Meta.Size += next->Meta.Size;
+		}
 	}
 
 	Block *after = (Block *)((u8 *)b + b->Meta.Size);
-
-	if (after < HeapEnd) {
-		after->Meta.PrevSize = b->Meta.Size;
+	seg = HeapFindSegment(b);
+	if (seg != 0) {
+		Block *segment_end = seg->End;
+		if (after < segment_end) {
+			after->Meta.PrevSize = b->Meta.Size;
+		}
 	}
 
 	b->Meta.IsFree = true;
@@ -216,8 +294,13 @@ void kfree(void *addr) {
 	}
 
 	/* Give back everything past the keep threshold */
-	if ((u8 *)b + b->Meta.Size >= (u8 *)HeapEnd) {
-		return;
+	seg = HeapFindSegment(b);
+	if (seg != 0) {
+		Block *segment_end = seg->End;
+
+		if ((u8 *)b + b->Meta.Size >= (u8 *)segment_end) {
+			return;
+		}
 	}
 
 	if (b->Meta.Size > HEAP_KEEP_PAGES * PAGE_SIZE) {
@@ -238,8 +321,12 @@ void kfree(void *addr) {
 		split->Meta.IsFree = true;
 
 		beyond = (Block *)((u8 *)split + Give);
-		if (beyond < HeapEnd) {
-			beyond->Meta.PrevSize = Keep;
+		seg = HeapFindSegment(b);
+		if (seg != 0) {
+			Block *segment_end = seg->End;
+			if (beyond < segment_end) {
+				beyond->Meta.PrevSize = Keep;
+			}
 		}
 
 		b->Meta.Size = Keep;

@@ -9,7 +9,7 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 - Corrected the page allocator range rounding bug: free ranges are rounded inward and reserved ranges are rounded outward so partial first/last pages are never left unprotected.
 - Added the first-megabyte reservation in `PageAllocInit()` to keep the heap away from the BIOS, EBDA, interrupt vectors, and VGA text RAM.
 - Kept the kernel reservation aligned to page boundaries so the allocator does not hand out kernel memory after the linker layout is applied.
-- Heap growth now uses `PageAllocPagesAt()` and accepts a free run beginning at or after the current heap end instead of rejecting any non-adjacent extension.
+- Heap growth now uses `PageAllocPagesAt()` and accepts a free run beginning at or after the current heap end instead of rejecting any non-adjacent extension; boundary checks now use the owning segment instead of assuming a single global heap tail.
 
 This candidate is still being tested and is not yet tagged or published.
 

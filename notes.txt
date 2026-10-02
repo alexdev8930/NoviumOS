@@ -9,8 +9,7 @@
 - kprintf %d negates INT32_MIN, which is undefined, ubsan flags it. prints the right
   digits only by accident at -O2
 
-- HEAP: HeapGrow now calls PageAllocPagesAt(HeapEnd, pages) so it can append from the
-  current heap end without rejecting valid growth just because the allocator found a
-  different nearby run. this keeps HeapEnd monotonic for the current contiguous-grow
-  design. a fully scattered heap would still need per-block end metadata and a more
-  general segment model.
+- HEAP: HeapGrow now asks the page allocator for a run that starts at the highest
+  recorded segment end, which acts as a growth hint rather than a hard adjacency
+  requirement. block and segment boundary checks use the owning segment for each
+  block, so the heap no longer depends on one global tail pointer for correctness.

@@ -202,9 +202,9 @@ request therefore costs 88 bytes rather than a full page. `kfree()` returns a
 block to the free list, merging it with free neighbours on both sides and
 restamping the `PrevSize` of the block that follows the merge. A double free is
 ignored. `HeapGrow()` asks the page allocator for a free run beginning at or
-after the current heap end, so heap growth is append-based instead of requiring
-one single contiguous run from page zero. Zero-size, overflowing, and
-unavailable allocations return `0`.
+after the current heap end, and the heap keeps a segment list so tail checks are
+made against the owning segment rather than a single global heap boundary.
+Zero-size, overflowing, and unavailable allocations return `0`.
 
 ## Internal Kernel APIs
 

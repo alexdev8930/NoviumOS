@@ -1,7 +1,5 @@
 # Novium OS
 
-![GitHub Repo stars](https://img.shields.io/github/stars/alexdev8930/NoviumOS?style=flat&logo=github&color=dfb317) [![GitHub latest tag](https://img.shields.io/github/v/tag/alexdev8930/NoviumOS?style=flat&logo=github&color=0066cc)](https://github.com/alexdev8930/NoviumOS/tags) [![GitHub forks](https://img.shields.io/github/forks/alexdev8930/NoviumOS?style=flat&logo=github&color=ff9800)](https://github.com/alexdev8930/NoviumOS/forks) [![GitHub contributors](https://img.shields.io/github/contributors/alexdev8930/NoviumOS?style=flat&logo=github&color=009688)](https://github.com/alexdev8930/NoviumOS/graphs/contributors)
-
 ![Novium OS Boot Preview](.github/assets/preview.gif)
 
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
