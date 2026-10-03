@@ -1,2 +1,7 @@
 CompileFlags:
-  Add: [-Wno-unused]
+  Add:
+    - -Wno-unused
+
+Diagnostics:
+  Suppress:
+    - unused-includes

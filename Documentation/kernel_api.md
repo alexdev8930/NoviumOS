@@ -223,7 +223,7 @@ u32  PageAllocFreeCount(void);
 ```
 
 `PageAllocInit()` clears the bitmap, marks valid Multiboot type-1 memory-map
-ranges free, and reserves page zero and the linked kernel image. If boot
+ranges free, and reserves the first MiB and the linked kernel image. If boot
 information has no memory map, initialization leaves the allocator empty.
 `PageAlloc()` returns the first free 4 KiB physical page, or `0` if there are no
 free pages. `PageAllocPages()` searches from page zero for the requested number
@@ -248,13 +248,13 @@ number of free pages.
 void PagingInit(void);
 void PagingMap(u32 virtual_address, u32 physical_address, u32 flags);
 void PagingUnmap(u32 virtual_address);
-u32  PagingIsEnabled(void);
+bool PagingIsEnabled(void);
 ```
 
 `PagingInit()` builds identity mappings for the full 4 GiB address space and
 enables paging. `PagingMap()` and `PagingUnmap()` round addresses down to a
-page boundary and invalidate that page in the TLB. `PagingIsEnabled()` is
-nonzero after paging has been enabled.
+page boundary and invalidate that page in the TLB. `PagingIsEnabled()` returns
+true after paging has been enabled.
 
 ### Scheduler
 
@@ -342,7 +342,8 @@ a fixed size value that the caller owns, so a task never allocates to talk to
 another one and nothing is left behind when a task dies. Nothing here is
 reentrant, so do not call into it from an interrupt handler.
 
-Every call returns an `IpcStatus`:
+Operations that can fail return an `IpcStatus`; helper queries return their
+documented `bool` or `u32` result, and initialization helpers return `void`.
 
 ```c
 typedef enum {
@@ -379,7 +380,7 @@ typedef struct IpcMessage {
     u32 Data[IpcMessageWords];
 } IpcMessage;
 
-typedef struct IpcPort { /* private, build one with IpcPortCreate */ };
+typedef struct IpcPort { /* public storage; initialize with IpcPortCreate */ };
 
 IpcStatus IpcPortCreate(IpcPort *Port);
 IpcStatus IpcPortDestroy(IpcPort *Port);
@@ -390,6 +391,9 @@ IpcStatus IpcTryReceive(IpcPort *Port, IpcMessage *out);
 u32 IpcPortQueued(const IpcPort *Port);
 bool IpcPortIsCreated(const IpcPort *Port);
 ```
+
+Callers provide storage for `IpcPort` and should modify it only through the IPC
+functions.
 
 A port is a FIFO of up to `IpcPortCapacity` messages. A message is copied by
 value, so the sender's buffer is free as soon as the call returns and neither
