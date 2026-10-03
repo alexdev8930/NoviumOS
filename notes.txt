@@ -1,13 +1,12 @@
 [NOTES]
 
-- the kernel reservation is only safe today because link.ld aligns _kernel_start and
-  _kernel_end to 4096. without that ALIGN the kernel's last page stays marked free and
-  the allocator can hand out kernel memory. this is the same latent rounding exposure
-  as the first entry, not a separate mechanism: the aligned edges are exactly what
-  makes both current reservations reserve the right page count
+- PageSetRange() rounds reserved ranges outward to 4096-byte page boundaries, so the
+  kernel reservation protects every page touched by [_kernel_start, _kernel_end), even
+  if either symbol is unaligned. link.ld currently aligns both symbols, but allocator
+  safety does not depend on that alignment.
 
-- kprintf %d negates INT32_MIN, which is undefined, ubsan flags it. prints the right
-  digits only by accident at -O2
+- kprintf %d/%i now avoids the INT32_MIN overflow by printing the magnitude in an
+  unsigned type instead of negating the signed value in place
 
 - HEAP: HeapGrow now asks the page allocator for a run that starts at the highest
   recorded segment end, which acts as a growth hint rather than a hard adjacency

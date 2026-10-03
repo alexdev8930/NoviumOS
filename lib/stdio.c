@@ -3,6 +3,7 @@
 #include <novium/types.h>
 #include <stdarg.h>
 
+/** Converts an unsigned 32-bit integer to a string of the given base and prints it to the console in reverse. */
 static void print_u32(u32 value, u32 base, const char *digits) {
 	char buf[16];
 	int i = 0;
@@ -17,6 +18,7 @@ static void print_u32(u32 value, u32 base, const char *digits) {
 	}
 }
 
+/** Prints a formatted string to the console with basic specifier support (%c, %s, %d, %i, %u, %x, %X, %%). */
 int kprintf(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
