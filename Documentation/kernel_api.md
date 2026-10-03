@@ -335,12 +335,137 @@ robin scheduling chooses the next ready task by increasing task ID and wraps
 back to the start of the ready queue. `SchedGetStats()` needs a non-null output
 pointer.
 
+## Inter-process communication
+
+`ipc/` carries messages and synchronisation between kernel tasks. Every object is
+a fixed size value that the caller owns, so a task never allocates to talk to
+another one and nothing is left behind when a task dies. Nothing here is
+reentrant, so do not call into it from an interrupt handler.
+
+Every call returns an `IpcStatus`:
+
+```c
+typedef enum {
+    IpcOk = 0,
+    IpcErrInvalid, /* null or out of range argument */
+    IpcErrFull,    /* a bounded queue or counter is already at its limit */
+    IpcErrEmpty,   /* nothing to take */
+    IpcErrBusy,    /* a non blocking call could not proceed right now */
+    IpcErrOwner,   /* unlock from a task that does not hold the mutex */
+    IpcErrNoTask   /* the caller cannot sleep and the call would have to */
+} IpcStatus;
+```
+
+The blocking calls sleep through `SchedBlock()` and are woken with
+`SchedWakeTask()`. Two rules follow from how the scheduler works here:
+
+- The idle task cannot sleep, so a call that would have to wait returns
+  `IpcErrNoTask` instead of parking. `timer_sleep_ms()` follows the same rule.
+- A blocking call may return `IpcErrFull` when a wait queue is full. Queues hold
+  `IpcMaxWaiters` (16) entries, so this needs 16 tasks parked on one object.
+
+A woken task re-checks the condition in a loop rather than assuming the wakeup
+still applies, so a spurious wakeup costs a retry and never a lost message.
+
+### Message ports
+
+```c
+#define IpcMessageWords 8
+#define IpcPortCapacity 16
+
+typedef struct IpcMessage {
+    u32 Length; /* words of Data in use, at most IpcMessageWords */
+    u32 Sender; /* task id of the sender, filled in by IpcSend */
+    u32 Data[IpcMessageWords];
+} IpcMessage;
+
+typedef struct IpcPort { /* private, build one with IpcPortCreate */ };
+
+IpcStatus IpcPortCreate(IpcPort *Port);
+IpcStatus IpcPortDestroy(IpcPort *Port);
+IpcStatus IpcSend(IpcPort *Port, const IpcMessage *Message);
+IpcStatus IpcTrySend(IpcPort *Port, const IpcMessage *Message);
+IpcStatus IpcReceive(IpcPort *Port, IpcMessage *out);
+IpcStatus IpcTryReceive(IpcPort *Port, IpcMessage *out);
+u32 IpcPortQueued(const IpcPort *Port);
+bool IpcPortIsCreated(const IpcPort *Port);
+```
+
+A port is a FIFO of up to `IpcPortCapacity` messages. A message is copied by
+value, so the sender's buffer is free as soon as the call returns and neither
+side holds a pointer into the other's memory. `IpcSend()` fills in `Sender` with
+the sending task's id.
+
+`IpcSend()` waits while the port is full and `IpcReceive()` waits while it is
+empty, so the two sides can hand work back and forth without polling. The `Try`
+forms never wait and return `IpcErrFull` or `IpcErrEmpty` instead.
+
+A port carries a magic word, so `IpcPortCreate()` on a port that is already in
+use fails with `IpcErrInvalid` rather than emptying a queue another task is
+reading. For the same reason `IpcPortDestroy()` refuses with `IpcErrBusy` while
+any task is parked on the port, since dropping those waiters would strand them.
+`Length` above `IpcMessageWords` is rejected as `IpcErrInvalid`. Every call
+checks its arguments, so a null or uncreated port reports `IpcErrInvalid`
+instead of touching memory.
+
+### Semaphores and mutexes
+
+```c
+typedef struct IpcSemaphore { u32 Count; u32 Limit; IpcWait Wait; } IpcSemaphore;
+typedef struct IpcMutex { bool Locked; u32 Owner; IpcWait Wait; } IpcMutex;
+
+void SemInit(IpcSemaphore *Sem, u32 Initial, u32 Limit);
+IpcStatus SemWait(IpcSemaphore *Sem);
+IpcStatus SemTryWait(IpcSemaphore *Sem);
+IpcStatus SemPost(IpcSemaphore *Sem);
+u32 SemCount(const IpcSemaphore *Sem);
+
+void MutexInit(IpcMutex *Mutex);
+IpcStatus MutexLock(IpcMutex *Mutex);
+IpcStatus MutexTryLock(IpcMutex *Mutex);
+IpcStatus MutexUnlock(IpcMutex *Mutex);
+bool MutexHeldByCaller(const IpcMutex *Mutex);
+```
+
+`SemInit()` takes a ceiling. A `Limit` of 0 is an unbounded counter and a
+`Limit` of 1 is a binary semaphore; `SemPost()` past the ceiling returns
+`IpcErrFull` rather than letting the count grow. An initial count above the
+ceiling is clamped down.
+
+A mutex is not recursive: `MutexLock()` on a mutex the caller already holds
+returns `IpcErrOwner` instead of parking on a lock nobody else can open.
+`MutexUnlock()` from a task that does not hold the mutex also returns
+`IpcErrOwner`. Unlock passes ownership straight to the first waiter instead of
+clearing the owner and letting a task that merely happens to be ready take it,
+so a wakeup and the lock stay in step. `Locked` is tracked separately from
+`Owner` because the idle task is id 0 as well, so an owner of 0 cannot mean
+free.
+
+### Wait queues
+
+```c
+typedef struct IpcWait { u32 Ids[IpcMaxWaiters]; u32 Count; } IpcWait;
+typedef bool (*IpcReadyFn)(void *arg);
+
+u32  IpcSelfId(void);
+IpcStatus IpcPark(IpcWait *Wait, IpcReadyFn Ready, void *arg);
+void IpcWakeOne(IpcWait *Wait);
+u32  IpcWaitTakeLive(IpcWait *Wait);
+```
+
+These are the pieces ports and semaphores are built from. `IpcPark()` registers
+the calling task and sleeps in one step while interrupts are off, so a waker
+that runs in between either finds the task parked or is seen by the re-check
+afterwards. A wakeup is never lost and a parked entry is never left behind.
+`IpcWaitTakeLive()` drops entries whose task was killed, since a dead task can
+never run again, and `IpcWakeOne()` calls `SchedWakeTask()` for the first
+waiter that is still alive.
+
 ## Planned interfaces
 
 These headers are still placeholders, so they are not usable kernel APIs yet:
 
 - `include/drivers/framebuffer.h`
 - `fs/vfs.h` and `fs/initrd.h`
-- `ipc/message.h` and `ipc/sync.h`
 
 We will document their contracts here when the implementations land.

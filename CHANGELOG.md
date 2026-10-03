@@ -3,6 +3,27 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
+## 0.9-dev - 2026-10-2
+
+### Added
+- `ipc/` filled in with message passing and synchronisation between kernel tasks, replacing the stubs.
+- `IpcPort` in `ipc/message.h`, a FIFO of `IpcPortCapacity` (16) fixed size messages. `IpcSend()` waits while the port is full and `IpcReceive()` waits while it is empty, so two tasks can hand work back and forth without polling. `IpcTrySend()` and `IpcTryReceive()` are the non blocking forms.
+- `IpcSemaphore` and `IpcMutex` in `ipc/sync.h`. A semaphore takes a ceiling, so a `Limit` of 1 is a binary semaphore and `SemPost()` past the ceiling reports `IpcErrFull` rather than letting the count run away.
+- `IpcStatus` for every entry point, so a refused call says why instead of failing silently.
+- A shared wait queue in `ipc/ipc.c`. `IpcPark()` registers the calling task and sleeps as one step under the interrupt lock, so a waker that runs in between either finds the task parked or is seen by the re-check afterwards. A wakeup cannot be lost.
+- Wait queues keyed by task id rather than `Task *`, and `IpcWaitTakeLive()` drops entries left by a task that was killed, since a dead task can never run again.
+- Boot tests in `kernel_main()` covering a 40 message rendezvous between two tasks, more than a port can hold so both the send and receive paths really do park, a binary semaphore, and two tasks contending on one mutex for several hundred rounds.
+- `ipc/` added to the `Makefile` VPATH and its objects to `KERNEL_OBJS`.
+
+### Changed
+- `MutexUnlock()` hands ownership straight to the first waiter instead of clearing the owner, so a task that merely happens to be ready cannot take the lock ahead of the task that was woken for it.
+- `ipc/message.h` and `ipc/sync.h` are no longer listed as planned interfaces, since their contracts are documented in `Documentation/kernel_api.md` now.
+
+### Known issues
+- Nothing here is reentrant, so calling into `ipc/` from an interrupt handler is not supported yet.
+- A wait queue holds `IpcMaxWaiters` (16) entries. Parking on a 17th waiter returns `IpcErrFull` rather than overwriting an entry.
+- Ports, semaphores, and mutexes are static kernel objects rather than something a task can allocate, so two tasks cannot share one that lives on only one of their stacks.
+
 ## 0.8 - 2026-10-02
 
 Stable release. See `0.8-dev` for the release contents and `0.8-rc2` for the final candidate fixes.

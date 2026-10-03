@@ -5,7 +5,7 @@
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
 > [!NOTE]
-> Directories like `ipc/` and `fs/` currently contain early stubs.
+> The `fs/` directory still contains early stubs.
 
 
 ## Project structure
@@ -39,6 +39,7 @@ GRUB finds and loads the kernel, checks the Multiboot header, and hands control 
 - [x] Switch to GRUB bootloader
 - [x] Added a basic Memory Manager (PMM/VMM)
 - [x] Basic multi-page and sub-page heap allocator
+- [x] IPC: message ports, semaphores, and mutexes
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.
