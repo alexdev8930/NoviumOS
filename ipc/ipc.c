@@ -1,5 +1,5 @@
-#include "ipc.h"
 #include <novium/cpu.h>
+#include <novium/ipc.h>
 
 u32 IpcSelfId(void) {
 	Task *Self = SchedCurrent();

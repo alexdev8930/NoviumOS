@@ -1,5 +1,5 @@
-#include "sync.h"
 #include <novium/cpu.h>
+#include <novium/sync.h>
 
 /*
  * Semaphore.

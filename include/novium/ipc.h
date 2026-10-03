@@ -1,6 +1,7 @@
 #ifndef NOVIUM_IPC_H
 #define NOVIUM_IPC_H
 
+#include "ipc.h"
 #include <novium/sched.h>
 #include <novium/types.h>
 

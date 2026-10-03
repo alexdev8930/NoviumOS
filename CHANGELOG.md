@@ -3,12 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
-## 0.9-dev - 2026-10-2
+## 0.9-dev - 2026-10-02
 
 ### Added
 - `ipc/` filled in with message passing and synchronisation between kernel tasks, replacing the stubs.
-- `IpcPort` in `ipc/message.h`, a FIFO of `IpcPortCapacity` (16) fixed size messages. `IpcSend()` waits while the port is full and `IpcReceive()` waits while it is empty, so two tasks can hand work back and forth without polling. `IpcTrySend()` and `IpcTryReceive()` are the non blocking forms.
-- `IpcSemaphore` and `IpcMutex` in `ipc/sync.h`. A semaphore takes a ceiling, so a `Limit` of 1 is a binary semaphore and `SemPost()` past the ceiling reports `IpcErrFull` rather than letting the count run away.
+- `IpcPort` in `include/novium/message.h`, a FIFO of `IpcPortCapacity` (16) fixed size messages. `IpcSend()` waits while the port is full and `IpcReceive()` waits while it is empty, so two tasks can hand work back and forth without polling. `IpcTrySend()` and `IpcTryReceive()` are the non blocking forms.
+- `IpcSemaphore` and `IpcMutex` in `include/novium/sync.h`. A semaphore takes a ceiling, so a `Limit` of 1 is a binary semaphore and `SemPost()` past the ceiling reports `IpcErrFull` rather than letting the count run away.
 - `IpcStatus` for every entry point, so a refused call says why instead of failing silently.
 - A shared wait queue in `ipc/ipc.c`. `IpcPark()` registers the calling task and sleeps as one step under the interrupt lock, so a waker that runs in between either finds the task parked or is seen by the re-check afterwards. A wakeup cannot be lost.
 - Wait queues keyed by task id rather than `Task *`, and `IpcWaitTakeLive()` drops entries left by a task that was killed, since a dead task can never run again.
@@ -16,8 +16,9 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 - `ipc/` added to the `Makefile` VPATH and its objects to `KERNEL_OBJS`.
 
 ### Changed
+- The `ipc/` headers moved to the global include directory, so they are `include/novium/ipc.h`, `include/novium/message.h` and `include/novium/sync.h` now. They were left next to the `.c` files while they were stubs, but they describe interfaces the rest of the kernel includes, which is what `include/novium/` is for. Include paths updated accordingly.
 - `MutexUnlock()` hands ownership straight to the first waiter instead of clearing the owner, so a task that merely happens to be ready cannot take the lock ahead of the task that was woken for it.
-- `ipc/message.h` and `ipc/sync.h` are no longer listed as planned interfaces, since their contracts are documented in `Documentation/kernel_api.md` now.
+- `include/novium/message.h` and `include/novium/sync.h` are no longer listed as planned interfaces, since their contracts are documented in `Documentation/kernel_api.md` now.
 
 ### Known issues
 - Nothing here is reentrant, so calling into `ipc/` from an interrupt handler is not supported yet.
