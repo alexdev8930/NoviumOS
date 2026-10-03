@@ -63,6 +63,10 @@ static void console_set_cursor(int position) {
     update_hardware_cursor(cursor);
 }
 
+int console_cursor(void) {
+    return cursor;
+}
+
 static void console_scroll(void) {
     size_t copy_size = ConsoleWidth * (ConsoleHeight - 1) * 2;
     memmove((void*)video_memory, (void*)(video_memory + (ConsoleWidth * 2)), copy_size);

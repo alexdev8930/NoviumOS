@@ -2,7 +2,6 @@
 
 ![Novium OS Boot Preview](.github/assets/preview.gif)
 
-
 Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
 > [!NOTE]
@@ -105,7 +104,7 @@ After the dependencies are installed build the OS:
 
 ```bash
 make clean
-bear -- make # or just make
+bear -- make # or just make if you dont want compile_commands.json
 ```
 
 ### Execution
@@ -118,4 +117,4 @@ make run
 
 <br>
 
-If you like the code or cloned the repo, please drop a **star** to help other devs find the project!
+If you could, please drop a **star** if you like the project! It helps other devs find it.

@@ -197,14 +197,14 @@ magic value, its size in bytes, the size of the block physically before it, and
 a free flag, so a double free is caught instead of corrupting the list.
 `kmalloc()` returns 8-byte aligned memory, searches the free list for a block
 that fits, splits an oversized block so the remainder stays available, and only
-calls `PageAllocPages()` when the list cannot satisfy the request. A 64 byte
+calls `PageAllocPagesAt()` when the list cannot satisfy the request. A 64 byte
 request therefore costs 88 bytes rather than a full page. `kfree()` returns a
 block to the free list, merging it with free neighbours on both sides and
 restamping the `PrevSize` of the block that follows the merge. A double free is
-ignored. `HeapGrow()` refuses a growth that is not adjacent to the current heap,
-so the heap stays one contiguous run; freeing a block never returns its pages to
-the page allocator. Zero-size, overflowing, and unavailable allocations return
-`0`.
+ignored. `HeapGrow()` asks the page allocator for a free run beginning at or
+after the current heap end, and the heap keeps a segment list so tail checks are
+made against the owning segment rather than a single global heap boundary.
+Zero-size, overflowing, and unavailable allocations return `0`.
 
 ## Internal Kernel APIs
 
@@ -216,6 +216,7 @@ the page allocator. Zero-size, overflowing, and unavailable allocations return
 void PageAllocInit(const struct boot_info *boot);
 u32  PageAlloc(void);
 u32  PageAllocPages(u32 count);
+u32  PageAllocPagesAt(u32 start_hint, u32 count);
 void PageFree(u32 address);
 void PageFreePages(u32 address, u32 count);
 u32  PageAllocFreeCount(void);
@@ -225,13 +226,16 @@ u32  PageAllocFreeCount(void);
 ranges free, and reserves page zero and the linked kernel image. If boot
 information has no memory map, initialization leaves the allocator empty.
 `PageAlloc()` returns the first free 4 KiB physical page, or `0` if there are no
-free pages. `PageAllocPages()` searches for the requested number of consecutive
-free pages, marks the complete run as used, and returns the physical address of
-its first page. It returns `0` when `count` is zero, exceeds the available
-pages, or no contiguous run exists. `PageFree()` frees one page.
-`PageFreePages()` frees a contiguous range. Both free functions ignore zero,
-unaligned, or out-of-range addresses, and invalid ranges are ignored.
-`PageAllocFreeCount()` returns the current number of free pages.
+free pages. `PageAllocPages()` searches from page zero for the requested number
+of consecutive free pages, marks the complete run as used, and returns the
+physical address of its first page. `PageAllocPagesAt()` performs the same scan
+but starts from `start_hint` instead of page zero, which allows the heap to grow
+from its current tail without rejecting valid non-adjacent runs. Both functions
+return `0` when `count` is zero, exceeds the available pages, or no contiguous
+run exists. `PageFree()` frees one page. `PageFreePages()` frees a contiguous
+range. Both free functions ignore zero, unaligned, or out-of-range addresses,
+and invalid ranges are ignored. `PageAllocFreeCount()` returns the current
+number of free pages.
 
 ### Paging
 

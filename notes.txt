@@ -1,24 +1,14 @@
 [NOTES]
 
-- scheduler interrupt safety, preemption, and stack flags addressed
+- PageSetRange() rounds reserved ranges outward to 4096-byte page boundaries, so the
+  kernel reservation protects every page touched by [_kernel_start, _kernel_end), even
+  if either symbol is unaligned. link.ld currently aligns both symbols, but allocator
+  safety does not depend on that alignment.
 
-- page allocator: PageSetRange() rounds the start up and the end down, which is correct
-  for available ranges but wrong for reserved ones, since a reserved range must cover
-  everything it touches. a non aligned reserved range can reserve zero pages, so the
-  multiboot map and boot_info reservation creates no protection until the reserved case
-  rounds outward. confirmed: 0x9000 + 0x420 reserves 0 pages today
+- kprintf %d/%i now avoids the INT32_MIN overflow by printing the magnitude in an
+  unsigned type instead of negating the signed value in place
 
-- the kernel reservation is only safe today because link.ld aligns _kernel_start and
-  _kernel_end to 4096. without that ALIGN the kernel's last page stays marked free and
-  the allocator can hand out kernel memory
-  
-- kprintf %d negates INT32_MIN, which is undefined, ubsan flags it. prints the right
-  digits only by accident at -O2
-
-- HEAP: HeapGrow refuses a growth that is not adjacent to the current heap, so the
-  heap stays one contiguous run and HeapEnd stays valid. switching to option C later
-  means adding a PageAllocPagesAt(address) to the page allocator that finds the run
-  of free pages immediately after an address, instead of scanning from page zero.
-  until then a second growth that lands somewhere else gives back its pages and
-  reports out of memory. a scattered heap needs per block end flags instead of one
-  global HeapEnd
+- HEAP: HeapGrow now asks the page allocator for a run that starts at the highest
+  recorded segment end, which acts as a growth hint rather than a hard adjacency
+  requirement. block and segment boundary checks use the owning segment for each
+  block, so the heap no longer depends on one global tail pointer for correctness.
