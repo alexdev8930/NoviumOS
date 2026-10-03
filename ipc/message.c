@@ -1,5 +1,5 @@
-#include "message.h"
 #include <novium/cpu.h>
+#include <novium/message.h>
 
 #define PORT_MAGIC 0x504F5254u /* ASCII "PORT", tells a real port from garbage */
 

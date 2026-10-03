@@ -1,15 +1,15 @@
 #include <drivers/console.h>
 #include <drivers/input.h>
-#include <ipc/ipc.h>
-#include <ipc/message.h>
-#include <ipc/sync.h>
 #include <novium/boot_info.h>
 #include <novium/cpu.h>
 #include <novium/debug.h>
 #include <novium/init.h>
+#include <novium/ipc.h>
 #include <novium/mm.h>
+#include <novium/message.h>
 #include <novium/sched.h>
 #include <novium/stdio.h>
+#include <novium/sync.h>
 #include <novium/timer.h>
 
 #define TASK_STACK_SIZE 4096
