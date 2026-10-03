@@ -3,10 +3,12 @@
 #include <novium/boot_info.h>
 #include <novium/cpu.h>
 #include <novium/debug.h>
+#include <novium/heap.h>
 #include <novium/init.h>
 #include <novium/ipc.h>
-#include <novium/mm.h>
 #include <novium/message.h>
+#include <novium/page_alloc.h>
+#include <novium/paging.h>
 #include <novium/sched.h>
 #include <novium/stdio.h>
 #include <novium/sync.h>
@@ -82,8 +84,7 @@ static void ipc_consumer_task(void) {
 			break;
 		}
 
-		if (Message.Length != 1 || Message.Data[0] != Index ||
-		    Message.Sender != ProducerId) {
+		if (Message.Length != 1 || Message.Data[0] != Index || Message.Sender != ProducerId) {
 			ConsumerBad++;
 		}
 	}
@@ -154,10 +155,8 @@ static void ipc_test_tasks(void) {
 	ProducerDone = 0;
 	ConsumerBad = 0;
 
-	Consumer = SchedCreate("Consumer", (u32)ipc_consumer_task,
-			       (u32)&ConsumerStack[TASK_STACK_SIZE]);
-	Producer = SchedCreate("Producer", (u32)ipc_producer_task,
-			       (u32)&ProducerStack[TASK_STACK_SIZE]);
+	Consumer = SchedCreate("Consumer", (u32)ipc_consumer_task, (u32)&ConsumerStack[TASK_STACK_SIZE]);
+	Producer = SchedCreate("Producer", (u32)ipc_producer_task, (u32)&ProducerStack[TASK_STACK_SIZE]);
 
 	if (Consumer == 0 || Producer == 0) {
 		kprintf("ERROR: ipc test tasks could not be created.\n");
@@ -175,8 +174,8 @@ static void ipc_test_tasks(void) {
 	}
 
 	if (!ConsumerDone || !ProducerDone) {
-		kprintf("ERROR: ipc rendezvous did not finish, %u of %u messages.\n",
-			IpcPortQueued(&TestPort), IPC_TEST_MESSAGES);
+		kprintf("ERROR: ipc rendezvous did not finish, %u of %u messages.\n", IpcPortQueued(&TestPort),
+			IPC_TEST_MESSAGES);
 		return;
 	}
 
@@ -188,8 +187,7 @@ static void ipc_test_tasks(void) {
 	kprintf("OK: %u messages passed through a blocking port.\n", IPC_TEST_MESSAGES);
 
 	if (IpcPortQueued(&TestPort) != 0) {
-		kprintf("ERROR: port still holds %u messages after draining it.\n",
-			IpcPortQueued(&TestPort));
+		kprintf("ERROR: port still holds %u messages after draining it.\n", IpcPortQueued(&TestPort));
 	} else {
 		kprintf("OK: port drained, no message lost or duplicated.\n");
 	}
@@ -263,11 +261,9 @@ static void ipc_test_tasks(void) {
 	}
 
 	if (LockBad != 0) {
-		kprintf("ERROR: mutex let %u tasks into the critical section at once.\n",
-			LockBad);
+		kprintf("ERROR: mutex let %u tasks into the critical section at once.\n", LockBad);
 	} else if (LockRounds < IPC_TEST_ROUNDS) {
-		kprintf("ERROR: mutex contention stalled at %u of %u rounds.\n", LockRounds,
-			IPC_TEST_ROUNDS);
+		kprintf("ERROR: mutex contention stalled at %u of %u rounds.\n", LockRounds, IPC_TEST_ROUNDS);
 	} else {
 		kprintf("OK: %u rounds of contention on one mutex, no overlap.\n", LockRounds);
 	}
@@ -333,8 +329,7 @@ void kernel_main(struct boot_info *boot) {
 	if (MergeA == 0 || MergeB == 0) {
 		kprintf("ERROR: merge test could not allocate two blocks.\n");
 	} else {
-		kprintf("OK: two 2 page blocks allocated at 0x%x and 0x%x.\n", (u32)MergeA,
-			(u32)MergeB);
+		kprintf("OK: two 2 page blocks allocated at 0x%x and 0x%x.\n", (u32)MergeA, (u32)MergeB);
 
 		kfree(MergeA);
 		kfree(MergeB);
@@ -356,8 +351,7 @@ void kernel_main(struct boot_info *boot) {
 	} else if (PagesAfterMerge == HeapPagesBefore) {
 		kprintf("OK: heap kept its pages, nothing large enough to return.\n");
 	} else {
-		kprintf("ERROR: heap lost pages, %u before and %u after.\n", HeapPagesBefore,
-			PagesAfterMerge);
+		kprintf("ERROR: heap lost pages, %u before and %u after.\n", HeapPagesBefore, PagesAfterMerge);
 	}
 
 	SchedInit();

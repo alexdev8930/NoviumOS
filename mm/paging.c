@@ -1,4 +1,4 @@
-#include <mm/paging.h>
+#include <novium/paging.h>
 
 #define PAGE_TABLE_ENTRIES 1024u
 #define PAGE_DIRECTORY_FLAGS (PAGING_PRESENT | PAGING_WRITABLE)

@@ -1,4 +1,4 @@
-#include "page_alloc.h"
+#include <novium/page_alloc.h>
 #include <novium/heap.h>
 
 #define HEAP_MAGIC 0x48454150u /* ASCII "HEAP", catches a bad pointer */
