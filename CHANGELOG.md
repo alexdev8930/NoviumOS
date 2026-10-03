@@ -3,6 +3,10 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
+## 0.8 - 2026-10-02
+
+Stable release. See `0.8-dev` for the release contents and `0.8-rc2` for the final candidate fixes.
+
 ## 0.8-rc2 - 2026-10-2
 
 ### Fixed
