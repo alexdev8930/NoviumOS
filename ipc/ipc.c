@@ -41,6 +41,7 @@ static void IpcWaitRemove(IpcWait *Wait, u32 Id) {
 		if (Wait->Ids[Index] == Id) {
 			/* Not worth keeping order for, and the queue is short. */
 			Wait->Ids[Index] = Wait->Ids[Wait->Count - 1];
+			Wait->Ids[Wait->Count - 1] = 0;
 			Wait->Count--;
 			return;
 		}

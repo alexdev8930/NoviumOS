@@ -8,6 +8,8 @@
  * semaphore, which is what the kernel's own locks will mostly want.
  */
 void SemInit(IpcSemaphore *Sem, u32 Initial, u32 Limit) {
+	u32 Index;
+
 	if (Sem == 0) {
 		return;
 	}
@@ -19,6 +21,9 @@ void SemInit(IpcSemaphore *Sem, u32 Initial, u32 Limit) {
 
 	Sem->Count = Initial;
 	Sem->Limit = Limit;
+	for (Index = 0; Index < IpcMaxWaiters; Index++) {
+		Sem->Wait.Ids[Index] = 0;
+	}
 	Sem->Wait.Count = 0;
 }
 
@@ -118,12 +123,18 @@ u32 SemCount(const IpcSemaphore *Sem) {
  * the task until the scheduler undid the block.
  */
 void MutexInit(IpcMutex *Mutex) {
+	u32 Index;
+
 	if (Mutex == 0) {
 		return;
 	}
 
 	Mutex->Locked = false;
 	Mutex->Owner = 0;
+	
+	for (Index = 0; Index < IpcMaxWaiters; Index++) {
+		Mutex->Wait.Ids[Index] = 0;
+	}
 	Mutex->Wait.Count = 0;
 }
 

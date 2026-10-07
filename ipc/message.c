@@ -10,13 +10,17 @@ static void PortReset(IpcPort *Port) {
 	Port->Head = 0;
 	Port->Count = 0;
 
+	for (Index = 0; Index < IpcMaxWaiters; Index++) {
+		Port->Senders.Ids[Index] = 0;
+		Port->Receivers.Ids[Index] = 0;
+	}
+	Port->Senders.Count = 0;
+	Port->Receivers.Count = 0;
+
 	for (Index = 0; Index < IpcPortCapacity; Index++) {
 		Port->Slots[Index].Length = 0;
 		Port->Slots[Index].Sender = 0;
 	}
-
-	Port->Senders.Count = 0;
-	Port->Receivers.Count = 0;
 }
 
 bool IpcPortIsCreated(const IpcPort *Port) {
