@@ -12,3 +12,14 @@
   recorded segment end, which acts as a growth hint rather than a hard adjacency
   requirement. block and segment boundary checks use the owning segment for each
   block, so the heap no longer depends on one global tail pointer for correctness.
+
+- kfree() can double-merge a block after it was absorbed into its free left
+  neighbour, corrupting heap boundaries. Validate the block or invalidate its
+  metadata when coalescing.
+
+- IpcWaitTakeLive() can skip a live waiter swapped into a removed stale waiter's
+  slot. With multiple stale entries, this can leave a blocked task asleep, or leave
+  a mutex unlocked while a waiter remains parked.
+
+- HeapGrow() allocates pages before checking HEAP_SEGMENT_CAP. If the segment table
+  is full, those pages are leaked unless they are returned with PageFreePages().
