@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
-## 0.9-rc1 - Unreleased
+## 0.9-rc1 - 2026-10-10
 
 ### Fixed
 - Cleared stale task IDs left behind in IPC wait queues after removal and reinitialization, so a dead waiter can no longer survive in the backing array and confuse future wake/park decisions.

@@ -1,5 +1,5 @@
-#include <novium/page_alloc.h>
 #include <novium/heap.h>
+#include <novium/page_alloc.h>
 
 #define HEAP_MAGIC 0x48454150u /* ASCII "HEAP", catches a bad pointer */
 #define HEAP_GROW_PAGES 16
