@@ -141,6 +141,10 @@ static Block *HeapGrow(u32 pages) {
 	Block *b;
 	HeapSegment *seg;
 
+	if (HeapSegmentCount >= HEAP_SEGMENT_CAP) {
+		return 0;
+	}
+
 	addr = PageAllocPagesAt(HeapGrowthHint(), pages);
 	if (addr == 0) {
 		return 0;
@@ -151,10 +155,6 @@ static Block *HeapGrow(u32 pages) {
 	b->Meta.Size = pages * PAGE_SIZE;
 	b->Meta.PrevSize = 0;
 	b->Meta.IsFree = true;
-
-	if (HeapSegmentCount >= HEAP_SEGMENT_CAP) {
-		return 0;
-	}
 
 	seg = &HeapSegmentTable[HeapSegmentCount++];
 	seg->Base = b;
@@ -273,8 +273,13 @@ void kfree(void *addr) {
 		Block *segment_end = seg->End;
 
 		if (next < segment_end && next->Meta.IsFree) {
+			u32 next_size = next->Meta.Size;
 			HeapListRemove(next);
-			b->Meta.Size += next->Meta.Size;
+			b->Meta.Size += next_size;
+			next->Meta.Magic = 0;
+			next->Meta.Size = 0;
+			next->Meta.PrevSize = 0;
+			next->Meta.IsFree = false;
 		}
 	}
 

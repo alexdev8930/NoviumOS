@@ -3,6 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
+## 0.9-rc2 - Unreleased
+
+### Fixed
+- Fixed the heap coalescing regression where a right-neighbor merge consumed the next block's size before the merge was complete, causing free-page accounting to shrink and the heap to report lost pages.
+- Fixed stale IPC waiters being skipped during wakeup when a live task had moved into a slot formerly occupied by a dead entry, leaving blocked tasks asleep or release paths inconsistent.
+- Fixed the heap growth leak by rejecting a full segment table before allocating pages, so a later growth attempt cannot leak a freshly allocated run.
+- Kept the allocator's cleanup path safe by invalidating absorbed free-list blocks after they are merged so a stale block is not considered again in later coalesce passes.
+
 ## 0.9-rc1 - 2026-10-10
 
 ### Fixed

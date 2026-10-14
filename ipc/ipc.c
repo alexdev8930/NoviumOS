@@ -59,14 +59,28 @@ static bool IpcWaitIsLive(u32 Id) {
 
 u32 IpcWaitTakeLive(IpcWait *Wait) {
 	u32 Index;
+	u32 LiveId = 0;
 
 	for (Index = 0; Index < Wait->Count; Index++) {
 		u32 Id = Wait->Ids[Index];
 
-		IpcWaitRemove(Wait, Id);
-
 		if (Id != 0 && IpcWaitIsLive(Id)) {
-			return Id;
+			LiveId = Id;
+			break;
+		}
+	}
+
+	if (LiveId != 0) {
+		IpcWaitRemove(Wait, LiveId);
+		return LiveId;
+	}
+
+	/* Remove stale entries without waking dead tasks. */
+	for (Index = 0; Index < Wait->Count; Index++) {
+		u32 Id = Wait->Ids[Index];
+		if (Id != 0 && !IpcWaitIsLive(Id)) {
+			IpcWaitRemove(Wait, Id);
+			Index--;
 		}
 	}
 
