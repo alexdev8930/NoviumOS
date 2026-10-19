@@ -23,3 +23,7 @@
 
 - HeapGrow() allocates pages before checking HEAP_SEGMENT_CAP. If the segment table
   is full, those pages are leaked unless they are returned with PageFreePages().
+
+- Fix vga console bug: If shift is used as normal when caps lock is on it capitalizes the letter but then after
+  let go of shift and caps lock is still on and then just typing with no shift held down, its not capital letters anymore when it should be.
+
