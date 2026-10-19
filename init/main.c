@@ -344,6 +344,32 @@ void kernel_main(struct boot_info *boot) {
 		}
 	}
 
+	/*
+	 * Freeing a block twice must not corrupt the heap. The block is freed
+	 * into a free left neighbour, so the second free would merge it a second
+	 * time if the absorbed block kept its metadata.
+	 */
+	void *DoubleFreeA = kmalloc(PAGE_SIZE * 2);
+	void *DoubleFreeB = kmalloc(PAGE_SIZE * 2);
+	void *AfterDoubleFree;
+
+	if (DoubleFreeA == 0 || DoubleFreeB == 0) {
+		kprintf("ERROR: double free test could not allocate two blocks.\n");
+	} else {
+		kfree(DoubleFreeA);
+		kfree(DoubleFreeB);
+		kfree(DoubleFreeA); /* Second free of a block that was absorbed. */
+
+		AfterDoubleFree = kmalloc(PAGE_SIZE * 4);
+
+		if (AfterDoubleFree != 0) {
+			kprintf("OK: double free did not corrupt the heap.\n");
+			kfree(AfterDoubleFree);
+		} else {
+			kprintf("ERROR: double free corrupted the heap.\n");
+		}
+	}
+
 	/* The heap gave pages back, so the count should be higher than before. */
 	PagesAfterMerge = PageAllocFreeCount();
 	if (PagesAfterMerge > HeapPagesBefore) {

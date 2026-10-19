@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
-## 0.9-rc2 - Unreleased
+## 0.9-rc2 - Unrealeased
 
 ### Fixed
 - Fixed the heap coalescing regression where a right-neighbor merge consumed the next block's size before the merge was complete, causing free-page accounting to shrink and the heap to report lost pages.

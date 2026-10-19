@@ -254,16 +254,23 @@ void kfree(void *addr) {
 	Block *b = (Block *)((u8 *)addr - sizeof(BlockMeta));
 	bool merged_left = false;
 
-	if (b->Meta.IsFree) {
+	/* A block that was already freed, or absorbed into a neighbour, is not ours to free again. */
+	if (b->Meta.Magic != HEAP_MAGIC || b->Meta.IsFree) {
 		return;
 	}
 
 	if (b->Meta.PrevSize != 0) {
 		Block *left = (Block *)((u8 *)b - b->Meta.PrevSize);
-		if (left->Meta.IsFree) {
+		if (left->Meta.Magic == HEAP_MAGIC && left->Meta.IsFree) {
+			Block *absorbed = b;
+
 			left->Meta.Size += b->Meta.Size;
 			b = left;
 			merged_left = true;
+			absorbed->Meta.Magic = 0;
+			absorbed->Meta.Size = 0;
+			absorbed->Meta.PrevSize = 0;
+			absorbed->Meta.IsFree = false;
 		}
 	}
 
