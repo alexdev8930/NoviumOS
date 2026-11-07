@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
-0.9 - 2026-10-19
+## 0.9 - 2026-10-19
 
 Stable release. See 0.9-dev for the release contents and 0.9-rc2 for the final candidate fixes.
 
