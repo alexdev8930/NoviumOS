@@ -5,6 +5,8 @@
 
 #define MULTIBOOT_BOOTLOADER_MAGIC 0x2BADB002u
 #define MULTIBOOT_INFO_MEMORY_MAP  (1u << 6)
+#define MULTIBOOT_INFO_MODS        (1u << 3)
+
 
 /* Memory map entry types, Multiboot spec 3.3. No .S file includes this header, so an enum is safe here. */
 typedef enum {
@@ -33,6 +35,13 @@ struct multiboot_mmap {
     u64 base_addr;
     u64 length;
     u32 type;   /* A MultibootMemoryType; u32 on the wire. */
+};
+
+struct multiboot_module {
+    u32 mod_start;
+    u32 mod_end;
+    u32 string;
+    u32 reserved;
 };
 
 struct boot_info {

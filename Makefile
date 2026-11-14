@@ -21,6 +21,8 @@ GRUB_CFG = arch/$(ARCH)/boot/grub/grub.cfg
 ISO_ROOT = $(BUILD_DIR)/iso/staging
 ISO_IMAGE = $(BUILD_DIR)/iso/novium-v$(VERSION_TAG).iso
 
+INITRD_IMG = $(BUILD_DIR)/initrd.img
+
 ifeq ($(ARCH),x86_32)
 CFLAGS_ARCH  = -m32
 LDFLAGS_ARCH = -m elf_i386
@@ -70,7 +72,8 @@ KERNEL_OBJS = \
     $(BUILD_DIR)/ipc.o \
     $(BUILD_DIR)/message.o \
     $(BUILD_DIR)/sync.o \
-    $(BUILD_DIR)/vfs.o
+    $(BUILD_DIR)/vfs.o \
+    $(BUILD_DIR)/initrd.o
 
 # Header dependencies collected by -MMD, one .d next to each .o
 KERNEL_DEPS = $(KERNEL_OBJS:.o=.d)
@@ -96,11 +99,16 @@ $(BUILD_DIR)/%.o: %.S | $(BUILD_DIR)
 $(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS) arch/$(ARCH)/kernel/link.ld
 	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o $@
 
-$(ISO_IMAGE): $(BUILD_DIR)/kernel.elf $(GRUB_CFG) | $(BUILD_DIR)
+$(INITRD_IMG): | $(BUILD_DIR)
+	dd if=/dev/zero bs=512 count=2 of=$@ 2>/dev/null
+
+$(ISO_IMAGE): $(BUILD_DIR)/kernel.elf $(INITRD_IMG) $(GRUB_CFG) | $(BUILD_DIR)
 	mkdir -p $(ISO_ROOT)/boot/grub
 	cp $(BUILD_DIR)/kernel.elf $(ISO_ROOT)/boot/novium
+	cp $(INITRD_IMG) $(ISO_ROOT)/boot/initrd.img
 	cp $(GRUB_CFG) $(ISO_ROOT)/boot/grub/grub.cfg
 	$(GRUB_MKRESCUE) -o $@ $(ISO_ROOT)
+
 
 iso: $(ISO_IMAGE)
 

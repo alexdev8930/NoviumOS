@@ -6,6 +6,7 @@
 #include <novium/heap.h>
 #include <novium/init.h>
 #include <novium/vfs.h>
+#include <novium/initrd.h>
 #include <novium/ipc.h>
 #include <novium/message.h>
 #include <novium/page_alloc.h>
@@ -385,8 +386,22 @@ void kernel_main(struct boot_info *boot) {
 		kprintf("ERROR: vfs_init failed.\n");
 	} else {
 		kprintf("OK: vfs initialized.\n");
+
+		if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC && boot->multiboot_info_addr != 0) {
+			struct multiboot_info *mbi = (struct multiboot_info *)boot->multiboot_info_addr;
+			if ((mbi->flags & MULTIBOOT_INFO_MODS) != 0 && mbi->modules_addr != 0 && mbi->modules_count > 0) {
+				struct multiboot_module *mods = (struct multiboot_module *)mbi->modules_addr;
+				size_t mod_size = mods[0].mod_end - mods[0].mod_start;
+
+				if (initrd_init("/", (const void *)mods[0].mod_start, mod_size) == 0) {
+					kprintf("OK: initrd mounted (%u bytes).\n", (u32)mod_size);
+				} else {
+					kprintf("ERROR: initrd mount failed.\n");
+				}
+			}
+		}
 	}
-	
+
 	SchedInit();
 	kprintf("OK: Scheduling Init Succesfull\n\n");
 

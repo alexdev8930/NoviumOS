@@ -6,6 +6,8 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 ## Unreleased
 
 ### Added
+- `fs/initrd.c` and `include/novium/initrd.h` implemented with a read-only POSIX `tar` initial ramdisk driver wired into the VFS (`initrd_init`, `open`, `close`, `read`, `readdir`, `stat`).
+- Reserved GRUB Multiboot module descriptor and payload page ranges in `PageAllocInit()` before heap initialization, loaded `initrd.img` via `grub.cfg`, and mounted it at `/` during boot in `init/main.c`.
 - `fs/vfs.c` and `include/novium/vfs.h` implemented with the virtual file system node tree, path traversal (`.` and `..`), mountpoint delegation, and pluggable file operations (`vfs_init`, `vfs_mount`, `vfs_lookup`, `vfs_open`, `vfs_close`, `vfs_read`, `vfs_write`, `vfs_readdir`, `vfs_stat`).
 - Initialized the VFS layer during kernel boot in `init/main.c` and wired `fs/vfs.c` into the kernel build.
 

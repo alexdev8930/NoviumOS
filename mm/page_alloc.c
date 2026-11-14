@@ -89,6 +89,23 @@ void PageAllocInit(const struct boot_info *Boot) {
 
 	PageSetRange(0, 0x100000, PageStateUsed);
 	PageSetRange((u32)&_kernel_start, (u32)&_kernel_end - (u32)&_kernel_start, PageStateUsed);
+
+	if (Boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC && Boot->multiboot_info_addr != 0) {
+		struct multiboot_info *Mbi = (struct multiboot_info *)Boot->multiboot_info_addr;
+
+		if ((Mbi->flags & MULTIBOOT_INFO_MODS) != 0 && Mbi->modules_addr != 0 && Mbi->modules_count > 0) {
+			struct multiboot_module *Mods = (struct multiboot_module *)Mbi->modules_addr;
+			u32 ModIndex;
+
+			PageSetRange((u32)Mods, Mbi->modules_count * sizeof(struct multiboot_module), PageStateUsed);
+			for (ModIndex = 0; ModIndex < Mbi->modules_count; ModIndex++) {
+				if (Mods[ModIndex].mod_end > Mods[ModIndex].mod_start) {
+					PageSetRange(Mods[ModIndex].mod_start, Mods[ModIndex].mod_end - Mods[ModIndex].mod_start,
+						PageStateUsed);
+				}
+			}
+		}
+	}
 }
 
 u32 PageAlloc(void) {
