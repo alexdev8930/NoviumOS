@@ -470,6 +470,35 @@ waiter that is still alive.
 These headers are still placeholders, so they are not usable kernel APIs yet:
 
 - `include/drivers/framebuffer.h`
-- `fs/vfs.h` and `fs/initrd.h`
+- `fs/initrd.h`
 
-We will document their contracts here when the implementations land.
+
+### Virtual file system
+
+```c
+typedef struct vfs_ops {
+    struct vfs_node *(*mount)(void);
+    int (*open)(struct vfs_node *node, const char *path, struct vfs_file **file);
+    int (*close)(struct vfs_file *file);
+    ssize_t (*read)(struct vfs_file *file, void *buf, size_t count);
+    ssize_t (*write)(struct vfs_file *file, const void *buf, size_t count);
+    int (*readdir)(struct vfs_file *file, char *name, size_t name_max);
+    int (*stat)(struct vfs_node *node, const char *path, struct vfs_stat *st);
+} vfs_ops_t;
+
+int vfs_init(void);
+int vfs_mount(const char *mountpoint, const vfs_ops_t *ops, void *fs_private);
+vfs_node_t *vfs_lookup(const char *path);
+int vfs_open(const char *path, vfs_file_t **file);
+int vfs_close(vfs_file_t *file);
+ssize_t vfs_read(vfs_file_t *file, void *buf, size_t count);
+ssize_t vfs_write(vfs_file_t *file, const void *buf, size_t count);
+int vfs_readdir(vfs_file_t *file, char *name, size_t name_max);
+int vfs_stat(const char *path, vfs_stat_t *st);
+```
+
+Defined in `include/novium/vfs.h` and `fs/vfs.c`, the VFS sits between kernel callers and individual filesystem drivers. Each `vfs_node_t` represents one file or directory (`VFS_NODE_DIR` or `VFS_NODE_FILE`) linked into a tree via `parent`, `child`, and `sibling` pointers, and carries a `vfs_ops_t` table plus driver-specific `fs_private` state.
+
+`vfs_init()` allocates the root `/` node before multitasking starts. Mounting at `/` attaches the driver's operations directly to the root node, while mounting at a nested path such as `/mnt` resolves the parent directory first so child mounts attach cleanly to the tree.
+
+`vfs_lookup()` walks `/`-separated path components from `/`, collapsing `.` and stepping up through `parent` on `..`. Once traversal reaches a node with a populated `ops` table whose children live inside an external medium rather than the in-memory node tree, lookup stops at that mount node and returns it so `vfs_open()` and `vfs_stat()` can pass the full path down to the driver. `vfs_file_t` tracks the open `vfs_node_t`, current byte `pos`, and `file_private` handle state across `vfs_read()`, `vfs_write()`, `vfs_readdir()`, and `vfs_close()`.

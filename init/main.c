@@ -5,6 +5,7 @@
 #include <novium/debug.h>
 #include <novium/heap.h>
 #include <novium/init.h>
+#include <novium/vfs.h>
 #include <novium/ipc.h>
 #include <novium/message.h>
 #include <novium/page_alloc.h>
@@ -380,6 +381,12 @@ void kernel_main(struct boot_info *boot) {
 		kprintf("ERROR: heap lost pages, %u before and %u after.\n", HeapPagesBefore, PagesAfterMerge);
 	}
 
+	if (vfs_init() != 0) {
+		kprintf("ERROR: vfs_init failed.\n");
+	} else {
+		kprintf("OK: vfs initialized.\n");
+	}
+	
 	SchedInit();
 	kprintf("OK: Scheduling Init Succesfull\n\n");
 
