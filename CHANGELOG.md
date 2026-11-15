@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
-## Unreleased
+## 0.10-dev - 2026-11-15
 
 ### Added
 - `kernel/shell.c`, `kernel/shell_cmds.c`, and `include/novium/shell.h` implemented with an interactive kernel shell task (`shell_task`), `argc`/`argv` command tokenizer, relative path resolution (`.`, `..`), dynamic `root@<hostname>:<cwd>$ ` prompt loaded from `/etc/hostname`, boot MOTD banner (`shell_print_motd`), and built-in VFS commands (`help`, `clear`, `echo`, `pwd`, `cd`, `ls`, `cat`, `stat`).
