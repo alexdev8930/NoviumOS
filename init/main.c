@@ -1,5 +1,3 @@
-#include <drivers/console.h>
-#include <drivers/input.h>
 #include <novium/boot_info.h>
 #include <novium/cpu.h>
 #include <novium/debug.h>
@@ -15,6 +13,7 @@
 #include <novium/stdio.h>
 #include <novium/sync.h>
 #include <novium/timer.h>
+#include <novium/shell.h>
 
 #define TASK_STACK_SIZE 4096
 static u8 ShellStack[TASK_STACK_SIZE] __attribute__((aligned(16)));
@@ -46,28 +45,6 @@ static volatile u32 ProducerId;
 static volatile u32 LockRounds;
 static volatile u32 LockStop;
 static volatile u32 LockBad;
-
-void shell_task(void) {
-	kprintf("System ready. You can now type inside the console:\n");
-	console_prompt();
-
-	for (;;) {
-		int key = keyboard_getchar();
-
-		if (key < 0) {
-			SchedYield();
-			continue;
-		}
-
-		console_line_echo = true;
-		console_putchar((char)key);
-		console_line_echo = false;
-
-		if (key == '\n') {
-			console_prompt();
-		}
-	}
-}
 
 void worker_task(void) {
 	for (;;) {
@@ -282,9 +259,8 @@ static void ipc_test_tasks(void) {
 }
 
 void kernel_main(struct boot_info *boot) {
-	console_clear();
-	kprintf("NoviumOS\n\n");
-
+	shell_print_motd();
+	
 	if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC) {
 		kprintf("OK: Multiboot info valid.\n");
 		if (boot->memory_map_length != 0) {

@@ -6,10 +6,16 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 ## Unreleased
 
 ### Added
+- `kernel/shell.c`, `kernel/shell_cmds.c`, and `include/novium/shell.h` implemented with an interactive kernel shell task (`shell_task`), `argc`/`argv` command tokenizer, relative path resolution (`.`, `..`), dynamic `root@<hostname>:<cwd>$ ` prompt loaded from `/etc/hostname`, boot MOTD banner (`shell_print_motd`), and built-in VFS commands (`help`, `clear`, `echo`, `pwd`, `cd`, `ls`, `cat`, `stat`).
+- `rootfs/` overlay directory (`dev/`, `etc/`, `mnt/`, `tmp/`, `usr/share/`) with base system files (`hostname`, `motd`, `version`, `help.txt`) packed into `initrd.img` as a POSIX `ustar` archive during build.
+- `strncmp()` added to `lib/string.c` and `include/novium/string.h`.
 - `fs/initrd.c` and `include/novium/initrd.h` implemented with a read-only POSIX `tar` initial ramdisk driver wired into the VFS (`initrd_init`, `open`, `close`, `read`, `readdir`, `stat`).
 - Reserved GRUB Multiboot module descriptor and payload page ranges in `PageAllocInit()` before heap initialization, loaded `initrd.img` via `grub.cfg`, and mounted it at `/` during boot in `init/main.c`.
 - `fs/vfs.c` and `include/novium/vfs.h` implemented with the virtual file system node tree, path traversal (`.` and `..`), mountpoint delegation, and pluggable file operations (`vfs_init`, `vfs_mount`, `vfs_lookup`, `vfs_open`, `vfs_close`, `vfs_read`, `vfs_write`, `vfs_readdir`, `vfs_stat`).
 - Initialized the VFS layer during kernel boot in `init/main.c` and wired `fs/vfs.c` into the kernel build.
+
+### Fixed
+- `console_clear()` in `drivers/video/vga_console.c` updated to write 16-bit VGA character/attribute cells directly instead of byte-level `memset(..., 0x20, ...)`, eliminating the brief green background flash when clearing the screen.
 
 ## 0.9 - 2026-10-19
 

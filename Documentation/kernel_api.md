@@ -527,6 +527,31 @@ afterwards. A wakeup is never lost and a parked entry is never left behind.
 never run again, and `IpcWakeOne()` calls `SchedWakeTask()` for the first
 waiter that is still alive.
 
+
+### Kernel Shell
+
+```c
+void shell_print_motd(void);
+void shell_prompt(void);
+void shell_exec(int argc, char **argv);
+void shell_task(void);
+```
+
+The interactive shell lives in `kernel/shell.c` and `kernel/shell_cmds.c` and
+runs as a kernel task. `shell_print_motd()` clears the VGA console and prints
+`/etc/motd`, falling back to a default banner if the file cannot be opened.
+`shell_prompt()` loads `/etc/hostname` on its first call, writes
+`root@<hostname>:<cwd>$ `, and updates `user_cmdline_start` so backspace
+cannot erase the prompt.
+
+`shell_task()` reads decoded characters from `keyboard_getchar()`, yielding the
+CPU when the buffer is empty, and echoes typed characters with
+`console_line_echo` enabled. On newline, it splits the line buffer in place
+into `argc` and `argv` (up to 256 bytes and 16 arguments) and passes them to
+`shell_exec()`. Built-in commands (`help`, `clear`, `echo`, `pwd`, `cd`, `ls`,
+`cat`, and `stat`) normalize relative paths, `.`, and `..` against the
+shell's working directory before calling into the VFS.
+
 ## Planned interfaces
 
 These headers are still placeholders, so they are not usable kernel APIs yet:

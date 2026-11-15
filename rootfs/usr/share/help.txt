@@ -11,3 +11,13 @@ Directory Layout:
 - /mnt : Mount point for external filesystems
 - /tmp : Temporary files
 - /usr : Shared system files and documentation
+
+Available Commands:
+- help         : Show this help message
+- clear        : Clear the console screen
+- echo <text>  : Print arguments to the console
+- pwd          : Print the current working directory
+- cd <path>    : Change the current working directory
+- ls [path]    : List directory contents
+- cat <file>   : Print the contents of a file
+- stat <path>  : Show file or directory metadata

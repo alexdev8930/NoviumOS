@@ -77,7 +77,9 @@ OBJS = \
     message.o \
     sync.o \
     vfs.o \
-    initrd.o
+    initrd.o \
+    shell.o \
+    shell_cmds.o 
 
 KERNEL_OBJS = $(addprefix $(OBJ_DIR)/,$(OBJS))
 KERNEL_DEPS = $(addprefix $(DEPS_DIR)/,$(OBJS:.o=.d))
