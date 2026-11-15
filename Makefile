@@ -12,6 +12,8 @@ GRUB_MKRESCUE ?= grub-mkrescue
 ARCH ?= x86_32
 
 BUILD_DIR = build
+OBJ_DIR = $(BUILD_DIR)/obj
+DEPS_DIR  = $(BUILD_DIR)/_deps
 VPATH = init drivers/video drivers/input kernel lib mm ipc fs arch/$(ARCH)/boot arch/$(ARCH)/kernel
 
 DRIVE_FLAGS ?= -hda
@@ -21,6 +23,8 @@ GRUB_CFG = arch/$(ARCH)/boot/grub/grub.cfg
 ISO_ROOT = $(BUILD_DIR)/iso/staging
 ISO_IMAGE = $(BUILD_DIR)/iso/novium-v$(VERSION_TAG).iso
 
+ROOTFS_DIR = rootfs
+ROOTFS_FILES = $(shell find $(ROOTFS_DIR) -type f 2>/dev/null)
 INITRD_IMG = $(BUILD_DIR)/initrd.img
 
 ifeq ($(ARCH),x86_32)
@@ -49,34 +53,34 @@ CFLAGS = $(CFLAGS_ARCH) \
 LDFLAGS = $(LDFLAGS_ARCH) \
           -T arch/$(ARCH)/kernel/link.ld
 
-KERNEL_OBJS = \
-    $(BUILD_DIR)/multiboot.o \
-    $(BUILD_DIR)/bootstrap.o \
-    $(BUILD_DIR)/hw_init.o \
-    $(BUILD_DIR)/irq.o \
-    $(BUILD_DIR)/isr.o \
-    $(BUILD_DIR)/debug.o \
-    $(BUILD_DIR)/ps2.o \
-    $(BUILD_DIR)/keyboard.o \
-    $(BUILD_DIR)/pit.o \
-    $(BUILD_DIR)/vga_console.o \
-    $(BUILD_DIR)/string.o \
-    $(BUILD_DIR)/stdio.o \
-    $(BUILD_DIR)/page_alloc.o \
-    $(BUILD_DIR)/paging.o \
-    $(BUILD_DIR)/main.o \
-    $(BUILD_DIR)/sched.o \
-    $(BUILD_DIR)/process.o \
-    $(BUILD_DIR)/switch.o \
-    $(BUILD_DIR)/heap.o \
-    $(BUILD_DIR)/ipc.o \
-    $(BUILD_DIR)/message.o \
-    $(BUILD_DIR)/sync.o \
-    $(BUILD_DIR)/vfs.o \
-    $(BUILD_DIR)/initrd.o
+OBJS = \
+    multiboot.o \
+    bootstrap.o \
+    hw_init.o \
+    irq.o \
+    isr.o \
+    debug.o \
+    ps2.o \
+    keyboard.o \
+    pit.o \
+    vga_console.o \
+    string.o \
+    stdio.o \
+    page_alloc.o \
+    paging.o \
+    main.o \
+    sched.o \
+    process.o \
+    switch.o \
+    heap.o \
+    ipc.o \
+    message.o \
+    sync.o \
+    vfs.o \
+    initrd.o
 
-# Header dependencies collected by -MMD, one .d next to each .o
-KERNEL_DEPS = $(KERNEL_OBJS:.o=.d)
+KERNEL_OBJS = $(addprefix $(OBJ_DIR)/,$(OBJS))
+KERNEL_DEPS = $(addprefix $(DEPS_DIR)/,$(OBJS:.o=.d))
 
 .PHONY: all iso run clean
 
@@ -85,12 +89,17 @@ all: $(ISO_IMAGE)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# VPATH finds the .c/.S files in the dirs listed above
-$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-$(BUILD_DIR)/%.o: %.S | $(BUILD_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+$(DEPS_DIR):
+	mkdir -p $(DEPS_DIR)
+
+$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR) $(DEPS_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MF $(DEPS_DIR)/$*.d -c $< -o $@
+
+$(OBJ_DIR)/%.o: %.S | $(OBJ_DIR) $(DEPS_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MF $(DEPS_DIR)/$*.d -c $< -o $@
 
 # Pull in the header dependencies.  A missing .d is fine on a fresh tree, and
 # -MP keeps a deleted header from turning into a "no rule to make target" stop.
@@ -99,8 +108,8 @@ $(BUILD_DIR)/%.o: %.S | $(BUILD_DIR)
 $(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS) arch/$(ARCH)/kernel/link.ld
 	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o $@
 
-$(INITRD_IMG): | $(BUILD_DIR)
-	dd if=/dev/zero bs=512 count=2 of=$@ 2>/dev/null
+$(INITRD_IMG): $(ROOTFS_FILES) | $(BUILD_DIR)
+	tar --format=ustar --exclude='.gitkeep' -cf $@ -C $(ROOTFS_DIR) .
 
 $(ISO_IMAGE): $(BUILD_DIR)/kernel.elf $(INITRD_IMG) $(GRUB_CFG) | $(BUILD_DIR)
 	mkdir -p $(ISO_ROOT)/boot/grub

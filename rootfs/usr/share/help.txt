@@ -1,0 +1,13 @@
+NoviumOS
+---------
+
+System Information:
+- Architecture: x86_32 (Multiboot 1)
+- Root Filesystem: POSIX tar initial ramdisk (initrd) mounted at /
+
+Directory Layout:
+- /dev : Device nodes and hardware interfaces
+- /etc : System configuration and version information
+- /mnt : Mount point for external filesystems
+- /tmp : Temporary files
+- /usr : Shared system files and documentation
