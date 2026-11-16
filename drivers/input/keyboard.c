@@ -54,6 +54,7 @@ static const char kbd_layout_shift[] = {
 };
 
 static int shift_held = 0;
+static int caps_lock = 0;
 
 static void keyboard_callback(struct registers *r) {
     (void)r;
@@ -102,7 +103,7 @@ int keyboard_getchar(void) {
         }
 
         if (sc == 0x3A) {
-            shift_held = !shift_held;
+            caps_lock = !caps_lock;
             continue;
         }
 
@@ -115,6 +116,16 @@ int keyboard_getchar(void) {
         if (key == 0) {
             continue;
         }
+
+        /* caps lock only changes letter case */
+        if (caps_lock) {
+            if (key >= 'a' && key <= 'z') {
+                key = key - 'a' + 'A';
+            } else if (key >= 'A' && key <= 'Z') {
+                key = key - 'A' + 'a';
+            }
+        }
+
         return key;
     }
 }

@@ -3,6 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
+## Unreleased
+
+### Fixed
+- `drivers/input/keyboard.c` updated to track caps lock state separately from shift state so releasing shift no longer clears caps lock, keeping letters uppercase while caps lock is active.
+
 ## 0.10-dev - 2026-11-15
 
 ### Added
