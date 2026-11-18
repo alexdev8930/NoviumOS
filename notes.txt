@@ -1,17 +1,12 @@
 [NOTES]
 
-- PageSetRange() rounds reserved ranges outward to 4096-byte page boundaries, so the
-  kernel reservation protects every page touched by [_kernel_start, _kernel_end), even
-  if either symbol is unaligned. link.ld currently aligns both symbols, but allocator
-  safety does not depend on that alignment.
+- kfree() crashes on NULL: it does pointer arithmetic on addr without checking
+  for NULL first, so free(NULL) computes a bogus address and dereferences
+  b->Meta.Magic. Needs an early "if (addr == 0) return;".
 
-- kfree() can double-merge a block after it was absorbed into its free left
-  neighbour, corrupting heap boundaries. Validate the block or invalidate its
-  metadata when coalescing.
+- typo in init/main.c: "OK: Scheduling Init Succesfull" should be
+  "Successfully".
 
-- IpcWaitTakeLive() can skip a live waiter swapped into a removed stale waiter's
-  slot. With multiple stale entries, this can leave a blocked task asleep, or leave
-  a mutex unlocked while a waiter remains parked.
-
-- HeapGrow() allocates pages before checking HEAP_SEGMENT_CAP. If the segment table
-  is full, those pages are leaked unless they are returned with PageFreePages().
+- shell silently drops input when the line is full: once len hits
+  SHELL_LINE_MAX - 1, extra keystrokes are just thrown away with no feedback.
+  Should at least beep or refuse the input so the user knows the line is full.
