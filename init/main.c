@@ -379,7 +379,7 @@ void kernel_main(struct boot_info *boot) {
 	}
 
 	SchedInit();
-	kprintf("OK: Scheduling Init Succesfull\n\n");
+	kprintf("OK: Scheduling Initialized Successfully\n\n");
 
 	/*
 	 * Before the shell and worker start, so this output stays on one run of

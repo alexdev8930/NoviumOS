@@ -251,6 +251,9 @@ void *kmalloc(size_t size) {
 
 /* Merge the block with free neighbours on both sides and return it to the free list. */
 void kfree(void *addr) {
+	if (addr == 0) {
+		return;
+	}
 	Block *b = (Block *)((u8 *)addr - sizeof(BlockMeta));
 	bool merged_left = false;
 

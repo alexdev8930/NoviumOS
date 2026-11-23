@@ -61,6 +61,8 @@ void shell_task(void) {
 			shell_prompt();
 		} else if (len < SHELL_LINE_MAX - 1) {
 			line[len++] = (char)key;
+		} else {
+			console_putchar('\a'); /* Beep to signal the line is full. */
 		}
 	}
 }

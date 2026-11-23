@@ -1,4 +1,4 @@
-# Novium OS
+# NoviumOS
 
 <img src=".github/assets/preview.gif" alt="NoviumOS Boot Preview" width="580" />
 

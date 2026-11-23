@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
+## Unreleased
+
+### Fixed
+- `mm/heap.c` `kfree()` now returns early when `addr` is NULL, preventing a crash on `free(NULL)`.
+- `init/main.c` fixed typo "OK: Scheduling Init Succesfull" to "OK: Scheduling Initialized Successfully".
+- `kernel/shell.c` shell beeps on line-full instead of silently dropping input past `SHELL_LINE_MAX - 1`.
+
 ## 0.10-rc1 - 2026-11-22
 
 ### Fixed
