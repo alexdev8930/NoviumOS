@@ -61,12 +61,13 @@ static void keyboard_callback(struct registers *r) {
 
     u8 sc = ps2_read_scancode();
 
-    /* drop the keystroke if the queue is completely full */
     u8 next = (head + 1) % BUF_SIZE;
-    if (next != tail) {
-        buf[head] = sc;
-        head = next;
+    if (next == tail) {
+        /* buffer full: drop the oldest keystroke to make room for the new one */
+        tail = (tail + 1) % BUF_SIZE;
     }
+    buf[head] = sc;
+    head = next;
 }
 
 void keyboard_init(void) {
