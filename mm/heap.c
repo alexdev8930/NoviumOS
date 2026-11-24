@@ -340,7 +340,7 @@ void kfree(void *addr) {
 		if (seg != 0) {
 			Block *segment_end = seg->End;
 			if (beyond < segment_end) {
-				beyond->Meta.PrevSize = Keep;
+				beyond->Meta.PrevSize = Give;
 			}
 		}
 

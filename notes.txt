@@ -1,7 +1,8 @@
 [NOTES]
 
-- kfree() crashes on NULL: FIXED — added early "if (addr == 0) return;" in mm/heap.c.
+- drivers/input/keyboard.c: the scancode buffer drops keystrokes when
+  it's full, so fast typing can lose characters.
 
-- typo in init/main.c: FIXED — "OK: Scheduling Init Succesfull" changed to "OK: Scheduling Initialized Successfully".
-
-- shell silently drops input when the line is full: FIXED — added console_putchar('\a') beep when len hits SHELL_LINE_MAX - 1 in kernel/shell.c.
+- drivers/video/vga_console.c: console_putchar() writes to the last cell
+  then scrolls, pushing that character up to row 23 instead of leaving
+  it on the bottom line.
