@@ -1,5 +1,1 @@
 [NOTES]
-
-- drivers/video/vga_console.c: console_putchar() writes to the last cell
-  then scrolls, pushing that character up to row 23 instead of leaving
-  it on the bottom line.

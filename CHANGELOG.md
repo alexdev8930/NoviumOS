@@ -6,6 +6,7 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 ## Unreleased
 
 ### Fixed
+- `drivers/video/vga_console.c` scroll before writing to last cell so the character stays on the bottom line instead of moving up a row.
 - `drivers/input/keyboard.c` fixed scancode buffer dropping keystrokes when full; now drops the oldest keystroke to make room for the new one instead.
 - Fixed `mm/heap.c` `kfree()` writing the wrong `PrevSize` on the right neighbor after splitting off pages to return, which broke heap coalescing on large block frees.
 - `mm/heap.c` `kfree()` now returns early when `addr` is NULL, preventing a crash on `free(NULL)`.

@@ -110,14 +110,13 @@ void console_putchar(char c) {
 		return;
 	}
 
-	video_memory[cursor * 2] = c;
-	video_memory[cursor * 2 + 1] = ConsoleAttribute;
-
 	if (cursor + 1 >= ConsoleCells) {
 		console_scroll();
-	} else {
-		console_set_cursor(cursor + 1);
 	}
+
+	video_memory[cursor * 2] = c;
+	video_memory[cursor * 2 + 1] = ConsoleAttribute;
+	console_set_cursor(cursor + 1);
 
 	/* echoing a command line and the row just filled up, so mark the new one */
 	if (console_line_echo && (cursor % ConsoleWidth) == 0) {
