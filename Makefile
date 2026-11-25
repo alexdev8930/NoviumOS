@@ -60,11 +60,11 @@ OBJS = \
     hw_init.o \
     irq.o \
     isr.o \
-    debug.o \
     i8042.o \
     atkbd.o \
     i8253.o \
-    vga_console.o \
+    vgacon.o \
+	vt.o \
     string.o \
     stdio.o \
     page_alloc.o \
@@ -80,7 +80,7 @@ OBJS = \
     vfs.o \
     initrd.o \
     shell.o \
-    shell_cmds.o 
+    cmds.o 
 
 KERNEL_OBJS = $(addprefix $(OBJ_DIR)/,$(OBJS))
 KERNEL_DEPS = $(addprefix $(DEPS_DIR)/,$(OBJS:.o=.d))

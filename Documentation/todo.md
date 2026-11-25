@@ -9,7 +9,7 @@ For the history of everything completed so far, see [CHANGELOG.md](../CHANGELOG.
 ## Next up (`v0.11.0` – `v1.0.0`)
 
 - [ ] **v0.11.0:** Linear framebuffer graphics support & font rendering
-- [ ] **v1.0.0:** Simple `ext2` filesystem (clearing remaining `fs/` stubs) & switch bootloader to Limine
+- [ ] **v1.0.0:** Simple `ext2` filesystem (clearing remaining `fs/` stubs)
 
 ---
 ## Roadmap 

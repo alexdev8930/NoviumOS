@@ -65,31 +65,51 @@ and is used between some device-register accesses.
 ### Console and Debugging
 
 ```c
-void console_write(const char *str);
+struct console_driver {
+	int cols;
+	int rows;
+	void (*init)(void);
+	void (*putc)(int x, int y, char c, u32 fg, u32 bg);
+	void (*clear)(u32 fg, u32 bg);
+	void (*scroll)(int lines, u32 fg, u32 bg);
+	void (*set_cursor)(int x, int y);
+};
+
+extern struct console_driver *con_driver;
+extern bool console_line_echo;
+extern int user_cmdline_start;
+
+void console_register(struct console_driver *drv);
+void console_init(struct console_driver *drv);
 void console_putchar(char c);
+void console_write(const char *str);
 void console_clear(void);
 void console_prompt(void);
-void update_hardware_cursor(int position);
-extern int user_cmdline_start;
-extern bool console_line_echo;
+int  console_cursor(void);
+void console_set_cursor(int pos);
+
+void vgacon_init(void);
 
 int kprintf(const char *format, ...); /* equivalent to printf() in libc */
-
-void debug_print_hex8(u8 value);
-void debug_print_hex32(u32 value);
 ```
 
-The console uses VGA text memory at `0xB8000` and owns the visible 80x25 page
-(`0xB8000`-`0xB8F9F`). `console_putchar()` handles newlines, tabs, and backspace,
-and scrolls when a line reaches the last row. Backspace cannot move before
-`user_cmdline_start`. `console_prompt()` writes `> ` and records where the
-editable command line starts.
+The virtual terminal layer (`vt`) owns cursor state, line echo, and control
+characters, and dispatches character cell draws to the active `console_driver`
+backend. `vgacon_init()` registers the VGA text-mode backend (`vgacon`), which
+uses VGA text memory at `0xB8000` (`0xB8000`-`0xB8F9F`), owns the visible 80x25
+page, and updates the hardware cursor through CRTC ports `0x3D4` and `0x3D5`.
+`console_register()` binds a backend without running its `init` hook, while
+`console_init()` binds it, resets the cursor, and calls `drv->init()`.
 
-All cursor moves go through one clamped setter, so the cursor and the hardware
-cursor register stay inside the page and no character is ever written past cell
-1999. A newline on the last row scrolls before the next character goes out, and
-scrolling takes `user_cmdline_start` up with the prompt, so backspace still
-works after a wrap.
+`console_putchar()` handles newlines, tabs, and backspace, and scrolls via
+`drv->scroll` (or falls back to `drv->clear`) when output reaches the bottom
+row. Backspace cannot move before `user_cmdline_start`. `console_prompt()`
+writes `> ` and records where the editable command line starts.
+
+`console_cursor()` returns the linear cursor offset in cells, and
+`console_set_cursor()` clamps `pos` to the active `cols * rows` grid before
+syncing the backend cursor. Scrolling shifts `user_cmdline_start` up by one
+row with the prompt, so backspace still works after a wrap.
 
 `console_line_echo` is set by whoever is echoing a command line. While it is
 set, a row that fills up starts the next row with `> `, so a wrapped command
@@ -99,7 +119,7 @@ own and no `>` shows up in the middle of them.
 `kprintf()` supports `%c`, `%s`, `%d`, `%i`, `%u`, `%x`, `%X`, and `%%`. It
 always returns `0`. Unsupported format characters are printed literally, and a
 format string that ends with a stray `%` stops there instead of running off the
-end. The debug helpers print fixed-width uppercase hexadecimal values.
+end.
 
 ### Interrupts
 

@@ -1,6 +1,7 @@
 #include <asm/irq.h>
 #include <asm/cpu.h>
 #include <novium/drivers/input.h>
+#include <novium/drivers/vt.h>
 #include <novium/timer.h>
 #include <novium/boot_info.h>
 #include <novium/init.h>
@@ -9,6 +10,7 @@
 void hw_init(u32 multiboot_magic, u32 multiboot_info_addr){
     irq_disable(); /* cli while wiring IDT/PIC */
 
+    vgacon_init();
     idt_init();
     pic_init();
 

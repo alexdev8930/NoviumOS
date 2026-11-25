@@ -1,6 +1,5 @@
 #include <novium/boot_info.h>
 #include <novium/cpu.h>
-#include <novium/debug.h>
 #include <novium/heap.h>
 #include <novium/init.h>
 #include <novium/vfs.h>

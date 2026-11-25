@@ -5,9 +5,13 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 
 ## Unreleased
 
+### Added
+- `drivers/video/vt.c`, `drivers/video/vgacon.c`, and `include/novium/drivers/vt.h` split the VGA console into a virtual terminal layer (`vt`) and a VGA text-mode `console_driver` backend (`vgacon`).
+
 ### Changed
 - `.github/workflows/ci.yml` replaced `build.yml` with a parallel matrix workflow building and boot-testing both `x86_32-gcc` and `x86_32-clang` in QEMU.
 - `Makefile` enabled `-Werror` in `CFLAGS` and bumped version to `0.11-dev`.
+- `drivers/video/framebuffer.c` renamed to `drivers/video/fbcon.c`, `drivers/video/vga_console.c` renamed to `drivers/video/vgacon.c` and `kernel/shell_cmds.c` renamed to `kernel/cmds.c`.
 
 ## 0.10 - 2026-11-25
 
