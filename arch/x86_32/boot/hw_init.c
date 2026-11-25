@@ -1,6 +1,6 @@
 #include <asm/irq.h>
 #include <asm/cpu.h>
-#include <drivers/input.h>
+#include <novium/drivers/input.h>
 #include <novium/timer.h>
 #include <novium/boot_info.h>
 #include <novium/init.h>

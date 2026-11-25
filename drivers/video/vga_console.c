@@ -1,5 +1,5 @@
 #include <asm/io.h>
-#include <drivers/console.h>
+#include <novium/drivers/console.h>
 #include <novium/stdio.h>
 #include <novium/string.h>
 

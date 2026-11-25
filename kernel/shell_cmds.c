@@ -1,4 +1,4 @@
-#include <drivers/console.h>
+#include <novium/drivers/console.h>
 #include <novium/shell.h>
 #include <novium/vfs.h>
 #include <novium/stdio.h>

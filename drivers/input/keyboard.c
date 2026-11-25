@@ -1,5 +1,5 @@
 #include <asm/irq.h>
-#include <drivers/input.h>
+#include <novium/drivers/input.h>
 #include <asm/cpu.h>
 #include "ps2.h"
 

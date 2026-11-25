@@ -1,8 +1,8 @@
 #include <novium/shell.h>
 #include <novium/stdio.h>
 #include <novium/string.h>
-#include <drivers/console.h>
-#include <drivers/input.h>
+#include <novium/drivers/console.h>
+#include <novium/drivers/input.h>
 #include <novium/sched.h>
 #include <stdbool.h>
 
