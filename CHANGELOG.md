@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
-## Unreleased
+## 0.10-rc2 - 2026-11-25
 
 ### Fixed
 - `drivers/video/vga_console.c` scroll before writing to last cell so the character stays on the bottom line instead of moving up a row.
