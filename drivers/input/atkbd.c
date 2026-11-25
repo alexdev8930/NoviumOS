@@ -1,7 +1,7 @@
 #include <asm/irq.h>
 #include <novium/drivers/input.h>
-#include <asm/cpu.h>
-#include "ps2.h"
+#include <novium/cpu.h>
+#include <novium/drivers/i8042.h>
 
 #define BUF_SIZE 32
 
@@ -59,7 +59,7 @@ static int caps_lock = 0;
 static void keyboard_callback(struct registers *r) {
     (void)r;
 
-    u8 sc = ps2_read_scancode();
+    u8 sc = i8042_read_scancode();
 
     u8 next = (head + 1) % BUF_SIZE;
     if (next == tail) {
@@ -88,7 +88,7 @@ int keyboard_getchar(void) {
     for (;;) {
         int sc = keyboard_pop();
         if (sc < 0) {
-            cpu_hlt(); 
+            cpu_idle(); 
             continue;
         }
         if (sc & 0x80) {

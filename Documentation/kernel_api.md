@@ -168,7 +168,7 @@ int  keyboard_getchar(void);
 `keyboard_init()` registers the PS/2 keyboard on IRQ 1. `keyboard_pop()`
 returns a raw scancode, or `-1` when the 32-entry ring buffer is empty. The ring
 indices are `u16`, allowing the buffer to grow beyond 256 entries without index
-truncation. `keyboard_getchar()` uses `hlt()` until it can return a decoded
+truncation. `keyboard_getchar()` uses `cpu_idle()` until it can return a decoded
 US-layout character. It handles shift, key release codes, and common control
 characters. The `0x3A` Caps Lock scancode currently toggles shift state. Keystrokes
 that arrive while the ring buffer is full are discarded.
@@ -332,11 +332,14 @@ u32  SchedGetPriority(Task *task);
 void SchedGetStats(SchedStats *stats);
 void SchedLock(void);
 void SchedUnlock(void);
+void SchedInitStack(Task *task, void (*entry)(void), u32 stack_top);
 void SchedSwitch(u32 *old_esp, u32 new_esp);
 ```
 
-`SchedCreate()` returns `0` if the task table is full or `name` is null. `eip`
-is the task entry address and `esp` is the top of its stack. Task ID `0` is the
+`SchedCreate()` returns `0` if the task table is full or `name` is null, and
+calls `SchedInitStack()` (implemented in `arch/x86_32/kernel/process.c`) to
+prepare the initial register frame at the top of the task's stack. `eip` is
+the task entry address and `esp` is the top of its stack. Task ID `0` is the
 idle task, so it cannot be blocked, killed, or exited. `SchedYield()` switches
 to the next ready task using the selected policy. `SchedTick()` updates the
 runtime counters from the timer interrupt and requests a preemption once a task
@@ -556,5 +559,5 @@ shell's working directory before calling into the VFS.
 
 These headers are still placeholders, so they are not usable kernel APIs yet:
 
-- `include/drivers/framebuffer.h`
+- `include/novium/drivers/framebuffer.h`
 

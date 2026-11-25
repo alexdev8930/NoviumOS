@@ -179,37 +179,6 @@ void SchedInit(void) {
     TaskCountValue = 1;
 }
 
-static void SchedExitStub(void (*Entry)(void)) {
-    cpu_enable_irqs();
-    Entry();     
-    SchedExit();   
-}
-
-void SchedInitStack(Task *TaskItem, void (*Entry)(void), u32 StackTop) {
-    u32 *sp = (u32 *)StackTop;
-
-    /*
-     * This layout must mirror SchedSwitch's epilogue exactly, reading up from
-     * the final esp:
-     *
-     *   popl %edi   popl %esi   popl %ebx   popl %ebp   popfl   ret
-     *
-     * so `ret` lands on SchedExitStub with Entry as its first argument.
-     * 0x202 is a valid eflags for a fresh task: bit 1 is always set and bit 9
-     * is the interrupt flag, so a brand new task starts with interrupts on.
-     */
-    *--sp = (u32)Entry;            /* arg[0] for SchedExitStub          */
-    *--sp = 0;                     /* SchedExitStub's fake return addr  */
-    *--sp = (u32)SchedExitStub;    /* SchedSwitch `ret` jumps here       */
-    *--sp = 0x202;                 /* eflags (if set) */
-    *--sp = 0;                     /* ebp */
-    *--sp = 0;                     /* ebx */
-    *--sp = 0;                     /* esi */
-    *--sp = 0;                     /* edi */
-
-    TaskItem->Esp = (u32)sp;
-}
-
 /* finds an empty descriptor and builds a new process node */
 Task *SchedCreate(const char *Name, u32 Eip, u32 Esp) {
     u32 Index;

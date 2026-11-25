@@ -96,6 +96,7 @@ void SchedGetStats(SchedStats *Stats);
 void SchedLock(void);
 void SchedUnlock(void);
 
+void SchedInitStack(Task *TaskItem, void (*Entry)(void), u32 StackTop);
 void SchedSwitch(u32 *OldEsp, u32 NewEsp);
 
 #endif

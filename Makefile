@@ -14,7 +14,7 @@ ARCH ?= x86_32
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 DEPS_DIR  = $(BUILD_DIR)/_deps
-VPATH = init drivers/video drivers/input kernel lib mm ipc fs arch/$(ARCH)/boot arch/$(ARCH)/kernel
+VPATH = init drivers/video drivers/input kernel lib mm ipc fs arch/$(ARCH)/boot arch/$(ARCH)/kernel arch/$(ARCH)/mm
 
 DRIVE_FLAGS ?= -hda
 QEMU_FLAGS ?= -m 64M -serial stdio
@@ -61,9 +61,9 @@ OBJS = \
     irq.o \
     isr.o \
     debug.o \
-    ps2.o \
-    keyboard.o \
-    pit.o \
+    i8042.o \
+    atkbd.o \
+    i8253.o \
     vga_console.o \
     string.o \
     stdio.o \
