@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         run: |
@@ -46,7 +46,7 @@ jobs:
           echo "ISO_IMAGE=$ISO_IMAGE" >> "$GITHUB_ENV"
 
       - name: Upload NoviumOS ISO
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: novium-iso-${{ matrix.target }}
           path: build/iso/*.iso
