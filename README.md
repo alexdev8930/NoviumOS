@@ -46,7 +46,7 @@ See [kernel_api.md](Documentation/kernel_api.md) for the documentation on the ke
 
 ### System Dependencies
 
-Compiling Novium OS requires a 32-bit cross-compiler toolchain and the QEMU emulator.
+Compiling Novium OS requires a 32-bit toolchain (GCC or Clang) and QEMU.
 
 #### **Linux (Ubuntu, Debian, Fedora, Mint, Arch):**
 
@@ -102,6 +102,12 @@ After the dependencies are installed build the OS:
 ```bash
 make clean
 bear -- make # or just make if you dont want compile_commands.json
+```
+
+To compile with Clang instead of GCC:
+
+```bash
+make clean && make CC=clang
 ```
 
 ### Execution

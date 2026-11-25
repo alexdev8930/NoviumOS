@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 Versioning is similar to [semver](https://semver.org) but is more flexible and similar to how linux does it, and uses custom tags (like `-dev` and `-rc`).
 
+## Unreleased
+
+### Changed
+- `.github/workflows/ci.yml` replaced `build.yml` with a parallel matrix workflow building and boot-testing both `x86_32-gcc` and `x86_32-clang` in QEMU.
+- `Makefile` enabled `-Werror` in `CFLAGS` and bumped version to `0.11-dev`.
+
 ## 0.10 - 2026-11-25
 
 Stable release. See 0.10-dev for the release contents and 0.10-rc2 for the final candidate fixes.

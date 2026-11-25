@@ -1,7 +1,7 @@
 VERSION = 0
-PATCHLEVEL = 10
+PATCHLEVEL = 11
 SUBLEVEL = 0
-EXTRAVERSION = 
+EXTRAVERSION = -dev
 VERSION_TAG = $(VERSION).$(PATCHLEVEL)$(if $(filter-out 0,$(SUBLEVEL)),.$(SUBLEVEL))$(EXTRAVERSION)
 
 CC = gcc
@@ -47,6 +47,7 @@ CFLAGS = $(CFLAGS_ARCH) \
          -g \
          -Wall \
          -Wextra \
+		 -Werror \
          -MMD \
          -MP 
 

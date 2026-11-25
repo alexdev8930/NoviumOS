@@ -1,4 +1,4 @@
-name: Build NoviumOS
+name: Build
 
 on:
   push:
@@ -6,13 +6,23 @@ on:
   pull_request:
     branches: [main, master]
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: ${{ matrix.target }}
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_32-gcc
+            cc: gcc
+          - target: x86_32-clang
+            cc: clang
 
     steps:
       - name: Checkout repository
@@ -20,14 +30,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y build-essential gcc-multilib qemu-system-x86 \
-            grub-common grub-pc-bin xorriso mtools
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc-multilib clang \
+            qemu-system-x86 grub-common grub-pc-bin xorriso mtools
 
       - name: Build
         run: |
           make clean
-          make
+          make CC=${{ matrix.cc }}
 
       - name: Locate NoviumOS ISO
         run: |
@@ -38,16 +48,17 @@ jobs:
       - name: Upload NoviumOS ISO
         uses: actions/upload-artifact@v4
         with:
-          name: novium-iso
+          name: novium-iso-${{ matrix.target }}
           path: build/iso/*.iso
 
       - name: Run in QEMU
         run: |
           set +e
           timeout 10s qemu-system-i386 \
-            -cdrom "$ISO_IMAGE" \
-            -boot d \
-            -display none
+            -m 64M \
+            -drive format=raw,file="$ISO_IMAGE" \
+            -display none \
+            -no-reboot
           status=$?
           if [ "$status" -ne 124 ]; then
             exit "$status"
