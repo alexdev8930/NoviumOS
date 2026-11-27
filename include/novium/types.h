@@ -17,6 +17,6 @@ typedef signed long long s64;
 typedef unsigned long size_t;
 typedef long ssize_t;
 
-#define NULL ((void*)0)
+#define NULL ((void *)0)
 
 #endif

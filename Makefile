@@ -8,6 +8,7 @@ CC = gcc
 LD = ld
 QEMU ?= qemu-system-i386
 GRUB_MKRESCUE ?= grub-mkrescue
+CLANG_FORMAT ?= clang-format
 
 ARCH ?= x86_32
 
@@ -86,7 +87,7 @@ OBJS = \
 KERNEL_OBJS = $(addprefix $(OBJ_DIR)/,$(OBJS))
 KERNEL_DEPS = $(addprefix $(DEPS_DIR)/,$(OBJS:.o=.d))
 
-.PHONY: all iso run clean
+.PHONY: all iso run format clean 
 
 all: $(ISO_IMAGE)
 
@@ -127,6 +128,9 @@ iso: $(ISO_IMAGE)
 
 run: $(ISO_IMAGE)
 	$(QEMU) $(QEMU_FLAGS) $(DRIVE_FLAGS) $(ISO_IMAGE)
+	
+format:
+	find $(VPATH) include arch/$(ARCH)/include -type f \( -name "*.c" -o -name "*.h" \) -exec $(CLANG_FORMAT) -i {} +
 
 clean:
 	rm -rf $(BUILD_DIR)

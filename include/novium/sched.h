@@ -7,50 +7,42 @@
 #define SchedMaxTasks 32
 #define SchedNameLength 32
 
-typedef enum {
-    TaskDead = 0,
-    TaskReady,
-    TaskRunning,
-    TaskBlocked
-} TaskState;
+typedef enum { TaskDead = 0, TaskReady, TaskRunning, TaskBlocked } TaskState;
 
-typedef enum {
-    SchedRoundRobin = 0,
-    SchedPriority
-} SchedPolicy;
+typedef enum { SchedRoundRobin = 0, SchedPriority } SchedPolicy;
 
 typedef struct Task {
-    u32 Id;
-    u32 ParentId;
+	u32 Id;
+	u32 ParentId;
 
-    u32 Eip;
-    u32 Esp;
-    u32 Ebp;
+	u32 Eip;
+	u32 Esp;
+	u32 Ebp;
 
-    u32 Priority;
-    u32 TimeSlice;
-    u32 TimeUsed;
+	u32 Priority;
+	u32 TimeSlice;
+	u32 TimeUsed;
 
-    u32 Runtime;
-    u32 Switches;
-    u32 WakeTick;
+	u32 Runtime;
+	u32 Switches;
+	u32 WakeTick;
 
-    TaskState State;
+	TaskState State;
 
-    char Name[SchedNameLength];
+	char Name[SchedNameLength];
 
-    struct Task *Next;
+	struct Task *Next;
 } Task;
 
 typedef struct {
-    u32 TotalTasks;
-    u32 RunningTasks;
-    u32 ReadyTasks;
-    u32 BlockedTasks;
-    u32 DeadTasks;
+	u32 TotalTasks;
+	u32 RunningTasks;
+	u32 ReadyTasks;
+	u32 BlockedTasks;
+	u32 DeadTasks;
 
-    u32 SchedulerTicks;
-    u32 ContextSwitches;
+	u32 SchedulerTicks;
+	u32 ContextSwitches;
 } SchedStats;
 
 void SchedInit(void);
@@ -76,8 +68,8 @@ void SchedBlockTask(u32 Id);
 void SchedUnblock(Task *TaskItem);
 void SchedWakeTask(u32 Id);
 
-void SchedSleepUntil(u32 WakeTick);   /* block until an absolute tick */
-u32  SchedWakeExpired(u32 NowTick);   /* wake sleepers whose tick passed */
+void SchedSleepUntil(u32 WakeTick); /* block until an absolute tick */
+u32 SchedWakeExpired(u32 NowTick);	/* wake sleepers whose tick passed */
 
 /* True when something other than the caller can run. */
 bool SchedHasRunnable(void);
@@ -100,4 +92,3 @@ void SchedInitStack(Task *TaskItem, void (*Entry)(void), u32 StackTop);
 void SchedSwitch(u32 *OldEsp, u32 NewEsp);
 
 #endif
-

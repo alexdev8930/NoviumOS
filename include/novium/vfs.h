@@ -10,11 +10,11 @@ struct vfs_stat;
 
 /*
  * vfs_ops_t
- * 
- * The Virtual File System (VFS) operations table. This structure acts as an 
- * abstract interface (polymorphism in C) using function pointers. 
- * Every underlying filesystem driver (such as a RAM disk, ext2, or FAT) must 
- * populate this table with its own concrete implementation functions. 
+ *
+ * The Virtual File System (VFS) operations table. This structure acts as an
+ * abstract interface (polymorphism in C) using function pointers.
+ * Every underlying filesystem driver (such as a RAM disk, ext2, or FAT) must
+ * populate this table with its own concrete implementation functions.
  * The kernel can then interact with any storage medium seamlessly using these pointers.
  */
 typedef struct vfs_ops {
@@ -32,14 +32,14 @@ typedef struct vfs_ops {
  * Represents one file OR one folder in the tree.
  */
 typedef struct vfs_node {
-    const vfs_ops_t *ops;
-    void *fs_private;
-    char name[64];
-    struct vfs_node *parent;
-    struct vfs_node *child;
-    struct vfs_node *sibling;
-    u32 flags;
-    u32 size;
+	const vfs_ops_t *ops;
+	void *fs_private;
+	char name[64];
+	struct vfs_node *parent;
+	struct vfs_node *child;
+	struct vfs_node *sibling;
+	u32 flags;
+	u32 size;
 } vfs_node_t;
 
 /*
@@ -47,9 +47,9 @@ typedef struct vfs_node {
  * Represents an open file (a "handle"). Keeps track of read position.
  */
 typedef struct vfs_file {
-    vfs_node_t *node;
-    size_t pos;
-    void *file_private;
+	vfs_node_t *node;
+	size_t pos;
+	void *file_private;
 } vfs_file_t;
 
 /*
@@ -57,20 +57,20 @@ typedef struct vfs_file {
  * Returned by vfs_stat() to describe a file or folder.
  */
 typedef struct vfs_stat {
-    u32 type;
-    u32 size;
+	u32 type;
+	u32 size;
 } vfs_stat_t;
 
 /* Node type flags */
-#define VFS_NODE_DIR   1
-#define VFS_NODE_FILE  2
+#define VFS_NODE_DIR 1
+#define VFS_NODE_FILE 2
 
 /* Stat type flags */
-#define VFS_STAT_DIR   1
-#define VFS_STAT_FILE  2
+#define VFS_STAT_DIR 1
+#define VFS_STAT_FILE 2
 
 /*
- * Public VFS API. 
+ * Public VFS API.
  */
 int vfs_init(void);
 int vfs_mount(const char *mountpoint, const vfs_ops_t *ops, void *fs_private);

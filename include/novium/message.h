@@ -31,8 +31,8 @@ typedef struct IpcMessage {
  */
 typedef struct IpcPort {
 	u32 Magic;
-	u32 Head;   /* slot the next receive takes from */
-	u32 Count;  /* messages queued right now */
+	u32 Head;  /* slot the next receive takes from */
+	u32 Count; /* messages queued right now */
 	IpcMessage Slots[IpcPortCapacity];
 	IpcWait Senders;
 	IpcWait Receivers;

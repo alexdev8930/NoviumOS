@@ -1,8 +1,8 @@
 #include <novium/drivers/vt.h>
 #include <novium/shell.h>
-#include <novium/vfs.h>
 #include <novium/stdio.h>
 #include <novium/string.h>
+#include <novium/vfs.h>
 #include <stdbool.h>
 
 typedef struct ShellCommand {
@@ -25,14 +25,10 @@ static void cmd_cat(int argc, char **argv);
 static void cmd_stat(int argc, char **argv);
 
 static const ShellCommand commands[] = {
-	{ "help",  "List available commands",      cmd_help  },
-	{ "clear", "Clear the console screen",     cmd_clear },
-	{ "echo",  "Print arguments to console",   cmd_echo  },
-	{ "pwd",   "Print working directory",      cmd_pwd   },
-	{ "cd",    "Change working directory",     cmd_cd    },
-	{ "ls",    "List directory contents",      cmd_ls    },
-	{ "cat",   "Print file contents",          cmd_cat   },
-	{ "stat",  "Show file or folder info",     cmd_stat  },
+	{"help", "List available commands", cmd_help},	  {"clear", "Clear the console screen", cmd_clear},
+	{"echo", "Print arguments to console", cmd_echo}, {"pwd", "Print working directory", cmd_pwd},
+	{"cd", "Change working directory", cmd_cd},		  {"ls", "List directory contents", cmd_ls},
+	{"cat", "Print file contents", cmd_cat},		  {"stat", "Show file or folder info", cmd_stat},
 };
 
 #define NUM_COMMANDS (sizeof(commands) / sizeof(commands[0]))

@@ -131,7 +131,7 @@ void MutexInit(IpcMutex *Mutex) {
 
 	Mutex->Locked = false;
 	Mutex->Owner = 0;
-	
+
 	for (Index = 0; Index < IpcMaxWaiters; Index++) {
 		Mutex->Wait.Ids[Index] = 0;
 	}

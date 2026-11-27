@@ -2,7 +2,7 @@
 
 <img src=".github/assets/preview.gif" alt="NoviumOS Boot Preview" width="580" />
 
-Novium OS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
+NoviumOS is a hobby x86 operating system built from scratch. The architecture is heavily inspired by Linux, but stripped down to the absolute basics. If you are into low-level engineering, feel free to open a PR or share ideas.
 
 ## Project structure
 
@@ -55,17 +55,17 @@ Compiling Novium OS requires a 32-bit toolchain (GCC or Clang) and QEMU.
 
 **Ubuntu / Debian / Mint:**
 ```bash
-sudo apt update && sudo apt install -y build-essential gcc-multilib qemu-system-x86 grub-common grub-pc-bin xorriso mtools bear
+sudo apt update && sudo apt install -y build-essential gcc-multilib qemu-system-x86 grub-common grub-pc-bin xorriso mtools bear clang-format
 ```
 
 **Fedora:**
 ```bash
-sudo dnf install gcc make binutils gcc-c++ glibc-devel.i686 qemu-system-x86 grub2-tools grub2-tools-extra xorriso mtools bear -y
+sudo dnf install gcc make binutils gcc-c++ glibc-devel.i686 qemu-system-x86 grub2-tools grub2-tools-extra xorriso mtools bear clang-tools-extra -y
 ```
 
 **Arch Linux:**
 ```bash
-sudo pacman -Syu --needed base-devel lib32-gcc-libs qemu-desktop grub xorriso mtools bear
+sudo pacman -Syu --needed base-devel lib32-gcc-libs qemu-desktop grub xorriso mtools bear clang
 ```
 *(Arch users: Ensure `[multilib]` is enabled in your `/etc/pacman.conf` for 32-bit compilation libraries).*
 
@@ -85,7 +85,7 @@ Build on Windows using WSL2 tied to a native Windows QEMU installation:
 
 3. **Install build tools** inside your WSL2 terminal:
    ```bash
-   sudo apt update && sudo apt install -y build-essential gcc-multilib qemu-system-x86 grub-common grub-pc-bin xorriso mtools bear
+   sudo apt update && sudo apt install -y build-essential gcc-multilib qemu-system-x86 grub-common grub-pc-bin xorriso mtools bear clang-format
    ```
    
 <br>
@@ -109,6 +109,12 @@ To compile with Clang instead of GCC:
 
 ```bash
 make clean && make CC=clang
+```
+
+To format the files in the codebase:
+
+```bash
+make format
 ```
 
 ### Execution

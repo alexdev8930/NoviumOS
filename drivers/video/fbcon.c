@@ -1,10 +1,10 @@
 #include "font8x16.h"
 #include <novium/boot_info.h>
+#include <novium/cpu.h>
 #include <novium/drivers/vt.h>
 #include <novium/sched.h>
 #include <novium/string.h>
 #include <novium/timer.h>
-#include <novium/cpu.h>
 
 enum { FontWidth = 8, FontHeight = 16, CursorStackSize = 4096 };
 
@@ -106,8 +106,8 @@ static void fbcon_scroll(int lines, u32 fg, u32 bg) {
 
 static void fbcon_cursor_task(void) {
 	for (;;) {
-	/* 250ms on + 250ms off = 500ms full blink cycle */
-	timer_sleep_ms(250);
+		/* 250ms on + 250ms off = 500ms full blink cycle */
+		timer_sleep_ms(250);
 
 		bool was_enabled = cpu_irqs_enabled();
 		cpu_disable_irqs();
@@ -151,13 +151,13 @@ static void fbcon_hw_init(void) {
 }
 
 static struct console_driver fbcon_driver = {
-    .cols = 80,
-    .rows = 25,
-    .init = fbcon_hw_init,
-    .putc = fbcon_putc,
-    .clear = fbcon_clear,
-    .scroll = fbcon_scroll,
-    .set_cursor = fbcon_set_cursor,
+	.cols = 80,
+	.rows = 25,
+	.init = fbcon_hw_init,
+	.putc = fbcon_putc,
+	.clear = fbcon_clear,
+	.scroll = fbcon_scroll,
+	.set_cursor = fbcon_set_cursor,
 };
 
 bool fbcon_init(struct boot_info *boot) {

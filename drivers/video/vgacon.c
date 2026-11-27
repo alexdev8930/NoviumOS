@@ -120,13 +120,13 @@ static void vgacon_hw_init(void) {
 }
 
 static struct console_driver vgacon_driver = {
-    .cols = ConsoleWidth,
-    .rows = ConsoleHeight,
-    .init = vgacon_hw_init,
-    .putc = vgacon_putc,
-    .clear = vgacon_clear,
-    .scroll = vgacon_scroll,
-    .set_cursor = vgacon_set_cursor,
+	.cols = ConsoleWidth,
+	.rows = ConsoleHeight,
+	.init = vgacon_hw_init,
+	.putc = vgacon_putc,
+	.clear = vgacon_clear,
+	.scroll = vgacon_scroll,
+	.set_cursor = vgacon_set_cursor,
 };
 
 bool vgacon_init(void) {

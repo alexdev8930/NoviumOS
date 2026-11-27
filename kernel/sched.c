@@ -1,5 +1,5 @@
-#include <novium/sched.h>
 #include <novium/cpu.h>
+#include <novium/sched.h>
 
 static Task Tasks[SchedMaxTasks];
 static Task *ReadyQueue = 0;
@@ -19,598 +19,597 @@ static bool PreemptPending = false;
 
 /* Helper: saves interrupt status and disables interrupts */
 static inline bool SchedLockIrq(void) {
-    bool was_enabled = cpu_irqs_enabled();
-    cpu_disable_irqs();
-    return was_enabled;
+	bool was_enabled = cpu_irqs_enabled();
+	cpu_disable_irqs();
+	return was_enabled;
 }
 
 /* Helper: restores interrupts only if they were originally on */
 static inline void SchedUnlockIrq(bool was_enabled) {
-    if (was_enabled) {
-        cpu_enable_irqs();
-    }
+	if (was_enabled) {
+		cpu_enable_irqs();
+	}
 }
 
 /* appends a node to the absolute tail of a list */
 static void SchedQueueAdd(Task **Queue, Task *TaskItem) {
-    TaskItem->Next = 0;
+	TaskItem->Next = 0;
 
-    if (*Queue == 0) {
-        *Queue = TaskItem;
-        return;
-    }
+	if (*Queue == 0) {
+		*Queue = TaskItem;
+		return;
+	}
 
-    Task *Current = *Queue;
+	Task *Current = *Queue;
 
-    while (Current->Next != 0) {
-        Current = Current->Next;
-    }
+	while (Current->Next != 0) {
+		Current = Current->Next;
+	}
 
-    Current->Next = TaskItem;
+	Current->Next = TaskItem;
 }
 
 /* extracts a target node and bridges neighboring elements */
 static void SchedQueueRemove(Task **Queue, Task *TaskItem) {
-    Task *Current;
-    Task *Previous;
+	Task *Current;
+	Task *Previous;
 
-    if (Queue == 0 || *Queue == 0 || TaskItem == 0) {
-        return;
-    }
+	if (Queue == 0 || *Queue == 0 || TaskItem == 0) {
+		return;
+	}
 
-    Current = *Queue;
-    Previous = 0;
+	Current = *Queue;
+	Previous = 0;
 
-    while (Current != 0) {
-        if (Current == TaskItem) {
-            if (Previous == 0) {
-                *Queue = Current->Next;
-            } else {
-                Previous->Next = Current->Next;
-            }
+	while (Current != 0) {
+		if (Current == TaskItem) {
+			if (Previous == 0) {
+				*Queue = Current->Next;
+			} else {
+				Previous->Next = Current->Next;
+			}
 
-            Current->Next = 0;
-            return;
-        }
+			Current->Next = 0;
+			return;
+		}
 
-        Previous = Current;
-        Current = Current->Next;
-    }
+		Previous = Current;
+		Current = Current->Next;
+	}
 }
 
 static Task *SchedFindRoundRobin(void) {
-    Task *TaskItem;
+	Task *TaskItem;
 
-    if (CurrentTask == 0) {
-        return ReadyQueue;
-    }
+	if (CurrentTask == 0) {
+		return ReadyQueue;
+	}
 
-    TaskItem = ReadyQueue;
+	TaskItem = ReadyQueue;
 
-    while (TaskItem != 0) {
-        if (TaskItem->Id > CurrentTask->Id) {
-            return TaskItem;
-        }
+	while (TaskItem != 0) {
+		if (TaskItem->Id > CurrentTask->Id) {
+			return TaskItem;
+		}
 
-        TaskItem = TaskItem->Next;
-    }
+		TaskItem = TaskItem->Next;
+	}
 
-    return ReadyQueue;
+	return ReadyQueue;
 }
 
 static Task *SchedFindPriority(void) {
-    Task *Current;
-    Task *Best;
+	Task *Current;
+	Task *Best;
 
-    Current = ReadyQueue;
-    Best = 0;
+	Current = ReadyQueue;
+	Best = 0;
 
-    while (Current != 0) {
-        if (Best == 0 || Current->Priority > Best->Priority) {
-            Best = Current;
-        }
+	while (Current != 0) {
+		if (Best == 0 || Current->Priority > Best->Priority) {
+			Best = Current;
+		}
 
-        Current = Current->Next;
-    }
+		Current = Current->Next;
+	}
 
-    return Best;
+	return Best;
 }
 
 static Task *SchedFindNext(void) {
-    if (CurrentPolicy == SchedPriority) {
-        return SchedFindPriority();
-    }
+	if (CurrentPolicy == SchedPriority) {
+		return SchedFindPriority();
+	}
 
-    return SchedFindRoundRobin();
+	return SchedFindRoundRobin();
 }
 
 static void SchedResetTask(Task *TaskItem) {
-    TaskItem->Id = 0;
-    TaskItem->ParentId = 0;
-    TaskItem->Eip = 0;
-    TaskItem->Esp = 0;
-    TaskItem->Ebp = 0;
-    TaskItem->Priority = 1;
-    TaskItem->TimeSlice = 10;
-    TaskItem->TimeUsed = 0;
-    TaskItem->Runtime = 0;
-    TaskItem->Switches = 0;
-    TaskItem->WakeTick = 0;
-    TaskItem->State = TaskDead;
-    TaskItem->Name[0] = 0;
-    TaskItem->Next = 0;
+	TaskItem->Id = 0;
+	TaskItem->ParentId = 0;
+	TaskItem->Eip = 0;
+	TaskItem->Esp = 0;
+	TaskItem->Ebp = 0;
+	TaskItem->Priority = 1;
+	TaskItem->TimeSlice = 10;
+	TaskItem->TimeUsed = 0;
+	TaskItem->Runtime = 0;
+	TaskItem->Switches = 0;
+	TaskItem->WakeTick = 0;
+	TaskItem->State = TaskDead;
+	TaskItem->Name[0] = 0;
+	TaskItem->Next = 0;
 }
 
 void SchedInit(void) {
-    u32 Index;
-    Task *IdleTask;
+	u32 Index;
+	Task *IdleTask;
 
-    ReadyQueue = 0;
-    BlockedQueue = 0;
-    DeadQueue = 0;
-    CurrentTask = 0;
+	ReadyQueue = 0;
+	BlockedQueue = 0;
+	DeadQueue = 0;
+	CurrentTask = 0;
 
-    TaskCountValue = 0;
-    NextTaskId = 0;
-    SchedulerTicks = 0;
-    ContextSwitches = 0;
-    SchedulerLocked = 0;
-    PreemptPending = false;
+	TaskCountValue = 0;
+	NextTaskId = 0;
+	SchedulerTicks = 0;
+	ContextSwitches = 0;
+	SchedulerLocked = 0;
+	PreemptPending = false;
 
-    for (Index = 0; Index < SchedMaxTasks; Index++) {
-        SchedResetTask(&Tasks[Index]);
-    }
+	for (Index = 0; Index < SchedMaxTasks; Index++) {
+		SchedResetTask(&Tasks[Index]);
+	}
 
-    IdleTask = &Tasks[0];
+	IdleTask = &Tasks[0];
 
-    IdleTask->Id = NextTaskId++;
-    IdleTask->ParentId = 0;
-    IdleTask->Priority = 0;
-    IdleTask->TimeSlice = 10;
-    IdleTask->State = TaskRunning;
+	IdleTask->Id = NextTaskId++;
+	IdleTask->ParentId = 0;
+	IdleTask->Priority = 0;
+	IdleTask->TimeSlice = 10;
+	IdleTask->State = TaskRunning;
 
-    IdleTask->Name[0] = 'I';
-    IdleTask->Name[1] = 'd';
-    IdleTask->Name[2] = 'l';
-    IdleTask->Name[3] = 'e';
-    IdleTask->Name[4] = 0;
+	IdleTask->Name[0] = 'I';
+	IdleTask->Name[1] = 'd';
+	IdleTask->Name[2] = 'l';
+	IdleTask->Name[3] = 'e';
+	IdleTask->Name[4] = 0;
 
-    CurrentTask = IdleTask;
-    TaskCountValue = 1;
+	CurrentTask = IdleTask;
+	TaskCountValue = 1;
 }
 
 /* finds an empty descriptor and builds a new process node */
 Task *SchedCreate(const char *Name, u32 Eip, u32 Esp) {
-    u32 Index;
-    Task *TaskItem;
+	u32 Index;
+	Task *TaskItem;
 
-    if (TaskCountValue >= SchedMaxTasks || Name == 0) {
-        return 0;
-    }
+	if (TaskCountValue >= SchedMaxTasks || Name == 0) {
+		return 0;
+	}
 
-    bool was_enabled = SchedLockIrq();
+	bool was_enabled = SchedLockIrq();
 
-    TaskItem = 0;
+	TaskItem = 0;
 
-    for (Index = 0; Index < SchedMaxTasks; Index++) {
-        if (Tasks[Index].State == TaskDead) {
-            TaskItem = &Tasks[Index];
-            break;
-        }
-    }
+	for (Index = 0; Index < SchedMaxTasks; Index++) {
+		if (Tasks[Index].State == TaskDead) {
+			TaskItem = &Tasks[Index];
+			break;
+		}
+	}
 
-    if (TaskItem == 0) {
-        SchedUnlockIrq(was_enabled);
-        return 0;
-    }
+	if (TaskItem == 0) {
+		SchedUnlockIrq(was_enabled);
+		return 0;
+	}
 
-    SchedQueueRemove(&DeadQueue, TaskItem);
-    
-    TaskItem->Id = NextTaskId++;
-    TaskItem->ParentId = CurrentTask != 0 ? CurrentTask->Id : 0;
+	SchedQueueRemove(&DeadQueue, TaskItem);
 
-    SchedInitStack(TaskItem, (void (*)(void))Eip, Esp);
+	TaskItem->Id = NextTaskId++;
+	TaskItem->ParentId = CurrentTask != 0 ? CurrentTask->Id : 0;
 
-    TaskItem->Eip = Eip;
-    TaskItem->Ebp = TaskItem->Esp; 
-    TaskItem->Priority = 1;
-    TaskItem->TimeSlice = 10;
-    TaskItem->TimeUsed = 0;
-    TaskItem->Runtime = 0;
-    TaskItem->Switches = 0;
-    TaskItem->State = TaskReady;
+	SchedInitStack(TaskItem, (void (*)(void))Eip, Esp);
 
-    u32 NameIndex;
-    for (NameIndex = 0; NameIndex < SchedNameLength - 1 && Name[NameIndex] != 0; NameIndex++) {
-        TaskItem->Name[NameIndex] = Name[NameIndex];
-    }
-    TaskItem->Name[NameIndex] = 0;
+	TaskItem->Eip = Eip;
+	TaskItem->Ebp = TaskItem->Esp;
+	TaskItem->Priority = 1;
+	TaskItem->TimeSlice = 10;
+	TaskItem->TimeUsed = 0;
+	TaskItem->Runtime = 0;
+	TaskItem->Switches = 0;
+	TaskItem->State = TaskReady;
 
-    SchedQueueAdd(&ReadyQueue, TaskItem);
-    TaskCountValue++;
+	u32 NameIndex;
+	for (NameIndex = 0; NameIndex < SchedNameLength - 1 && Name[NameIndex] != 0; NameIndex++) {
+		TaskItem->Name[NameIndex] = Name[NameIndex];
+	}
+	TaskItem->Name[NameIndex] = 0;
 
-    SchedUnlockIrq(was_enabled);
-    return TaskItem;
+	SchedQueueAdd(&ReadyQueue, TaskItem);
+	TaskCountValue++;
+
+	SchedUnlockIrq(was_enabled);
+	return TaskItem;
 }
 
 Task *SchedCurrent(void) {
-    return CurrentTask;
+	return CurrentTask;
 }
 
 Task *SchedFind(u32 Id) {
-    u32 Index;
+	u32 Index;
 
-    for (Index = 0; Index < SchedMaxTasks; Index++) {
-        if (Tasks[Index].State != TaskDead && Tasks[Index].Id == Id) {
-            return &Tasks[Index];
-        }
-    }
+	for (Index = 0; Index < SchedMaxTasks; Index++) {
+		if (Tasks[Index].State != TaskDead && Tasks[Index].Id == Id) {
+			return &Tasks[Index];
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
 u32 SchedTaskCount(void) {
-    return TaskCountValue;
+	return TaskCountValue;
 }
 
 void SchedYield(void) {
-    Task *NextTask;
-    Task *PrevTask;
-    u32 ScratchEsp;
+	Task *NextTask;
+	Task *PrevTask;
+	u32 ScratchEsp;
 
-    bool was_enabled = SchedLockIrq();
+	bool was_enabled = SchedLockIrq();
 
-    if (SchedulerLocked != 0) {
-        SchedUnlockIrq(was_enabled);
-        return;
-    }
+	if (SchedulerLocked != 0) {
+		SchedUnlockIrq(was_enabled);
+		return;
+	}
 
-    NextTask = SchedFindNext();
+	NextTask = SchedFindNext();
 
-    if (NextTask == 0 || NextTask == CurrentTask) {
-        SchedUnlockIrq(was_enabled);
-        return;
-    }
+	if (NextTask == 0 || NextTask == CurrentTask) {
+		SchedUnlockIrq(was_enabled);
+		return;
+	}
 
-    PrevTask = CurrentTask;
+	PrevTask = CurrentTask;
 
-    SchedQueueRemove(&ReadyQueue, NextTask);
+	SchedQueueRemove(&ReadyQueue, NextTask);
 
-    if (PrevTask != 0 && PrevTask->State == TaskRunning) {
-        PrevTask->State = TaskReady;
-        SchedQueueAdd(&ReadyQueue, PrevTask);
-    }
+	if (PrevTask != 0 && PrevTask->State == TaskRunning) {
+		PrevTask->State = TaskReady;
+		SchedQueueAdd(&ReadyQueue, PrevTask);
+	}
 
-    NextTask->State = TaskRunning;
-    NextTask->TimeUsed = 0;
-    NextTask->Switches++;
+	NextTask->State = TaskRunning;
+	NextTask->TimeUsed = 0;
+	NextTask->Switches++;
 
-    CurrentTask = NextTask;
-    ContextSwitches++;
+	CurrentTask = NextTask;
+	ContextSwitches++;
 
-    /*
-     * The switch stays atomic on purpose: SchedSwitch's `popfl` re-installs
-     * whichever interrupt flag belongs to the task being resumed, so a task
-     * that was preempted out of an irq handler comes back with interrupts
-     * still off (mid handler), and a task that yielded normally comes back
-     * with them on.
-     */
-    SchedSwitch(PrevTask != 0 ? &PrevTask->Esp : &ScratchEsp, NextTask->Esp);
+	/*
+	 * The switch stays atomic on purpose: SchedSwitch's `popfl` re-installs
+	 * whichever interrupt flag belongs to the task being resumed, so a task
+	 * that was preempted out of an irq handler comes back with interrupts
+	 * still off (mid handler), and a task that yielded normally comes back
+	 * with them on.
+	 */
+	SchedSwitch(PrevTask != 0 ? &PrevTask->Esp : &ScratchEsp, NextTask->Esp);
 
-    SchedUnlockIrq(was_enabled);
+	SchedUnlockIrq(was_enabled);
 }
 
 void SchedTick(struct registers *Regs) {
-    if (Regs == 0 || SchedulerLocked != 0) {
-        return;
-    }
+	if (Regs == 0 || SchedulerLocked != 0) {
+		return;
+	}
 
-    SchedulerTicks++;
+	SchedulerTicks++;
 
-    if (CurrentTask == 0) {
-        return;
-    }
+	if (CurrentTask == 0) {
+		return;
+	}
 
-    CurrentTask->Runtime++;
-    CurrentTask->TimeUsed++;
+	CurrentTask->Runtime++;
+	CurrentTask->TimeUsed++;
 
-    /*
-     * Only ask for the preemption here. This runs while the pic still holds
-     * the timer line in service, because isr_dispatch acknowledges the pic
-     * after the handler returns. Switching tasks right now would suspend this
-     * handler with its eoi still pending, which mutes every interrupt on that
-     * controller, and the first task that then halts would never wake up.
-     * SchedPreempt() performs the switch from the epilogue, after the eoi.
-     */
-    if (CurrentTask->TimeUsed >= CurrentTask->TimeSlice) {
-        CurrentTask->TimeUsed = 0;
-        PreemptPending = true;
-    }
+	/*
+	 * Only ask for the preemption here. This runs while the pic still holds
+	 * the timer line in service, because isr_dispatch acknowledges the pic
+	 * after the handler returns. Switching tasks right now would suspend this
+	 * handler with its eoi still pending, which mutes every interrupt on that
+	 * controller, and the first task that then halts would never wake up.
+	 * SchedPreempt() performs the switch from the epilogue, after the eoi.
+	 */
+	if (CurrentTask->TimeUsed >= CurrentTask->TimeSlice) {
+		CurrentTask->TimeUsed = 0;
+		PreemptPending = true;
+	}
 }
 
 void SchedPreempt(void) {
-    if (!PreemptPending) {
-        return;
-    }
+	if (!PreemptPending) {
+		return;
+	}
 
-    /*
-     * While scheduling is locked the request is kept, not dropped, so it is
-     * honoured by the next interrupt epilogue instead of being lost.
-     */
-    if (SchedulerLocked != 0) {
-        return;
-    }
+	/*
+	 * While scheduling is locked the request is kept, not dropped, so it is
+	 * honoured by the next interrupt epilogue instead of being lost.
+	 */
+	if (SchedulerLocked != 0) {
+		return;
+	}
 
-    PreemptPending = false;
+	PreemptPending = false;
 
-    SchedYield();
+	SchedYield();
 }
 
 void SchedBlock(void) {
-    if (CurrentTask == 0 || CurrentTask->Id == 0) {
-        return;
-    }
+	if (CurrentTask == 0 || CurrentTask->Id == 0) {
+		return;
+	}
 
-    SchedBlockTask(CurrentTask->Id);
+	SchedBlockTask(CurrentTask->Id);
 }
 
 void SchedBlockTask(u32 Id) {
-    bool was_enabled = SchedLockIrq();
+	bool was_enabled = SchedLockIrq();
 
-    Task *TaskItem = SchedFind(Id);
+	Task *TaskItem = SchedFind(Id);
 
-    if (TaskItem == 0 || TaskItem->State == TaskDead || TaskItem->Id == 0 || TaskItem->State == TaskBlocked) {
-        SchedUnlockIrq(was_enabled);
-        return;
-    }
+	if (TaskItem == 0 || TaskItem->State == TaskDead || TaskItem->Id == 0 || TaskItem->State == TaskBlocked) {
+		SchedUnlockIrq(was_enabled);
+		return;
+	}
 
-    if (TaskItem == CurrentTask) {
-        SchedQueueRemove(&ReadyQueue, TaskItem);
-        TaskItem->State = TaskBlocked;
-        SchedQueueAdd(&BlockedQueue, TaskItem);
+	if (TaskItem == CurrentTask) {
+		SchedQueueRemove(&ReadyQueue, TaskItem);
+		TaskItem->State = TaskBlocked;
+		SchedQueueAdd(&BlockedQueue, TaskItem);
 
-        SchedUnlockIrq(was_enabled);
-        SchedYield();
+		SchedUnlockIrq(was_enabled);
+		SchedYield();
 
-        was_enabled = SchedLockIrq();
-        if (TaskItem->State == TaskBlocked) {
-            SchedQueueRemove(&BlockedQueue, TaskItem);
-            TaskItem->State = TaskRunning;
-        }
-        SchedUnlockIrq(was_enabled);
-        return;
-    }
+		was_enabled = SchedLockIrq();
+		if (TaskItem->State == TaskBlocked) {
+			SchedQueueRemove(&BlockedQueue, TaskItem);
+			TaskItem->State = TaskRunning;
+		}
+		SchedUnlockIrq(was_enabled);
+		return;
+	}
 
-    if (TaskItem->State == TaskReady) {
-        SchedQueueRemove(&ReadyQueue, TaskItem);
-    }
+	if (TaskItem->State == TaskReady) {
+		SchedQueueRemove(&ReadyQueue, TaskItem);
+	}
 
-    TaskItem->State = TaskBlocked;
-    SchedQueueAdd(&BlockedQueue, TaskItem);
+	TaskItem->State = TaskBlocked;
+	SchedQueueAdd(&BlockedQueue, TaskItem);
 
-    SchedUnlockIrq(was_enabled);
+	SchedUnlockIrq(was_enabled);
 }
 
 void SchedUnblock(Task *TaskItem) {
-    if (TaskItem == 0 || TaskItem->State != TaskBlocked) {
-        return;
-    }
+	if (TaskItem == 0 || TaskItem->State != TaskBlocked) {
+		return;
+	}
 
-    bool was_enabled = SchedLockIrq();
-    SchedQueueRemove(&BlockedQueue, TaskItem);
-    TaskItem->State = TaskReady;
-    SchedQueueAdd(&ReadyQueue, TaskItem);
-    SchedUnlockIrq(was_enabled);
+	bool was_enabled = SchedLockIrq();
+	SchedQueueRemove(&BlockedQueue, TaskItem);
+	TaskItem->State = TaskReady;
+	SchedQueueAdd(&ReadyQueue, TaskItem);
+	SchedUnlockIrq(was_enabled);
 }
 
 void SchedWakeTask(u32 Id) {
-    Task *TaskItem = SchedFind(Id);
-    if (TaskItem != 0) {
-        SchedUnblock(TaskItem);
-    }
+	Task *TaskItem = SchedFind(Id);
+	if (TaskItem != 0) {
+		SchedUnblock(TaskItem);
+	}
 }
 
 void SchedSleepUntil(u32 WakeTick) {
-    Task *TaskItem = CurrentTask;
+	Task *TaskItem = CurrentTask;
 
-    if (TaskItem == 0 || TaskItem->Id == 0) {
-        return;
-    }
+	if (TaskItem == 0 || TaskItem->Id == 0) {
+		return;
+	}
 
-    TaskItem->WakeTick = WakeTick;
-    SchedBlockTask(TaskItem->Id);
-    TaskItem->WakeTick = 0;
+	TaskItem->WakeTick = WakeTick;
+	SchedBlockTask(TaskItem->Id);
+	TaskItem->WakeTick = 0;
 }
 
 u32 SchedWakeExpired(u32 NowTick) {
-    bool was_enabled = SchedLockIrq();
-    Task *TaskItem = BlockedQueue;
-    u32 Woken = 0;
+	bool was_enabled = SchedLockIrq();
+	Task *TaskItem = BlockedQueue;
+	u32 Woken = 0;
 
-    while (TaskItem != 0) {
-        Task *Next = TaskItem->Next;
+	while (TaskItem != 0) {
+		Task *Next = TaskItem->Next;
 
-        if (TaskItem->WakeTick != 0 &&
-            (s32)(NowTick - TaskItem->WakeTick) >= 0) {
-            TaskItem->WakeTick = 0;
-            SchedQueueRemove(&BlockedQueue, TaskItem);
-            TaskItem->State = TaskReady;
-            SchedQueueAdd(&ReadyQueue, TaskItem);
-            Woken++;
-        }
+		if (TaskItem->WakeTick != 0 && (s32)(NowTick - TaskItem->WakeTick) >= 0) {
+			TaskItem->WakeTick = 0;
+			SchedQueueRemove(&BlockedQueue, TaskItem);
+			TaskItem->State = TaskReady;
+			SchedQueueAdd(&ReadyQueue, TaskItem);
+			Woken++;
+		}
 
-        TaskItem = Next;
-    }
+		TaskItem = Next;
+	}
 
-    if (Woken > 0) {
-        PreemptPending = true;
-    }
+	if (Woken > 0) {
+		PreemptPending = true;
+	}
 
-    SchedUnlockIrq(was_enabled);
-    return Woken;
+	SchedUnlockIrq(was_enabled);
+	return Woken;
 }
 
 bool SchedHasRunnable(void) {
-    bool was_enabled = SchedLockIrq();
-    Task *TaskItem = ReadyQueue;
+	bool was_enabled = SchedLockIrq();
+	Task *TaskItem = ReadyQueue;
 
-    while (TaskItem != 0) {
-        if (TaskItem != CurrentTask) {
-            SchedUnlockIrq(was_enabled);
-            return true;
-        }
+	while (TaskItem != 0) {
+		if (TaskItem != CurrentTask) {
+			SchedUnlockIrq(was_enabled);
+			return true;
+		}
 
-        TaskItem = TaskItem->Next;
-    }
+		TaskItem = TaskItem->Next;
+	}
 
-    SchedUnlockIrq(was_enabled);
-    return false;
+	SchedUnlockIrq(was_enabled);
+	return false;
 }
 
 void SchedExit(void) {
-    Task *TaskItem;
+	Task *TaskItem;
 
-    if (CurrentTask == 0 || CurrentTask->Id == 0) {
-        return;
-    }
+	if (CurrentTask == 0 || CurrentTask->Id == 0) {
+		return;
+	}
 
-    bool was_enabled = SchedLockIrq();
+	bool was_enabled = SchedLockIrq();
 
-    TaskItem = CurrentTask;
+	TaskItem = CurrentTask;
 
-    SchedQueueRemove(&ReadyQueue, TaskItem);
-    SchedQueueRemove(&BlockedQueue, TaskItem);
+	SchedQueueRemove(&ReadyQueue, TaskItem);
+	SchedQueueRemove(&BlockedQueue, TaskItem);
 
-    SchedResetTask(TaskItem);
-    SchedQueueAdd(&DeadQueue, TaskItem);
+	SchedResetTask(TaskItem);
+	SchedQueueAdd(&DeadQueue, TaskItem);
 
-    if (TaskCountValue > 0) {
-        TaskCountValue--;
-    }
+	if (TaskCountValue > 0) {
+		TaskCountValue--;
+	}
 
-    CurrentTask = 0;
-    SchedUnlockIrq(was_enabled);
+	CurrentTask = 0;
+	SchedUnlockIrq(was_enabled);
 
-    SchedYield();
+	SchedYield();
 
-    if (CurrentTask == 0) {
-        CurrentTask = &Tasks[0];
-        CurrentTask->State = TaskRunning;
-    }
+	if (CurrentTask == 0) {
+		CurrentTask = &Tasks[0];
+		CurrentTask->State = TaskRunning;
+	}
 }
 
 void SchedKill(u32 Id) {
-    Task *TaskItem;
+	Task *TaskItem;
 
-    if (Id == 0) {
-        return;
-    }
+	if (Id == 0) {
+		return;
+	}
 
-    if (CurrentTask != 0 && CurrentTask->Id == Id) {
-        SchedExit();
-        return;
-    }
+	if (CurrentTask != 0 && CurrentTask->Id == Id) {
+		SchedExit();
+		return;
+	}
 
-    bool was_enabled = SchedLockIrq();
+	bool was_enabled = SchedLockIrq();
 
-    TaskItem = SchedFind(Id);
+	TaskItem = SchedFind(Id);
 
-    if (TaskItem == 0 || TaskItem->Id == 0) {
-        SchedUnlockIrq(was_enabled);
-        return;
-    }
+	if (TaskItem == 0 || TaskItem->Id == 0) {
+		SchedUnlockIrq(was_enabled);
+		return;
+	}
 
-    SchedQueueRemove(&ReadyQueue, TaskItem);
-    SchedQueueRemove(&BlockedQueue, TaskItem);
+	SchedQueueRemove(&ReadyQueue, TaskItem);
+	SchedQueueRemove(&BlockedQueue, TaskItem);
 
-    SchedResetTask(TaskItem);
-    SchedQueueAdd(&DeadQueue, TaskItem);
+	SchedResetTask(TaskItem);
+	SchedQueueAdd(&DeadQueue, TaskItem);
 
-    if (TaskCountValue > 0) {
-        TaskCountValue--;
-    }
+	if (TaskCountValue > 0) {
+		TaskCountValue--;
+	}
 
-    SchedUnlockIrq(was_enabled);
+	SchedUnlockIrq(was_enabled);
 }
 
 void SchedSetPolicy(SchedPolicy Policy) {
-    if (Policy != SchedRoundRobin && Policy != SchedPriority) {
-        return;
-    }
+	if (Policy != SchedRoundRobin && Policy != SchedPriority) {
+		return;
+	}
 
-    CurrentPolicy = Policy;
+	CurrentPolicy = Policy;
 }
 
 SchedPolicy SchedGetPolicy(void) {
-    return CurrentPolicy;
+	return CurrentPolicy;
 }
 
 void SchedSetPriority(Task *TaskItem, u32 Priority) {
-    if (TaskItem == 0 || TaskItem->State == TaskDead) {
-        return;
-    }
+	if (TaskItem == 0 || TaskItem->State == TaskDead) {
+		return;
+	}
 
-    if (Priority > 255) {
-        Priority = 255;
-    }
+	if (Priority > 255) {
+		Priority = 255;
+	}
 
-    TaskItem->Priority = Priority;
+	TaskItem->Priority = Priority;
 }
 
 u32 SchedGetPriority(Task *TaskItem) {
-    if (TaskItem == 0) {
-        return 0;
-    }
+	if (TaskItem == 0) {
+		return 0;
+	}
 
-    return TaskItem->Priority;
+	return TaskItem->Priority;
 }
 
 void SchedGetStats(SchedStats *Stats) {
-    u32 Index;
+	u32 Index;
 
-    if (Stats == 0) {
-        return;
-    }
+	if (Stats == 0) {
+		return;
+	}
 
-    bool was_enabled = SchedLockIrq();
+	bool was_enabled = SchedLockIrq();
 
-    Stats->TotalTasks = TaskCountValue;
-    Stats->RunningTasks = 0;
-    Stats->ReadyTasks = 0;
-    Stats->BlockedTasks = 0;
-    Stats->DeadTasks = 0;
-    Stats->SchedulerTicks = SchedulerTicks;
-    Stats->ContextSwitches = ContextSwitches;
+	Stats->TotalTasks = TaskCountValue;
+	Stats->RunningTasks = 0;
+	Stats->ReadyTasks = 0;
+	Stats->BlockedTasks = 0;
+	Stats->DeadTasks = 0;
+	Stats->SchedulerTicks = SchedulerTicks;
+	Stats->ContextSwitches = ContextSwitches;
 
-    for (Index = 0; Index < SchedMaxTasks; Index++) {
-        switch (Tasks[Index].State) {
-            case TaskRunning:
-                Stats->RunningTasks++;
-                break;
+	for (Index = 0; Index < SchedMaxTasks; Index++) {
+		switch (Tasks[Index].State) {
+		case TaskRunning:
+			Stats->RunningTasks++;
+			break;
 
-            case TaskReady:
-                Stats->ReadyTasks++;
-                break;
+		case TaskReady:
+			Stats->ReadyTasks++;
+			break;
 
-            case TaskBlocked:
-                Stats->BlockedTasks++;
-                break;
+		case TaskBlocked:
+			Stats->BlockedTasks++;
+			break;
 
-            case TaskDead:
-                Stats->DeadTasks++;
-                break;
-        }
-    }
+		case TaskDead:
+			Stats->DeadTasks++;
+			break;
+		}
+	}
 
-    SchedUnlockIrq(was_enabled);
+	SchedUnlockIrq(was_enabled);
 }
 
 void SchedLock(void) {
-    SchedulerLocked++;
+	SchedulerLocked++;
 }
 
 void SchedUnlock(void) {
-    if (SchedulerLocked > 0) {
-        SchedulerLocked--;
-    }
+	if (SchedulerLocked > 0) {
+		SchedulerLocked--;
+	}
 }

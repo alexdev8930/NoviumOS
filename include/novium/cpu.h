@@ -15,4 +15,4 @@ void cpu_enable_irqs(void);
 /* Check if CPU interrupts are currently enabled */
 bool cpu_irqs_enabled(void);
 
-#endif 
+#endif

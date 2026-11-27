@@ -1,9 +1,9 @@
+#include <novium/drivers/input.h>
+#include <novium/drivers/vt.h>
+#include <novium/sched.h>
 #include <novium/shell.h>
 #include <novium/stdio.h>
 #include <novium/string.h>
-#include <novium/drivers/vt.h>
-#include <novium/drivers/input.h>
-#include <novium/sched.h>
 #include <stdbool.h>
 
 #define SHELL_LINE_MAX 512

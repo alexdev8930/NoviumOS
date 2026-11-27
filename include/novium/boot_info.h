@@ -4,8 +4,8 @@
 #include "types.h"
 
 #define MULTIBOOT_BOOTLOADER_MAGIC 0x2BADB002u
-#define MULTIBOOT_INFO_MEMORY_MAP  (1u << 6)
-#define MULTIBOOT_INFO_MODS        (1u << 3)
+#define MULTIBOOT_INFO_MEMORY_MAP (1u << 6)
+#define MULTIBOOT_INFO_MODS (1u << 3)
 #define MULTIBOOT_INFO_FRAMEBUFFER (1u << 12)
 
 typedef enum {
@@ -42,12 +42,12 @@ struct multiboot_info {
 	u32 framebuffer_pitch;
 	u32 framebuffer_width;
 	u32 framebuffer_height;
-	u8  framebuffer_bpp;
-	u8  framebuffer_type;
+	u8 framebuffer_bpp;
+	u8 framebuffer_type;
 } __attribute__((packed));
 
 _Static_assert(__builtin_offsetof(struct multiboot_info, framebuffer_addr) == 88,
-               "multiboot_info framebuffer_addr offset mismatch");
+			   "multiboot_info framebuffer_addr offset mismatch");
 
 struct multiboot_mmap {
 	u32 size;
@@ -64,16 +64,16 @@ struct multiboot_module {
 };
 
 struct boot_info {
-	u32  multiboot_magic;
-	u32  multiboot_info_addr;
-	u32  memory_map_addr;
-	u32  memory_map_length;
-	u64  framebuffer_addr;
-	u32  framebuffer_pitch;
-	u32  framebuffer_width;
-	u32  framebuffer_height;
-	u8   framebuffer_bpp;
-	u8   framebuffer_type;
+	u32 multiboot_magic;
+	u32 multiboot_info_addr;
+	u32 memory_map_addr;
+	u32 memory_map_length;
+	u64 framebuffer_addr;
+	u32 framebuffer_pitch;
+	u32 framebuffer_width;
+	u32 framebuffer_height;
+	u8 framebuffer_bpp;
+	u8 framebuffer_type;
 	bool framebuffer_available;
 };
 

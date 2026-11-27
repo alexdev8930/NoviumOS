@@ -154,7 +154,7 @@ static void ipc_test_tasks(void) {
 
 	if (!ConsumerDone || !ProducerDone) {
 		kprintf("ERROR: ipc rendezvous did not finish, %u of %u messages.\n", IpcPortQueued(&TestPort),
-			IPC_TEST_MESSAGES);
+				IPC_TEST_MESSAGES);
 		return;
 	}
 
@@ -369,11 +369,9 @@ void kernel_main(struct boot_info *boot) {
 	} else {
 		kprintf("OK: vfs initialized.\n");
 
-		if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC &&
-		    boot->multiboot_info_addr != 0) {
+		if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC && boot->multiboot_info_addr != 0) {
 			struct multiboot_info *mbi = (struct multiboot_info *)boot->multiboot_info_addr;
-			if ((mbi->flags & MULTIBOOT_INFO_MODS) != 0 && mbi->modules_addr != 0 &&
-			    mbi->modules_count > 0) {
+			if ((mbi->flags & MULTIBOOT_INFO_MODS) != 0 && mbi->modules_addr != 0 && mbi->modules_count > 0) {
 				struct multiboot_module *mods = (struct multiboot_module *)mbi->modules_addr;
 				size_t mod_size = mods[0].mod_end - mods[0].mod_start;
 

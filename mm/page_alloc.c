@@ -101,7 +101,7 @@ void PageAllocInit(const struct boot_info *Boot) {
 			for (ModIndex = 0; ModIndex < Mbi->modules_count; ModIndex++) {
 				if (Mods[ModIndex].mod_end > Mods[ModIndex].mod_start) {
 					PageSetRange(Mods[ModIndex].mod_start, Mods[ModIndex].mod_end - Mods[ModIndex].mod_start,
-						PageStateUsed);
+								 PageStateUsed);
 				}
 			}
 		}

@@ -15,4 +15,3 @@ void PageFreePages(u32 Address, u32 count);
 u32 PageAllocFreeCount(void);
 
 #endif
-

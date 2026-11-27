@@ -3,10 +3,8 @@
 #define PAGE_TABLE_ENTRIES 1024u
 #define PAGE_DIRECTORY_FLAGS (PAGING_PRESENT | PAGING_WRITABLE)
 
-static u32 PageDirectory[PAGE_TABLE_ENTRIES]
-	__attribute__((aligned(PAGING_PAGE_SIZE)));
-static u32 PageTables[PAGE_TABLE_ENTRIES][PAGE_TABLE_ENTRIES]
-	__attribute__((aligned(PAGING_PAGE_SIZE)));
+static u32 PageDirectory[PAGE_TABLE_ENTRIES] __attribute__((aligned(PAGING_PAGE_SIZE)));
+static u32 PageTables[PAGE_TABLE_ENTRIES][PAGE_TABLE_ENTRIES] __attribute__((aligned(PAGING_PAGE_SIZE)));
 static bool PagingEnabled = false;
 
 static u32 PageDirectoryIndex(u32 Address) {
@@ -29,8 +27,7 @@ void PagingMap(u32 VirtualAddress, u32 PhysicalAddress, u32 Flags) {
 	TableIndex = PageTableIndex(VirtualAddress);
 
 	PageDirectory[DirectoryIndex] =
-		((u32)&PageTables[DirectoryIndex][0] & ~(PAGING_PAGE_SIZE - 1u)) |
-		PAGE_DIRECTORY_FLAGS;
+		((u32)&PageTables[DirectoryIndex][0] & ~(PAGING_PAGE_SIZE - 1u)) | PAGE_DIRECTORY_FLAGS;
 	PageTables[DirectoryIndex][TableIndex] = PhysicalAddress | Flags;
 
 	__asm__ __volatile__("invlpg (%0)" : : "r"(VirtualAddress) : "memory");
@@ -57,25 +54,22 @@ void PagingInit(void) {
 
 	for (DirectoryIndex = 0; DirectoryIndex < PAGE_TABLE_ENTRIES; DirectoryIndex++) {
 		PageDirectory[DirectoryIndex] =
-			((u32)&PageTables[DirectoryIndex][0] & ~(PAGING_PAGE_SIZE - 1u)) |
-			PAGE_DIRECTORY_FLAGS;
+			((u32)&PageTables[DirectoryIndex][0] & ~(PAGING_PAGE_SIZE - 1u)) | PAGE_DIRECTORY_FLAGS;
 
 		for (TableIndex = 0; TableIndex < PAGE_TABLE_ENTRIES; TableIndex++) {
 			Address = (DirectoryIndex << 22) | (TableIndex << 12);
-			PageTables[DirectoryIndex][TableIndex] =
-				Address | PAGE_DIRECTORY_FLAGS;
+			PageTables[DirectoryIndex][TableIndex] = Address | PAGE_DIRECTORY_FLAGS;
 		}
 	}
 
 	__asm__ __volatile__("movl %0, %%cr3" : : "r"((u32)PageDirectory) : "memory");
 
-	__asm__ __volatile__(
-		"movl %%cr0, %%eax\n"
-		"orl $0x80000000, %%eax\n"
-		"movl %%eax, %%cr0\n"
-		:
-		:
-		: "eax", "memory");
+	__asm__ __volatile__("movl %%cr0, %%eax\n"
+						 "orl $0x80000000, %%eax\n"
+						 "movl %%eax, %%cr0\n"
+						 :
+						 :
+						 : "eax", "memory");
 
 	PagingEnabled = true;
 }

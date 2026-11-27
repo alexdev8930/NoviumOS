@@ -24,9 +24,9 @@
 typedef enum {
 	IpcOk = 0,
 	IpcErrInvalid, /* null or out of range argument */
-	IpcErrFull,    /* a bounded queue or counter is already at its limit */
+	IpcErrFull,	   /* a bounded queue or counter is already at its limit */
 	IpcErrEmpty,   /* nothing to take */
-	IpcErrBusy,    /* a non blocking call could not proceed right now */
+	IpcErrBusy,	   /* a non blocking call could not proceed right now */
 	IpcErrOwner,   /* unlock from a task that does not hold the mutex */
 	IpcErrNoTask   /* the caller cannot sleep and the call would have to */
 } IpcStatus;
