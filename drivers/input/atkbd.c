@@ -55,6 +55,7 @@ static const char kbd_layout_shift[] = {
 
 static int shift_held = 0;
 static int caps_lock = 0;
+static int e0_pending = 0;
 
 static void keyboard_callback(struct registers *r) {
     (void)r;
@@ -98,6 +99,27 @@ int keyboard_getchar(void) {
             }
             continue;
         }
+
+        if (e0_pending) {
+            e0_pending = 0;
+            if (sc & 0x80) {
+                /* break code for an extended key, ignore */
+                continue;
+            }
+            switch (sc) {
+                case 0x4B: return 256; /* left arrow  */
+                case 0x4D: return 257; /* right arrow */
+                case 0x48: return 258; /* up arrow    */
+                case 0x50: return 259; /* down arrow  */
+                default:   continue;   /* other extended keys */
+            }
+        }
+
+        if (sc == 0xE0) {
+            e0_pending = 1;
+            continue;
+        }
+
         if (sc == 0x2A || sc == 0x36) {
             shift_held = 1;
             continue;
@@ -107,6 +129,12 @@ int keyboard_getchar(void) {
             caps_lock = !caps_lock;
             continue;
         }
+
+        /* arrow keys (with or without E0 prefix) */
+        if (sc == 0x4B) return 256; /* left  */
+        if (sc == 0x4D) return 257; /* right */
+        if (sc == 0x48) return 258; /* up    */
+        if (sc == 0x50) return 259; /* down  */
 
         const char *layout = shift_held ? kbd_layout_shift : kbd_layout;
         if (sc >= (int)sizeof(kbd_layout)) {

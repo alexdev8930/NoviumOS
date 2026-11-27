@@ -6,9 +6,12 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 ## Unreleased
 
 ### Added
+- `drivers/video/fbcon.c` and `drivers/video/font8x16.h` implemented a 24/32-bpp linear framebuffer console backend (`fbcon`) with a CP437 8x16 bitmap font, pixel-row scrolling, and a 500 ms blinking cursor task (`fbcon_init`, `fbcon_putc`, `fbcon_clear`, `fbcon_scroll`, `fbcon_set_cursor`, `fbcon_cursor_task`).
 - `drivers/video/vt.c`, `drivers/video/vgacon.c`, and `include/novium/drivers/vt.h` split the VGA console into a virtual terminal layer (`vt`) and a VGA text-mode `console_driver` backend (`vgacon`).
 
 ### Changed
+- `init/main.c` updated `kernel_main()` to initialize `fbcon_init(boot)` when a linear framebuffer is available and fall back to `vgacon_init()` otherwise.
+- `arch/x86_32/boot/multiboot.h`, `arch/x86_32/boot/multiboot.S`, `arch/x86_32/boot/grub/grub.cfg`, and `include/novium/boot_info.h` enabled `MULTIBOOT_VIDEO_MODE` (`0x00000007`), requested an `800x600x32` linear framebuffer, and aligned `struct multiboot_info` so `framebuffer_addr` sits at byte offset 88.
 - `.github/workflows/ci.yml` replaced `build.yml` with a parallel matrix workflow building and boot-testing both `x86_32-gcc` and `x86_32-clang` in QEMU.
 - `Makefile` enabled `-Werror` in `CFLAGS` and bumped version to `0.11-dev`.
 - `drivers/video/framebuffer.c` renamed to `drivers/video/fbcon.c`, `drivers/video/vga_console.c` renamed to `drivers/video/vgacon.c` and `kernel/shell_cmds.c` renamed to `kernel/cmds.c`.

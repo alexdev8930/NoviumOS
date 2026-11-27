@@ -2,12 +2,11 @@
 #include <novium/stdio.h>
 #include <novium/string.h>
 #include <novium/drivers/vt.h>
-#include <novium/drivers/vt.h>
 #include <novium/drivers/input.h>
 #include <novium/sched.h>
 #include <stdbool.h>
 
-#define SHELL_LINE_MAX 256
+#define SHELL_LINE_MAX 512
 #define SHELL_MAX_ARGS 16
 
 static int shell_parse(char *line, char **argv) {
@@ -44,15 +43,31 @@ void shell_task(void) {
 			continue;
 		}
 
-		console_line_echo = true;
-		console_putchar((char)key);
-		console_line_echo = false;
+		if (key >= 256) {
+			/* special keys (arrow keys, etc.) */
+			if (key == 256) { /* left arrow */
+				int pos = console_cursor();
+				if (pos > user_cmdline_start) {
+					console_set_cursor(pos - 1);
+				}
+			} else if (key == 257) { /* right arrow */
+				int pos = console_cursor();
+				if (pos < user_cmdline_start + (int)len) {
+					console_set_cursor(pos + 1);
+				}
+			}
+			continue;
+		}
 
 		if (key == '\b') {
 			if (len > 0) {
 				len--;
+				console_line_echo = true;
+				console_putchar('\b');
+				console_line_echo = false;
 			}
 		} else if (key == '\n') {
+			console_putchar('\n');
 			line[len] = '\0';
 			int argc = shell_parse(line, argv);
 			if (argc > 0) {
@@ -62,8 +77,9 @@ void shell_task(void) {
 			shell_prompt();
 		} else if (len < SHELL_LINE_MAX - 1) {
 			line[len++] = (char)key;
-		} else {
-			console_putchar('\a'); /* Beep to signal the line is full. */
+			console_line_echo = true;
+			console_putchar((char)key);
+			console_line_echo = false;
 		}
 	}
 }

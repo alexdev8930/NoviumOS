@@ -64,6 +64,7 @@ OBJS = \
     atkbd.o \
     i8253.o \
     vgacon.o \
+	fbcon.o \
 	vt.o \
     string.o \
     stdio.o \

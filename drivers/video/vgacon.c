@@ -38,30 +38,31 @@ _Static_assert(sizeof(VgaColor) == 1, "VgaColor grew past a byte, text cells wil
 
 static char *video_memory = (char *)0xB8000;
 
-static VgaColor rgb_to_vga(u32 rgb)
-{
-	if (rgb == 0xAA5500)
+static VgaColor rgb_to_vga(u32 rgb) {
+	if (rgb == 0xAA5500) {
 		return VgaBrown;
+	}
 
 	u8 r = (rgb >> 16) & 0xFF;
 	u8 g = (rgb >> 8) & 0xFF;
 	u8 b = rgb & 0xFF;
 
 	u8 idx = ((r >= 0x80) << 2) | ((g >= 0x80) << 1) | (b >= 0x80);
-	if (r > 0xAA || g > 0xAA || b > 0xAA)
+	if (r > 0xAA || g > 0xAA || b > 0xAA) {
 		idx |= 0x08;
+	}
 
 	return (VgaColor)idx;
 }
 
 /* the only place that moves the cursor, so it can never leave the text page */
-static void vgacon_set_cursor(int x, int y)
-{
+static void vgacon_set_cursor(int x, int y) {
 	int position = y * ConsoleWidth + x;
-	if (position < 0)
+	if (position < 0) {
 		position = 0;
-	else if (position >= ConsoleCells)
+	} else if (position >= ConsoleCells) {
 		position = ConsoleCells - 1;
+	}
 
 	/* select low cursor byte register (0x0F) on port 0x3D4, write value to 0x3D5 */
 	outb(0x3D4, 0x0F);
@@ -71,21 +72,20 @@ static void vgacon_set_cursor(int x, int y)
 	outb(0x3D5, (u8)((position >> 8) & 0xFF));
 }
 
-static void vgacon_putc(int x, int y, char c, u32 fg, u32 bg)
-{
+static void vgacon_putc(int x, int y, char c, u32 fg, u32 bg) {
 	int idx = (y * ConsoleWidth + x) * 2;
 	video_memory[idx] = c;
 	video_memory[idx + 1] = VGA_ATTRIBUTE(rgb_to_vga(bg), rgb_to_vga(fg));
 }
 
-static void vgacon_clear(u32 fg, u32 bg)
-{
+static void vgacon_clear(u32 fg, u32 bg) {
 	u8 attr = VGA_ATTRIBUTE(rgb_to_vga(bg), rgb_to_vga(fg));
 	u16 *cells = (u16 *)video_memory;
 	u16 blank = ((u16)attr << 8) | (u8)' ';
 
-	for (int i = 0; i < ConsoleCells; i++)
+	for (int i = 0; i < ConsoleCells; i++) {
 		cells[i] = blank;
+	}
 
 	/* GRUB may leave the VGA text cursor disabled. */
 	outb(0x3D4, 0x0A);
@@ -94,10 +94,10 @@ static void vgacon_clear(u32 fg, u32 bg)
 	outb(0x3D5, 0x0F);
 }
 
-static void vgacon_scroll(int lines, u32 fg, u32 bg)
-{
-	if (lines <= 0)
+static void vgacon_scroll(int lines, u32 fg, u32 bg) {
+	if (lines <= 0) {
 		return;
+	}
 	if (lines >= ConsoleHeight) {
 		vgacon_clear(fg, bg);
 		return;
@@ -115,22 +115,21 @@ static void vgacon_scroll(int lines, u32 fg, u32 bg)
 	}
 }
 
-static void vgacon_hw_init(void)
-{
+static void vgacon_hw_init(void) {
 	vgacon_clear(0xAAAAAA, 0x000000);
 }
 
 static struct console_driver vgacon_driver = {
-	.cols       = ConsoleWidth,
-	.rows       = ConsoleHeight,
-	.init       = vgacon_hw_init,
-	.putc       = vgacon_putc,
-	.clear      = vgacon_clear,
-	.scroll     = vgacon_scroll,
-	.set_cursor = vgacon_set_cursor,
+    .cols = ConsoleWidth,
+    .rows = ConsoleHeight,
+    .init = vgacon_hw_init,
+    .putc = vgacon_putc,
+    .clear = vgacon_clear,
+    .scroll = vgacon_scroll,
+    .set_cursor = vgacon_set_cursor,
 };
 
-void vgacon_init(void)
-{
+bool vgacon_init(void) {
 	console_init(&vgacon_driver);
+	return true;
 }

@@ -1,18 +1,19 @@
 #include <novium/boot_info.h>
 #include <novium/cpu.h>
+#include <novium/drivers/vt.h>
 #include <novium/heap.h>
 #include <novium/init.h>
-#include <novium/vfs.h>
 #include <novium/initrd.h>
 #include <novium/ipc.h>
 #include <novium/message.h>
 #include <novium/page_alloc.h>
 #include <novium/paging.h>
 #include <novium/sched.h>
+#include <novium/shell.h>
 #include <novium/stdio.h>
 #include <novium/sync.h>
 #include <novium/timer.h>
-#include <novium/shell.h>
+#include <novium/vfs.h>
 
 #define TASK_STACK_SIZE 4096
 static u8 ShellStack[TASK_STACK_SIZE] __attribute__((aligned(16)));
@@ -258,8 +259,14 @@ static void ipc_test_tasks(void) {
 }
 
 void kernel_main(struct boot_info *boot) {
+	if (boot->framebuffer_available) {
+		fbcon_init(boot);
+	} else {
+		vgacon_init();
+	}
+
 	shell_print_motd();
-	
+
 	if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC) {
 		kprintf("OK: Multiboot info valid.\n");
 		if (boot->memory_map_length != 0) {
@@ -362,9 +369,11 @@ void kernel_main(struct boot_info *boot) {
 	} else {
 		kprintf("OK: vfs initialized.\n");
 
-		if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC && boot->multiboot_info_addr != 0) {
+		if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC &&
+		    boot->multiboot_info_addr != 0) {
 			struct multiboot_info *mbi = (struct multiboot_info *)boot->multiboot_info_addr;
-			if ((mbi->flags & MULTIBOOT_INFO_MODS) != 0 && mbi->modules_addr != 0 && mbi->modules_count > 0) {
+			if ((mbi->flags & MULTIBOOT_INFO_MODS) != 0 && mbi->modules_addr != 0 &&
+			    mbi->modules_count > 0) {
 				struct multiboot_module *mods = (struct multiboot_module *)mbi->modules_addr;
 				size_t mod_size = mods[0].mod_end - mods[0].mod_start;
 

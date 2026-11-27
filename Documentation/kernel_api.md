@@ -88,18 +88,27 @@ void console_prompt(void);
 int  console_cursor(void);
 void console_set_cursor(int pos);
 
-void vgacon_init(void);
+bool vgacon_init(void);
+bool fbcon_init(struct boot_info *boot);
 
 int kprintf(const char *format, ...); /* equivalent to printf() in libc */
 ```
 
 The virtual terminal layer (`vt`) owns cursor state, line echo, and control
 characters, and dispatches character cell draws to the active `console_driver`
-backend. `vgacon_init()` registers the VGA text-mode backend (`vgacon`), which
-uses VGA text memory at `0xB8000` (`0xB8000`-`0xB8F9F`), owns the visible 80x25
-page, and updates the hardware cursor through CRTC ports `0x3D4` and `0x3D5`.
-`console_register()` binds a backend without running its `init` hook, while
-`console_init()` binds it, resets the cursor, and calls `drv->init()`.
+backend. `fbcon_init()` registers the linear framebuffer backend (`fbcon`)
+when `boot` provides an available 24-bpp or 32-bpp graphics framebuffer
+(`800x600x32` by default via Multiboot), computing `cols` and `rows` from the
+pixel dimensions divided by the `8x16` glyph size (`font8x16.h`), plotting
+cells directly using `fb_pitch` byte strides, scrolling pixel rows with
+`memmove()`, and blinking a 2-pixel underline cursor every `500` ms from a
+background task once the scheduler is active. If no compatible framebuffer is
+present, `fbcon_init()` returns `false` and `kernel_main()` falls back to
+`vgacon_init()`, which uses VGA text memory at `0xB8000` (`0xB8000`-`0xB8F9F`),
+owns the visible 80x25 page, and updates the hardware cursor through CRTC
+ports `0x3D4` and `0x3D5`. `console_register()` binds a backend without running
+its `init` hook, while `console_init()` binds it, resets the cursor, and calls
+`drv->init()`.
 
 `console_putchar()` handles newlines, tabs, and backspace, and scrolls via
 `drv->scroll` (or falls back to `drv->clear`) when output reaches the bottom

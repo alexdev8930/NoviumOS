@@ -30,13 +30,14 @@ GRUB finds and loads the kernel, checks the Multiboot header, and hands control 
 - [x] Interrupt handling (IDT, PIC, IRQs)
 - [x] Working QWERTY keyboard drivers
 - [x] Added low-level boot headers
-- [x] Printf
+- [x] kprintf
 - [x] CPU scheduler
 - [x] Switch to GRUB bootloader
 - [x] Added a basic Memory Manager (PMM/VMM)
 - [x] Basic multi-page and sub-page heap allocator
 - [x] IPC: message ports, semaphores, and mutexes
 - [x] VFS + Initrd and a basic shell with shell commands
+- [x] Simple framebuffer console backend
 
 See [CHANGELOG.md](CHANGELOG.md) for official release history  
 See [Documentation/todo.md](Documentation/todo.md) for the detailed task list and future plans.  

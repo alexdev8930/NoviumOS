@@ -442,6 +442,10 @@ u32 SchedWakeExpired(u32 NowTick) {
         TaskItem = Next;
     }
 
+    if (Woken > 0) {
+        PreemptPending = true;
+    }
+
     SchedUnlockIrq(was_enabled);
     return Woken;
 }

@@ -37,9 +37,9 @@ out/
 *.orig
 .gitignore~
 
-# ides and tooling configs
+# IDEs and tooling configs
 .vscode/
 .idea/
 .DS_Store
 compile_commands.json
-
+notes.txt

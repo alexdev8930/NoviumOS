@@ -1,6 +1,7 @@
 #ifndef NOVIUM_VT_H
 #define NOVIUM_VT_H
 
+#include <novium/boot_info.h>
 #include <novium/types.h>
 
 /* Display backend hooks (vgacon, fbcon, etc). vt.c handles cursor
@@ -25,9 +26,10 @@ void console_putchar(char c);
 void console_write(const char *str);
 void console_clear(void);
 void console_prompt(void);
-int  console_cursor(void);
+int console_cursor(void);
 void console_set_cursor(int pos);
 
-void vgacon_init(void);
+bool vgacon_init(void);
+bool fbcon_init(struct boot_info *boot);
 
 #endif
