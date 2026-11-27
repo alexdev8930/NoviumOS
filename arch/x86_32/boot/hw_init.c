@@ -16,50 +16,53 @@ void hw_init(u32 multiboot_magic, u32 multiboot_info_addr) {
 
 	irq_enable();
 
-	struct boot_info boot;
+	struct boot_info boot = {0};
 	boot.multiboot_magic = multiboot_magic;
 	boot.multiboot_info_addr = multiboot_info_addr;
-	boot.framebuffer_available = false;
 
-	/* verify we actually booted by GRUB and the info pointer exists */
-	if (multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC && multiboot_info_addr != 0) {
-		struct multiboot_info *mbi = (struct multiboot_info *)multiboot_info_addr;
+	/* Multiboot 2: skip 8-byte info header, then walk 8-byte aligned tags */
+	if (multiboot_magic == MULTIBOOT2_BOOTLOADER_MAGIC && multiboot_info_addr != 0) {
+		struct multiboot2_tag *tag = (struct multiboot2_tag *)(multiboot_info_addr + 8);
 
-		/* bit 6 of flags specifies if a valid BIOS memory map array exists */
-		if (mbi->flags & MULTIBOOT_INFO_MEMORY_MAP) {
-			boot.memory_map_addr = mbi->mmap_addr;
-			boot.memory_map_length = mbi->mmap_length;
-		} else {
-			boot.memory_map_addr = 0;
-			boot.memory_map_length = 0;
+		while (tag->type != MULTIBOOT2_TAG_TYPE_END) {
+			u32 tag_size = tag->size;
+			if (tag_size < 8) {
+				break; /* malformed tag */
+			}
+
+			switch (tag->type) {
+			case MULTIBOOT2_TAG_TYPE_MEMORY_MAP: {
+				struct multiboot2_tag_mmap *mmap_tag = (struct multiboot2_tag_mmap *)tag;
+				boot.memory_map_addr = (u32)mmap_tag->entries;
+				boot.memory_map_length = tag_size - sizeof(struct multiboot2_tag_mmap);
+				break;
+			}
+
+			case MULTIBOOT2_TAG_TYPE_FRAMEBUFFER: {
+				struct multiboot2_tag_framebuffer *fb = (struct multiboot2_tag_framebuffer *)tag;
+				if (fb->framebuffer_type == 1) { /* linear RGB */
+					boot.framebuffer_addr = fb->framebuffer_addr;
+					boot.framebuffer_pitch = fb->framebuffer_pitch;
+					boot.framebuffer_width = fb->framebuffer_width;
+					boot.framebuffer_height = fb->framebuffer_height;
+					boot.framebuffer_bpp = fb->framebuffer_bpp;
+					boot.framebuffer_type = fb->framebuffer_type;
+					boot.framebuffer_available = true;
+				}
+				break;
+			}
+
+			case MULTIBOOT2_TAG_TYPE_MODULE: {
+				struct multiboot2_tag_module *mod = (struct multiboot2_tag_module *)tag;
+				boot.module_addr = mod->mod_start;
+				boot.module_length = mod->mod_end - mod->mod_start;
+				break;
+			}
+			}
+
+			/* tags are 8-byte aligned */
+			tag = (struct multiboot2_tag *)(((u32)tag + tag_size + 7) & ~7u);
 		}
-
-		/* bit 12 of flags specifies framebuffer info is available */
-		if (mbi->flags & MULTIBOOT_INFO_FRAMEBUFFER) {
-			boot.framebuffer_addr = mbi->framebuffer_addr;
-			boot.framebuffer_pitch = mbi->framebuffer_pitch;
-			boot.framebuffer_width = mbi->framebuffer_width;
-			boot.framebuffer_height = mbi->framebuffer_height;
-			boot.framebuffer_bpp = mbi->framebuffer_bpp;
-			boot.framebuffer_type = mbi->framebuffer_type;
-			boot.framebuffer_available = true;
-		} else {
-			boot.framebuffer_addr = 0;
-			boot.framebuffer_pitch = 0;
-			boot.framebuffer_width = 0;
-			boot.framebuffer_height = 0;
-			boot.framebuffer_bpp = 0;
-			boot.framebuffer_type = 0;
-		}
-	} else {
-		boot.memory_map_addr = 0;
-		boot.memory_map_length = 0;
-		boot.framebuffer_addr = 0;
-		boot.framebuffer_pitch = 0;
-		boot.framebuffer_width = 0;
-		boot.framebuffer_height = 0;
-		boot.framebuffer_bpp = 0;
-		boot.framebuffer_type = 0;
 	}
 
 	kernel_main(&boot);

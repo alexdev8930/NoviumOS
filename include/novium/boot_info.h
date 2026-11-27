@@ -8,6 +8,54 @@
 #define MULTIBOOT_INFO_MODS (1u << 3)
 #define MULTIBOOT_INFO_FRAMEBUFFER (1u << 12)
 
+/* Multiboot 2 */
+#define MULTIBOOT2_BOOTLOADER_MAGIC 0x36D76289u
+
+#define MULTIBOOT2_TAG_TYPE_END 0
+#define MULTIBOOT2_TAG_TYPE_MEMORY_MAP 6
+#define MULTIBOOT2_TAG_TYPE_FRAMEBUFFER 8
+#define MULTIBOOT2_TAG_TYPE_MODULE 3
+
+struct multiboot2_tag {
+	u32 type;
+	u32 size;
+} __attribute__((packed));
+
+struct multiboot2_tag_framebuffer {
+	u32 type;
+	u32 size;
+	u64 framebuffer_addr;
+	u32 framebuffer_pitch;
+	u32 framebuffer_width;
+	u32 framebuffer_height;
+	u8 framebuffer_bpp;
+	u8 framebuffer_type;
+	u16 reserved;
+} __attribute__((packed));
+
+struct multiboot2_mmap_entry {
+	u64 base_addr;
+	u64 length;
+	u32 type;
+	u32 reserved;
+} __attribute__((packed));
+
+struct multiboot2_tag_mmap {
+	u32 type;
+	u32 size;
+	u32 entry_size;
+	u32 entry_version;
+	struct multiboot2_mmap_entry entries[];
+};
+
+struct multiboot2_tag_module {
+	u32 type;
+	u32 size;
+	u32 mod_start;
+	u32 mod_end;
+	char string[];
+} __attribute__((packed));
+
 typedef enum {
 	MultibootMemoryAvailable = 1,
 	MultibootMemoryReserved = 2,
@@ -75,6 +123,8 @@ struct boot_info {
 	u8 framebuffer_bpp;
 	u8 framebuffer_type;
 	bool framebuffer_available;
+	u32 module_addr;
+	u32 module_length;
 };
 
 #endif

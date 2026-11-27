@@ -259,15 +259,23 @@ static void ipc_test_tasks(void) {
 }
 
 void kernel_main(struct boot_info *boot) {
-	if (boot->framebuffer_available) {
-		fbcon_init(boot);
+	bool using_fb = false;
+	if (boot != NULL && boot->framebuffer_available && fbcon_init(boot)) {
+		using_fb = true;
 	} else {
 		vgacon_init();
 	}
 
 	shell_print_motd();
 
-	if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC) {
+	if (using_fb) {
+		kprintf("OK: Framebuffer console initialized (%ux%ux%u).\n", boot->framebuffer_width, boot->framebuffer_height,
+				boot->framebuffer_bpp);
+	} else {
+		kprintf("OK: VGA text console initialized (80x25).\n");
+	}
+
+	if (boot != NULL && boot->multiboot_magic == MULTIBOOT2_BOOTLOADER_MAGIC) {
 		kprintf("OK: Multiboot info valid.\n");
 		if (boot->memory_map_length != 0) {
 			kprintf("OK: Memory map available.\n");
@@ -369,17 +377,11 @@ void kernel_main(struct boot_info *boot) {
 	} else {
 		kprintf("OK: vfs initialized.\n");
 
-		if (boot != NULL && boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC && boot->multiboot_info_addr != 0) {
-			struct multiboot_info *mbi = (struct multiboot_info *)boot->multiboot_info_addr;
-			if ((mbi->flags & MULTIBOOT_INFO_MODS) != 0 && mbi->modules_addr != 0 && mbi->modules_count > 0) {
-				struct multiboot_module *mods = (struct multiboot_module *)mbi->modules_addr;
-				size_t mod_size = mods[0].mod_end - mods[0].mod_start;
-
-				if (initrd_init("/", (const void *)mods[0].mod_start, mod_size) == 0) {
-					kprintf("OK: initrd mounted (%u bytes).\n", (u32)mod_size);
-				} else {
-					kprintf("ERROR: initrd mount failed.\n");
-				}
+		if (boot != NULL && boot->module_addr != 0 && boot->module_length > 0) {
+			if (initrd_init("/", (const void *)boot->module_addr, (size_t)boot->module_length) == 0) {
+				kprintf("OK: initrd mounted (%u bytes).\n", boot->module_length);
+			} else {
+				kprintf("ERROR: initrd mount failed.\n");
 			}
 		}
 	}

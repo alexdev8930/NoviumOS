@@ -98,7 +98,7 @@ The virtual terminal layer (`vt`) owns cursor state, line echo, and control
 characters, and dispatches character cell draws to the active `console_driver`
 backend. `fbcon_init()` registers the linear framebuffer backend (`fbcon`)
 when `boot` provides an available 24-bpp or 32-bpp graphics framebuffer
-(`800x600x32` by default via Multiboot), computing `cols` and `rows` from the
+(`800x600x32` by default via Multiboot 2), computing `cols` and `rows` from the
 pixel dimensions divided by the `8x16` glyph size (`font8x16.h`), plotting
 cells directly using `fb_pitch` byte strides, scrolling pixel rows with
 `memmove()`, and blinking a 2-pixel underline cursor every `500` ms from a
@@ -281,9 +281,10 @@ void PageFreePages(u32 address, u32 count);
 u32  PageAllocFreeCount(void);
 ```
 
-`PageAllocInit()` clears the bitmap, marks valid Multiboot type-1 memory-map
-ranges free, and reserves the first MiB and the linked kernel image. If boot
-information has no memory map, initialization leaves the allocator empty.
+`PageAllocInit()` clears the bitmap, marks valid Multiboot 2 type-1 memory-map
+ranges free, and reserves the first MiB, the linked kernel image, the Multiboot 2
+info structure, and the `initrd.img` module payload. If boot information has no
+memory map, initialization leaves the allocator empty.
 `PageAlloc()` returns the first free 4 KiB physical page, or `0` if there are no
 free pages. `PageAllocPages()` searches from page zero for the requested number
 of consecutive free pages, marks the complete run as used, and returns the
@@ -423,7 +424,7 @@ typedef struct tar_header {
 int initrd_init(const char *mountpoint, const void *start, size_t size);
 ```
 
-Defined in `include/novium/initrd.h` and `fs/initrd.c`, the initial ramdisk driver backs a VFS mountpoint with a read-only POSIX `tar` archive loaded into memory as a GRUB Multiboot module. During early boot, `PageAllocInit()` marks the module descriptor array and each module's `[mod_start, mod_end)` page range as used before `HeapInit()` runs so the allocator never reclaims the archive's pages.
+Defined in `include/novium/initrd.h` and `fs/initrd.c`, the initial ramdisk driver backs a VFS mountpoint with a read-only POSIX `tar` archive loaded into memory as a GRUB Multiboot 2 module. During early boot, `PageAllocInit()` marks the Multiboot 2 info block and the module's `[module_addr, module_addr + module_length)` page range as used before `HeapInit()` runs so the allocator never reclaims the archive's pages.
 
 `initrd_init()` records the archive's base address and byte length and registers a `vfs_ops_t` table on the target mountpoint via `vfs_mount()`. File lookups walk 512-byte `tar_header_t` blocks sequentially, parsing each entry's octal ASCII `size` field and rounding payloads up to 512-byte boundaries until hitting a zeroed end-of-archive header (`name[0] == '\0'`).
 
@@ -569,7 +570,7 @@ void shell_exec(int argc, char **argv);
 void shell_task(void);
 ```
 
-The interactive shell lives in `kernel/shell.c` and `kernel/shell_cmds.c` and
+The interactive shell lives in `kernel/shell.c` and `kernel/cmds.c` and
 runs as a kernel task. `shell_print_motd()` clears the VGA console and prints
 `/etc/motd`, falling back to a default banner if the file cannot be opened.
 `shell_prompt()` loads `/etc/hostname` on its first call, writes
@@ -586,7 +587,5 @@ shell's working directory before calling into the VFS.
 
 ## Planned interfaces
 
-These headers are still placeholders, so they are not usable kernel APIs yet:
-
-- `include/novium/drivers/framebuffer.h`
+None currently; all declared headers in `include/novium/` are implemented.
 

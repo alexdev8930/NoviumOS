@@ -6,6 +6,7 @@ Versioning is similar to [semver](https://semver.org) but is more flexible and s
 ## Unreleased
 
 ### Added
+- `arch/x86_32/boot/multiboot.h`, `arch/x86_32/boot/multiboot.S`, `arch/x86_32/boot/hw_init.c`, `arch/x86_32/boot/grub/grub.cfg`, `include/novium/boot_info.h`, and `mm/page_alloc.c` migrated the boot protocol from Multiboot 1 to Multiboot 2 (`0xE85250D6`), parsing 8-byte aligned tags for the memory map, `initrd.img` module, and `800x600x32` linear framebuffer.
 - `drivers/video/fbcon.c` and `drivers/video/font8x16.h` implemented a 24/32-bpp linear framebuffer console backend (`fbcon`) with a CP437 8x16 bitmap font, pixel-row scrolling, and a 500 ms blinking cursor task (`fbcon_init`, `fbcon_putc`, `fbcon_clear`, `fbcon_scroll`, `fbcon_set_cursor`, `fbcon_cursor_task`).
 - `drivers/video/vt.c`, `drivers/video/vgacon.c`, and `include/novium/drivers/vt.h` split the VGA console into a virtual terminal layer (`vt`) and a VGA text-mode `console_driver` backend (`vgacon`).
 

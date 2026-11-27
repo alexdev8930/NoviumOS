@@ -59,8 +59,7 @@ static void PageSetRange(u64 Base, u64 Length, PageState State) {
 void PageAllocInit(const struct boot_info *Boot) {
 	u32 Index;
 	u32 Offset;
-	u32 EntrySize;
-	struct multiboot_mmap *Entry;
+	struct multiboot2_mmap_entry *Entry;
 
 	for (Index = 0; Index < BITMAP_WORDS; Index++) {
 		PageBitmap[Index] = 0;
@@ -72,39 +71,29 @@ void PageAllocInit(const struct boot_info *Boot) {
 	}
 
 	Offset = 0;
-	while (Offset + sizeof(u32) <= Boot->memory_map_length) {
-		Entry = (struct multiboot_mmap *)(Boot->memory_map_addr + Offset);
-		EntrySize = Entry->size;
-
-		if (EntrySize < 20u || EntrySize > Boot->memory_map_length - Offset - sizeof(u32)) {
-			break;
-		}
+	while (Offset + sizeof(struct multiboot2_mmap_entry) <= Boot->memory_map_length) {
+		Entry = (struct multiboot2_mmap_entry *)(Boot->memory_map_addr + Offset);
 
 		if (Entry->type == MultibootMemoryAvailable) {
 			PageSetRange(Entry->base_addr, Entry->length, PageStateAvailable);
 		}
 
-		Offset += sizeof(u32) + EntrySize;
+		Offset += sizeof(struct multiboot2_mmap_entry);
 	}
 
 	PageSetRange(0, 0x100000, PageStateUsed);
 	PageSetRange((u32)&_kernel_start, (u32)&_kernel_end - (u32)&_kernel_start, PageStateUsed);
 
-	if (Boot->multiboot_magic == MULTIBOOT_BOOTLOADER_MAGIC && Boot->multiboot_info_addr != 0) {
-		struct multiboot_info *Mbi = (struct multiboot_info *)Boot->multiboot_info_addr;
-
-		if ((Mbi->flags & MULTIBOOT_INFO_MODS) != 0 && Mbi->modules_addr != 0 && Mbi->modules_count > 0) {
-			struct multiboot_module *Mods = (struct multiboot_module *)Mbi->modules_addr;
-			u32 ModIndex;
-
-			PageSetRange((u32)Mods, Mbi->modules_count * sizeof(struct multiboot_module), PageStateUsed);
-			for (ModIndex = 0; ModIndex < Mbi->modules_count; ModIndex++) {
-				if (Mods[ModIndex].mod_end > Mods[ModIndex].mod_start) {
-					PageSetRange(Mods[ModIndex].mod_start, Mods[ModIndex].mod_end - Mods[ModIndex].mod_start,
-								 PageStateUsed);
-				}
-			}
+	/* Protect the Multiboot 2 info block and initrd module payload */
+	if (Boot->multiboot_magic == MULTIBOOT2_BOOTLOADER_MAGIC && Boot->multiboot_info_addr != 0) {
+		u32 MbiTotalSize = *(u32 *)Boot->multiboot_info_addr;
+		if (MbiTotalSize > 0) {
+			PageSetRange(Boot->multiboot_info_addr, MbiTotalSize, PageStateUsed);
 		}
+	}
+
+	if (Boot->module_addr != 0 && Boot->module_length > 0) {
+		PageSetRange(Boot->module_addr, Boot->module_length, PageStateUsed);
 	}
 }
 
